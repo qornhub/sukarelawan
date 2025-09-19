@@ -1,0 +1,438 @@
+:root {
+    /* Primary palette */
+    --primary-color: #004AAD;
+    --primary-hover: #003780;
+    --primary-light: #6c8aec;
+
+    /* Text & backgrounds */
+    --text-color: #333;
+    --light-gray: #f9f9f9;
+    --bg-gradient-start: #f5f7fa;
+    --bg-gradient-end: #e4edf5;
+
+    /* Feedback */
+    --success-color: #1cc88a;
+    --error-color: #dc3545;
+    --error-bg: #f8d7da;
+
+    /* Layout tokens */
+    --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    --card-shadow: 0 0.15rem 1.75rem rgba(58, 59, 69, 0.1);
+    --border-radius: 10px;
+    --rounded-sm: 8px;
+}
+
+/* Global */
+body {
+    background-color: var(--light-gray);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: var(--text-color);
+    background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* -------------------------
+   PROFILE - COVER & AVATAR
+   ------------------------- */
+.content-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+
+
+.cover-container {
+    position: relative;
+    height: 430px;             /* banner area height */
+    margin: 0 0 70px;       /* spacing around the hero */
+    border-bottom-left-radius: 12px;
+border-bottom-right-radius: 12px;
+    box-shadow: var(--card-shadow);
+    background: #fff;          /* white backdrop behind the banner */
+    overflow: visible;
+}
+
+/* Avatar that overlaps the cover */
+
+
+
+.profile-avatar {
+    position: absolute;
+    bottom: 1px;             /* overlap amount */
+    left: 32px;                /* keep left padding */
+    width: 160px;
+    height: 160px;
+    border: 6px solid #fff;    /* white ring so avatar sits on white */
+    box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+    z-index: 15;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #fff;
+}
+.cover-photo {
+    height: 320px;
+    width: 100%;
+    background-size: cover;
+    background-position: center;
+    
+    display: block;
+}
+
+
+/* Floating edit button on cover */
+.edit-profile-btn {
+    position: absolute;
+    
+    right: 50px;
+    top: calc(85% + 10px - 24px);
+    z-index: 30;
+    background: #004aad;
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 8px;
+    box-shadow: 0 6px 18px rgba(30, 40, 60, 0.12);
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid rgba(0,0,0,0.06);
+    transition: transform .18s ease, box-shadow .18s ease;
+}
+.edit-profile-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(30,40,60,0.14);
+}
+
+/* -------------------------
+   PROFILE HEADER & BADGE
+   ------------------------- */
+
+.cover-container .profile-header {
+    position: absolute;
+    left: 206px;
+    top: calc(80% + 10px - 24px);
+     bottom: -10px;
+    display: flex;
+    flex-direction: column;    /* stack vertically */
+    align-items: flex-start;   /* left-align text */
+    gap: 4px;                  /* small gap between name & badge */
+    z-index: 20;
+     margin-bottom: 20px
+}
+.cover-container .profile-header .profile-name {
+  font-size: 2.4rem !important;
+  font-weight: 700 !important;
+  color: var(--primary-color) !important;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.15) !important;
+  line-height: 1.1 !important;
+  margin-bottom: 4px !important;
+}
+
+
+
+/* role wrapper - small spacing from name */
+.profile-role {
+    margin-top: 6px;
+}
+.profile-subtitle {
+    font-size: 0.95rem;
+    color: #6c757d;
+    margin-top: 4px;
+}
+
+/* badge kept same look but slightly reduced size to sit well beside avatar */
+.profile-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    font-size: 0.85rem;
+    border-radius: 16px;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+    color: #fff;
+    font-weight: 600;
+}
+
+/* -------------------------
+   CARDS & INFO LIST
+   ------------------------- */
+.card {
+    border: none;
+    border-radius: var(--border-radius);
+    box-shadow: var(--card-shadow);
+    margin-bottom: 20px;
+    transition: transform .25s ease, box-shadow .25s ease;
+    overflow: hidden;
+    background: #fff;
+}
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 2rem rgba(58,59,69,0.12);
+}
+
+.card-header {
+    background-color: #fff;
+    border-bottom: 1px solid #eaecf4;
+    font-weight: 700;
+    color: var(--text-color);
+    padding: 15px 20px;
+    font-size: 1.05rem;
+}
+
+.info-item {
+    display: flex;
+    padding: 12px 15px;
+    border-bottom: 1px solid #f0f2f5;
+    align-items: center;
+}
+.info-item:last-child { border-bottom: none; }
+
+.info-icon {
+    width: 36px;
+    height: 36px;
+    background-color: rgba(78,115,223,0.08);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    color: var(--primary-color);
+    flex-shrink: 0;
+}
+
+/* -------------------------
+   NAV TAB STYLES
+   ------------------------- */
+/* Make tab content cover up to nav */
+
+
+   .nav-tabs {
+    border-bottom: none;
+   
+}
+.nav-tabs .nav-link {
+    border: none;
+    color: #6c757d;
+    font-weight: 600;
+    padding: 12px 20px;
+    position: relative;
+    transition: all .2s;
+}
+.nav-tabs .nav-link:hover { color: var(--primary-color); }
+.nav-tabs .nav-link.active {
+    color: var(--primary-color);
+    background: transparent;
+}
+.nav-tabs .nav-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--primary-color);
+}
+
+/* -------------------------
+   EVENT CARDS & BADGES
+   ------------------------- */
+.event-card {
+    border-left: 4px solid var(--primary-color);
+    transition: all .2s;
+    margin-bottom: 15px;
+}
+.event-card:hover { border-left-color: var(--success-color); }
+
+.event-date {
+    background: rgba(78,115,223,0.08);
+    color: var(--primary-color);
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+/* -------------------------
+   POINTS & REWARDS
+   ------------------------- */
+.points-display {
+    font-size: 3.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    text-align: center;
+    margin: 15px 0;
+    line-height: 1;
+}
+
+.reward-item { display: flex; align-items: center; padding: 12px 0; }
+
+.reward-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, var(--success-color), #17a673);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    color: white;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+/* -------------------------
+   STATS CARDS
+   ------------------------- */
+.section-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-color);
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #eaecf4;
+}
+
+.tab-content { padding-top: 20px; }
+
+.progress { height: 8px; border-radius: 4px; }
+
+.stat-card {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+    color: white;
+    border-radius: var(--border-radius);
+    padding: 15px;
+    text-align: center;
+    margin-bottom: 15px;
+}
+.stat-number { font-size: 1.8rem; font-weight: 700; margin-bottom: 5px; }
+.stat-label { opacity: 0.9; font-size: 0.85rem; }
+
+/* -------------------------
+   FORM (from your login CSS) - consistent tokens
+   ------------------------- */
+.form-section {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    padding: 2.5rem;
+    max-width: 500px;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+}
+.form-section::before {
+    content: '';
+    position:absolute;
+    top:0;left:0;right:0;height:5px;
+    background: linear-gradient(90deg,#3498db,#2ecc71,#f39c12);
+}
+
+.form-label { font-weight:600; color:#495057; margin-bottom:0.5rem; }
+
+.form-control {
+    padding: 0.75rem 1rem;
+    padding-left: 2.5rem;
+    border: 2px solid #e0e0e0;
+    border-radius: var(--rounded-sm);
+    transition: all .25s;
+}
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(44,62,80,0.12);
+}
+.form-control.error {
+    border-color: var(--error-color);
+    background-color: #fff9fa;
+}
+.input-icon { position: relative; }
+.input-icon i {
+    position:absolute; top:50%; left:1rem; transform:translateY(-50%);
+    color:#adb5bd; transition:color .2s;
+}
+.input-icon.error i { color: var(--error-color); }
+
+.btn-primary {
+    background-color: var(--primary-color);
+    border: none;
+    font-weight: 600;
+    border-radius: var(--rounded-sm);
+    padding: 0.75rem 1rem;
+    transition: all .18s;
+    position: relative;
+    overflow: hidden;
+}
+.btn-primary:hover {
+    background-color: var(--primary-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(44,62,80,0.18);
+}
+
+#form-errors {
+    font-size: .95rem;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    border-radius: 8px;
+    background-color: var(--error-bg);
+    border: 1px solid #f5c2c7;
+    color: var(--error-color);
+}
+#form-errors ul { margin-bottom:0; padding-left:1.5rem; }
+#form-errors li { margin-bottom:.25rem; }
+#form-errors li:last-child { margin-bottom:0; }
+
+/* -------------------------
+   Utilities & small helpers
+   ------------------------- */
+.bg-right {
+    background: linear-gradient(45deg, rgba(44,62,80,0.8), rgba(52,152,219,0.8)), url('https://images.unsplash.com/photo-1543269865-cbf427effbad?auto=format&fit=crop&w=1200&q=80') no-repeat center/cover;
+    background-size: cover;
+    display:flex; flex-direction:column; justify-content:center;
+    padding:2rem; color:#fff;
+}
+.bg-right-content { max-width:500px; margin:0 auto; text-align:center; }
+.header-logo { display:flex; align-items:center; gap:10px; margin-bottom:1.5rem; }
+.header-logo i { font-size:2rem; color:var(--primary-color); }
+.header-logo h1 { font-size:1.8rem; font-weight:700; margin:0; color:var(--primary-color); }
+
+/* -------------------------
+   Responsive
+   ------------------------- */
+@media (max-width: 992px) {
+    .cover-container { height: 220px; margin-bottom: 70px; }
+    .profile-avatar { width: 140px; height: 140px; bottom: -70px; left: 20px; }
+    .profile-header { padding-left: 180px; }
+    .bg-right { display: none; }
+}
+
+@media (max-width: 768px) {
+    .cover-container { margin-bottom: 60px; }
+    .profile-avatar {
+        position: static;
+        margin: -70px auto 15px auto;
+        display: block;
+        width: 120px;
+        height: 120px;
+    }
+    .profile-header {
+        display: block;
+        text-align: center;
+        padding-left: 0;
+        margin-top: -20px; /* less lift for mobile */
+    }
+     .profile-text {
+        margin-top: 8px;
+    }
+
+    .profile-name {
+        font-size: 1.4rem;
+    }
+
+    .profile-badge {
+        margin: 0 auto;
+    }
+    .form-section { padding: 1.5rem; }
+
+
+}

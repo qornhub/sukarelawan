@@ -1,0 +1,10 @@
+/* small polish for manage tasks */
+.task-manage-card .table thead { background: #004aad; color: #fff; }
+.task-manage-card .assigned-users .badge { display: inline-flex; align-items:center; gap: .4rem; padding:.35rem .5rem; }
+.task-manage-card .assigned-users .btn-close { transform: translateY(-1px); border-radius: 4px; }
+.assign-modal-search { margin-bottom: .75rem; }
+.list-group-item { display:flex; align-items:center; gap:.75rem; }
+.list-group-item .form-check-input { margin-top: 0; }
+.modal .list-group { max-height: 320px; overflow:auto; }
+/* highlight assigned count */
+.assigned-count { font-weight:600; margin-left:.4rem; color:#0b5ed7; }

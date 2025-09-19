@@ -1,0 +1,30 @@
+/* Inline flash container inside the task card */
+.task-flash-area {
+  margin-top: 0.75rem;
+  margin-bottom: 0.75rem;
+  min-height: 0; /* shrinks when empty */
+  position: relative;
+  z-index: 2;
+}
+
+/* flash message */
+.task-flash {
+  display: inline-block;
+  padding: 0.55rem 0.9rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+  margin-bottom: 0.5rem;
+  opacity: 1;
+  transform-origin: right top;
+  transition: opacity 320ms ease, transform 270ms ease;
+}
+
+/* success / error variants */
+.task-flash.success { background: #e6fffa; color: #064e3b; border: 1px solid #a7f3d0; }
+.task-flash.error   { background: #fff1f2; color: #771d1d; border: 1px solid #fecaca; }
+
+/* entrance/exit */
+.task-flash.enter { transform: translateY(-6px) scale(0.98); opacity: 0; }
+.task-flash.enter-active { transform: translateY(0) scale(1); opacity: 1; }
+.task-flash.exit { transform: translateY(-6px) scale(0.98); opacity: 0; }

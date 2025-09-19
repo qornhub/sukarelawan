@@ -1,0 +1,535 @@
+:root {
+    /* Primary palette */
+    --primary-color: #004aad;
+    --primary-hover: #003780;
+    --primary-light: #6c8aec;
+
+    /* Text & backgrounds */
+    --text-color: #333;
+    --light-gray: #f9f9f9;
+    --bg-gradient-start: #f5f7fa;
+    --bg-gradient-end: #e4edf5;
+
+    /* Feedback */
+    --success-color: #1cc88a;
+    --error-color: #dc3545;
+    --error-bg: #f8d7da;
+
+    /* Layout tokens */
+    --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    --card-shadow: 0 0.15rem 1.75rem rgba(58, 59, 69, 0.1);
+    --border-radius: 10px;
+    --rounded-sm: 8px;
+}
+
+body {
+    background-color: #f0f5ff;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Hero Section */
+/* Hero container — background-image set inline via style attribute */
+.hero {
+    position: relative;
+    width: 100%;
+    height: 360px; /* adjust height as needed */
+    background-size: cover; /* cover whole area */
+    background-position: center; /* center crop */
+    background-repeat: no-repeat;
+    display: block;
+    overflow: hidden;
+}
+
+/* Overlay for contrast (top layer under text) */
+.hero-overlay {
+    position: absolute;
+    inset: 0; /* top:0; right:0; bottom:0; left:0; */
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.4));
+    z-index: 1;
+}
+
+/* Text wrapper inside hero — positioned by container for RTL or LTR */
+.hero-content {
+    position: absolute;
+    inset: 0; /* ensure it fills hero so we can place content precisely */
+    z-index: 2;
+}
+
+/* Place the text at bottom-right */
+.hero-text {
+    position: absolute;
+    left: 40px;
+    bottom: 28px;
+    color: #ffffff;
+    text-align: right;
+    max-width: 60%;
+    text-shadow: 0 4px 18px rgba(0, 0, 0, 0.65); /* stronger shadow for contrast */
+    z-index: 2;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Title: bigger, bolder, tiny outline for sharpness */
+.hero-title {
+    margin: 6px 0 0;
+    font-size: 2.2rem; /* increase if needed */
+    font-weight: 800;
+    line-height: 1.05;
+    color: #ffffff;
+    -webkit-text-stroke: 0.4px rgba(0, 0, 0, 0.6); /* subtle stroke to make white text crisp */
+}
+
+/* Subtitle: clear and slightly brighter */
+.hero-sub {
+    font-size: 1rem;
+    opacity: 0.95;
+    color: #f3f6f9;
+    font-weight: 600;
+}
+
+/* Register button style (below the hero) */
+.register-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--primary-color);
+    color: #fff;
+    padding: 10px 18px;
+    border-radius: 8px;
+    margin-bottom: 32px;
+    font-weight: 700;
+    text-decoration: none;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+.register-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.12);
+    background: #00b896;
+}
+
+/* Small responsive tweak */
+@media (max-width: 767px) {
+    .hero {
+        height: 240px;
+    }
+    .hero-text {
+        left: 18px;
+        bottom: 18px;
+        max-width: 80%;
+    }
+    .hero-title {
+        font-size: 1.4rem;
+    }
+    .register-row {
+        text-align: center !important;
+    }
+}
+
+/* Main Content */
+.page-body {
+    padding: 0 0 4rem 0;
+}
+
+
+.content-card {
+    background: white;
+    border-radius: 16px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+}
+
+.content-card:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+}
+
+.section-heading {
+    font-weight: 700;
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.section-heading::before {
+    content: "";
+    width: 4px;
+    height: 24px;
+    background: linear-gradient(
+        135deg,
+        var(--primary-color),
+        var(--primary-dark)
+    );
+    border-radius: 2px;
+}
+
+.section-heading .icon {
+    color: var(--primary-color);
+    font-size: 1.25rem;
+}
+
+/* SDG Badges */
+.sdg-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+}
+
+.sdg-item {
+    text-align: center;
+    transition: transform 0.3s ease;
+}
+
+.sdg-item:hover {
+    transform: scale(1.05);
+}
+
+.sdg-item img {
+    max-width: 80px;
+    border-radius: 8px;
+    box-shadow: var(--shadow-md);
+    margin-bottom: 0.5rem;
+}
+
+.sdg-item .sdg-name {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+/* Participants */
+.participants {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.participants-avatars {
+    display: flex;
+    align-items: center;
+}
+
+.participants .avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: -12px;
+    border: 3px solid #fff;
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.3s ease;
+}
+
+.participants .avatar:hover {
+    transform: scale(1.1);
+    z-index: 10;
+    position: relative;
+}
+
+.participant-count {
+    background: var(--primary-color);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+    margin-left: 1rem;
+}
+
+/* Sidebar */
+.sidebar-card {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-color);
+}
+
+.sidebar-heading {
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Social Share */
+.social-share {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.social-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-size: 1.1rem;
+}
+
+.social-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.social-btn.facebook {
+    background: #1877f2;
+    color: white;
+}
+
+.social-btn.twitter {
+    background: #1da1f2;
+    color: white;
+}
+
+.social-btn.instagram {
+    background: linear-gradient(
+        45deg,
+        #f09433,
+        #e6683c,
+        #dc2743,
+        #cc2366,
+        #bc1888
+    );
+    color: white;
+}
+
+.social-btn.whatsapp {
+    background: #25d366;
+    color: white;
+}
+
+/* Location & Details */
+.map-container {
+    border-radius: 12px;
+    overflow: hidden;
+    height: 220px;
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--border-color);
+}
+
+.detail-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.detail-item:last-child {
+    border-bottom: none;
+}
+
+.detail-label {
+    font-weight: 500;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    min-width: 100px;
+}
+
+.detail-value {
+    font-weight: 600;
+    color: var(--text-primary);
+    text-align: right;
+    flex: 1;
+}
+
+.points-badge {
+    background: linear-gradient(135deg, var(--success-color), #10b981);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Organizer Card */
+.organizer-card {
+    text-align: center;
+}
+
+.organizer-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    text-align: left;
+}
+
+.org-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: linear-gradient(
+        135deg,
+        var(--primary-color),
+        var(--primary-dark)
+    );
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: white;
+    box-shadow: var(--shadow-md);
+}
+
+.organizer-name {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.organizer-label {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.organizer-actions {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.btn-organizer {
+    padding: 0.75rem 1.5rem;
+    border-radius: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: none;
+    font-size: 0.95rem;
+}
+
+.btn-organizer.primary {
+    background: linear-gradient(135deg, #25d366, #20c55a);
+    color: white;
+}
+
+.btn-organizer.secondary {
+    background: white;
+    color: var(--primary-color);
+    border: 2px solid var(--primary-color);
+}
+
+.btn-organizer:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+/* Empty States */
+.empty-state {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-secondary);
+    background: var(--light-gray);
+    border-radius: 12px;
+}
+
+.empty-state i {
+    font-size: 3rem;
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+
+
+/* Empty state */
+.empty-state {
+    color: #777;
+}
+
+/* Footer contact */
+.organizer-contact .btn {
+    border-radius: var(--rounded-sm);
+    font-weight: 500;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .hero {
+        height: 240px;
+    }
+
+    .hero .hero-inner {
+        padding: 1.5rem;
+    }
+
+    .hero .title {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .hero .title h1 {
+        font-size: 2rem;
+    }
+
+    .hero .register-section {
+        align-self: stretch;
+        justify-content: center;
+    }
+
+    .hero .event-stats {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .content-card {
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .section-heading {
+        font-size: 1.25rem;
+    }
+
+    .sdg-badges {
+        justify-content: center;
+    }
+
+    .participants {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .social-share {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 576px) {
+    .hero .title .avatar {
+        width: 50px;
+        height: 50px;
+        font-size: 20px;
+    }
+
+    .hero .title h1 {
+        font-size: 1.75rem;
+    }
+
+    .content-card {
+        padding: 1.25rem;
+    }
+}

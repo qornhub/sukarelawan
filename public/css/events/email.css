@@ -1,0 +1,288 @@
+
+:root {
+    /* Primary palette */
+    --primary-color: #004AAD;
+    --primary-hover: #003780;
+    --primary-light: #6c8aec;
+
+    /* Text & backgrounds */
+    --text-color: #333;
+    --light-gray: #f9f9f9;
+    --bg-gradient-start: #f5f7fa;
+    --bg-gradient-end: #e4edf5;
+
+    /* Feedback */
+    --success-color: #1cc88a;
+    --error-color: #dc3545;
+    --error-bg: #f8d7da;
+
+    /* Layout tokens */
+    --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    --card-shadow: 0 0.15rem 1.75rem rgba(58, 59, 69, 0.1);
+    --border-radius: 10px;
+    --rounded-sm: 8px;
+}
+
+
+#section-email .card {
+    border: none;
+    border-radius: var(--border-radius);
+    box-shadow: var(--card-shadow);
+    overflow: hidden;
+    background: white;
+}
+
+#section-email .card-body {
+    padding: 1rem;
+}
+
+#section-email h4 {
+    color: var(--text-color);
+    font-weight: 600;
+    border-bottom: 2px solid var(--primary-light);
+    padding-bottom: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Form Elements */
+#section-email .form-label {
+    font-weight: 500;
+    color: var(--text-color);
+    margin-bottom: 0.5rem;
+}
+
+#section-email .form-control {
+    border: 1px solid #ddd;
+    border-radius: var(--rounded-sm);
+    padding: 0.75rem 1rem;
+    transition: all 0.2s ease;
+}
+
+#section-email .form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(0, 74, 173, 0.15);
+}
+
+#section-email .form-text {
+    color: #7f8c8d;
+    font-size: 0.85rem;
+    margin-top: 0.35rem;
+}
+
+/* Buttons - Fixed double border issue */
+#section-email .btn {
+    border-radius: var(--rounded-sm);
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+#section-email .btn-outline-primary {
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+    background: transparent;
+}
+
+#section-email .btn-outline-primary:hover,
+#section-email .btn-outline-primary:active,
+#section-email .btn-outline-primary:focus,
+#section-email .btn-outline-primary.active {
+    background-color: var(--primary-color);
+    color: white;
+    transform: translateY(-1px);
+    border: 1px solid var(--primary-color);
+}
+
+#section-email .btn-outline-secondary {
+    color: #95a5a6;
+    border: 1px solid #bdc3c7;
+}
+
+#section-email .btn-outline-secondary:hover {
+    background-color: #ecf0f1;
+    color: #7f8c8d;
+}
+
+#section-email .btn-success {
+    background-color: var(--success-color);
+    border: none;
+    padding: 0.6rem 1.5rem;
+    font-weight: 600;
+}
+
+#section-email .btn-success:hover {
+    background-color: #18a673;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(28, 200, 138, 0.3);
+}
+
+/* Participant List */
+#section-email .participant-list {
+    background-color: var(--light-gray);
+    border-radius: var(--rounded-sm);
+    border: 1px solid #e0e0e0 !important;
+    padding: 1rem !important;
+}
+
+#section-email .participant-row {
+    padding: 0.75rem;
+    border-radius: var(--rounded-sm);
+    transition: all 0.2s ease;
+    margin-bottom: 0.5rem !important;
+}
+
+#section-email .participant-row:hover {
+    background-color: rgba(108, 138, 236, 0.1);
+    transform: translateX(2px);
+}
+
+#section-email .fw-semibold {
+    color: var(--primary-color);
+    font-weight: 600;
+    margin-top: 0.5rem;
+    margin-bottom: 0.75rem !important;
+}
+
+#section-email hr {
+    border-top: 1px dashed #ddd;
+    margin: 1rem 0;
+}
+
+/* Checkboxes */
+#section-email .form-check-input {
+    width: 1.1em;
+    height: 1.1em;
+    margin-top: 0.25em;
+    border: 1px solid #bdc3c7;
+}
+
+#section-email .form-check-input:checked {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+#section-email .form-check-input:focus {
+    box-shadow: 0 0 0 3px rgba(0, 74, 173, 0.15);
+}
+
+/* Selected Recipients Container */
+#section-email #selectedChips {
+    min-height: 46px;
+    padding: 0.6rem;
+    border-radius: var(--rounded-sm);
+    background-color: var(--light-gray);
+    border: 1px dashed #cbd5e0;
+    margin-bottom: 0.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+    overflow-x: auto;
+}
+
+/* Chip (recipient token) */
+#section-email .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: linear-gradient(180deg, var(--primary-color), var(--primary-hover));
+    color: #fff;
+    padding: 0.35rem 0.65rem;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    white-space: nowrap;
+}
+
+/* label inside chip - ellipsis if long */
+#section-email .chip .chip-label {
+    max-width: 220px;
+    display: inline-block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* remove (×) button */
+#section-email .chip .chip-remove {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255,255,255,0.14);
+    color: #fff;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 0.95rem;
+    line-height: 1;
+    padding: 0;
+}
+
+/* hover/focus states */
+#section-email .chip .chip-remove:hover,
+#section-email .chip .chip-remove:focus {
+    background: rgba(255,255,255,0.24);
+    outline: none;
+}
+
+/* Placeholder when nothing selected */
+#section-email .selected-placeholder {
+    color: #6c757d;
+    font-size: 0.9rem;
+    padding: 0.2rem 0.25rem;
+}
+
+/* counter */
+#selectedCount {
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-left: 0.35rem;
+}
+
+
+/* Textarea */
+#section-email #messageEditor {
+    min-height: 150px;
+    resize: vertical;
+    border-radius: var(--rounded-sm);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    #section-email .card-body {
+        padding: 1.5rem;
+    }
+    
+    #section-email .d-flex.flex-wrap.gap-2 {
+        gap: 0.5rem !important;
+    }
+    
+    #section-email .btn-sm {
+        padding: 0.4rem 0.75rem;
+        font-size: 0.8rem;
+    }
+    #section-email #selectedChips { padding: 0.45rem; }
+    #section-email .chip .chip-label { max-width: 140px; }
+}
+
+/* Utility classes */
+.text-muted.small {
+    font-size: 0.85rem;
+}
+
+.mb-3 {
+    margin-bottom: 1.2rem !important;
+}
+
+/* Focus states for accessibility */
+#section-email button:focus,
+#section-email input:focus,
+#section-email textarea:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}

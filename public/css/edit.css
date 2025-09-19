@@ -1,0 +1,168 @@
+:root {
+            --primary-color: #004AAD;
+            --primary-light: #3a506b;
+            --accent-color: #3498db;
+            --text-gray: #6c757d;
+            --border-color: #e0e0e0;
+            --card-shadow: 0 8px 30px rgba(0,0,0,0.08);
+        }
+        
+        /* Fix for header compatibility */
+        body {
+            background: #f8f9fa !important;
+            display: block !important; /* Override flex layout */
+        }
+        
+        .profile-container {
+            max-width: 1000px;
+            margin: 5rem auto 2rem; /* Extra top margin for header */
+            padding: 0 15px;
+        }
+        
+        .profile-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+        }
+        
+        .profile-header {
+            background: var(--primary-color);
+            padding: 2.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1.8rem;
+            position: relative;
+        }
+        
+        .profile-avatar {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            border: 4px solid rgba(255,255,255,0.3);
+            object-fit: cover;
+            background: #e9ecef;
+        }
+        
+        .profile-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+    align-items: flex-start;
+        }
+        
+        .profile-header .profile-info .profile-name {
+            font-size: 2.2rem; /* Increased size */
+            font-weight: 700;
+            color: white !important;
+            margin: 0;
+            line-height: 1.2;
+        }
+        
+       .profile-header .profile-info .profile-role {
+    
+           display: inline-block; /* only as wide as the text */
+    background: rgba(255, 255, 255, 0.25);
+    color: #fff;
+    padding: 0.3rem 1.2rem;
+    border-radius: 20px;
+    font-size: 1rem;
+    font-weight: 600;
+    backdrop-filter: blur(4px);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+        
+        .profile-body {
+            padding: 2.5rem;
+        }
+        
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.8rem;
+            border-bottom: 2px solid #eaeaea;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 1.6rem;
+        }
+        
+        .form-label {
+            font-weight: 600;
+            margin-bottom: 0.6rem;
+            color: #343a40;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .form-control {
+            padding: 0.8rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        
+        .photo-preview-container {
+            margin-top: 1rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+        }
+        
+        .photo-preview {
+            border-radius: 10px;
+            max-width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border: 1px solid var(--border-color);
+        }
+        
+        .preview-card {
+            text-align: center;
+        }
+        
+        .preview-label {
+            font-size: 0.85rem;
+            color: var(--text-gray);
+            margin-top: 0.5rem;
+        }
+        
+        .btn-submit {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            color: white;
+            border: none;
+            font-weight: 600;
+            padding: 0.8rem 1.8rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        @media (max-width: 768px) {
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+                padding: 2rem 1.5rem;
+            }
+            
+            .profile-info {
+                text-align: center;
+            }
+            
+            .profile-body {
+                padding: 1.5rem;
+            }
+            
+            .profile-container {
+                margin-top: 4.5rem; /* Less margin on mobile */
+            }
+        }
