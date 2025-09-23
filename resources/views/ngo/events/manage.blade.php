@@ -14,7 +14,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     {{-- HEAD (Bootstrap CSS) --}}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    
+
 
     <link rel="stylesheet" href="{{ asset('css/events/manage.css') }}">
     <link rel="stylesheet" href="{{ asset('css/task/task_list.css') }}">
@@ -120,7 +120,10 @@
 
                 <div class="side-card">
                     <div style="font-weight:700;margin-bottom:8px">Attendance</div>
-                    <a class="side-btn" href="#">QR Code</a>
+                    
+                     <a class="side-btn" data-show="qr" role="button">
+                        Task Creation
+                    </a>
                     <a class="side-btn" href="#">Attendance List</a>
                 </div>
             </aside>
@@ -370,6 +373,8 @@
                 ])
 
 
+                <!-- Attendance QR Section -->
+                @include('ngo.attendances.qr', ['event' => $event])
 
 
 
@@ -381,7 +386,8 @@
 
     <!-- JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.tiny.cloud/1/pfjth33chx6jf9i6f3dluc05zg5hatcny7fdyaiza5bmpwme/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+    <script src="https://cdn.tiny.cloud/1/pfjth33chx6jf9i6f3dluc05zg5hatcny7fdyaiza5bmpwme/tinymce/6/tinymce.min.js"
+        referrerpolicy="origin"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {

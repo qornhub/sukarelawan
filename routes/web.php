@@ -30,6 +30,8 @@ use App\Http\Controllers\Badge\BadgeController;
 use App\Http\Controllers\Badge\BadgeCategoryController;
 use App\Http\Controllers\Badge\UserBadgeController;
 use App\Http\Controllers\Badge\UserPointController;
+
+use App\Http\Controllers\Api\AuthController;
 /*
 |--------------------------------------------------------------------------
 | Common / Shared Routes (All Users)
@@ -50,6 +52,9 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 Route::post('/logout/ngo', [LoginController::class, 'logoutNgo'])->name('logout.ngo');
 Route::post('/logout/volunteer', [LoginController::class, 'logoutVolunteer'])->name('logout.volunteer');
 
+
+
+
 // Public volunteer page
 Route::get('/volunteer', [EventDiscoveryController::class, 'index'])->name('volunteer.index.public');
 
@@ -63,6 +68,8 @@ Route::get('/', fn () => redirect('/register/volunteer'));
 //Route::get('/ngo/profile/{id}', [NGOProfileController::class, 'show'])->name('ngo.profile.show');
 Route::get('/volunteers/{id}', [VolunteerProfileController::class, 'show'])->name('volunteer.profile.show');
 Route::get('volunteer/{id}/badges', [UserBadgeController::class, 'showByUser'])->name('volunteer.badges.show');
+
+
 
 
 
@@ -133,6 +140,11 @@ Route::middleware(['auth', 'isNGO'])
     ->prefix('ngo')
     ->name('ngo.')
     ->group(function () {
+
+          Route::get('events/{event}/qr', function ($event) {
+        $event = \App\Models\Event::findOrFail($event);
+        return view('ngo.attendances.qr', compact('event'));
+    })->name('attendance.qr');
         Route::get('/dashboard', fn () => view('ngo.dashboard'))->name('dashboard');
         
         // NGO Profile

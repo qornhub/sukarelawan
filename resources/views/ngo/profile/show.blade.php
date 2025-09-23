@@ -42,7 +42,7 @@
 <body>
     {{-- header --}}
     @auth
-        @if(auth()->user()->role->roleName === 'volunteer')
+        @if (auth()->user()->role->roleName === 'volunteer')
             @include('layouts.volunteer_header')
         @elseif(auth()->user()->role->roleName === 'ngo')
             @include('layouts.ngo_header')
@@ -67,7 +67,7 @@
             <img src="{{ $profile && $profile->profilePhoto ? asset('images/profiles/' . $profile->profilePhoto) : asset('images/default-profile.png') }}"
                 class="profile-avatar rounded-circle" alt="{{ $profile->organizationName ?? 'NGO' }}">
 
-    
+
 
             {{-- Name + role --}}
             <div class="profile-header">
@@ -77,19 +77,19 @@
                 </div>
             </div>
 
-          
+
 
 
             {{-- Edit button - Only show if user owns this profile or is admin --}}
             @auth
-                @if(auth()->user()->id === $profile->user_id || auth()->user()->role->roleName === 'admin')
+                @if (auth()->user()->id === $profile->user_id || auth()->user()->role->roleName === 'admin')
                     {{-- Debug: Check what route is being generated --}}
                     {{-- <div style="position: absolute; top: 0; left: 0; background: white; padding: 10px; z-index: 1000;">
                         Route: {{ route('ngo.profile.edit') }}
                         User ID: {{ auth()->user()->id }}
                         Profile User ID: {{ $profile->user_id }}
                     </div> --}}
-                    
+
                     <a href="{{ route('ngo.profile.edit') }}" class="edit-profile-btn">
                         <i class="fas fa-pen me-1"></i> Edit Profile
                     </a>
@@ -181,7 +181,7 @@
                             </ul>
 
                             <div class="tab-content mt-3">
-                                {{--ongoing events--}}
+                                {{-- ongoing events --}}
                                 <div class="tab-pane fade show active" id="ongoing">
                                     @forelse($ongoingEvents as $event)
                                         @php
@@ -236,13 +236,14 @@
                                 <div class="tab-pane fade" id="past">
                                     @forelse($pastEvents as $event)
                                         <div class="card event-card mb-3">
-                                           
+
 
                                             @if (!empty($event->eventImage))
-                                                <img src="{{ $eventImage }}" class="card-img-top"
-                                                    alt="{{ $event->eventTitle }}"
+                                                <img src="{{ asset('images/events/' . $event->eventImage) }}"
+                                                    class="card-img-top" alt="{{ $event->eventTitle }}"
                                                     style="height:200px; object-fit:cover;">
                                             @endif
+
                                             <div class="card-body">
                                                 <h5 class="card-title mb-1">{{ $event->eventTitle }}</h5>
                                                 <p class="text-muted small mb-2 mt-2"> {{ $event->eventSummary }}</p>
