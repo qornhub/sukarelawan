@@ -308,7 +308,7 @@
 
                             @if ($userBadges->count() > 3)
                                 <div class="text-center mt-3">
-                                    <a href="{{ route('volunteer.badges.show', $user->id) }}"
+                                    <a href="{{ route('volunteer.rewards.index') }}"
                                         class="btn btn-outline-primary btn-sm">
                                         <i class="fas fa-ellipsis-h me-1"></i> View All Rewards
                                     </a>

@@ -14,6 +14,7 @@ class UserPoint extends Model
     protected $keyType = 'string';
 
     protected $fillable = [
+        'userPoint_id',
         'user_id',
         'points',
         'activityType',

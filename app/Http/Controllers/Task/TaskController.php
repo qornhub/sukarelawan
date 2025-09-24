@@ -14,16 +14,20 @@ use Illuminate\Support\Facades\Auth;
 class TaskController extends Controller
 {
    // LIST tasks for one event
-    public function index($eventId)
-    {
-        $event = Event::where('event_id', $eventId)
-            ->where('user_id', Auth::id())
-            ->firstOrFail();
+   public function index($eventId)
+{
+    $event = Event::where('event_id', $eventId)
+        ->where('user_id', Auth::id())
+        ->firstOrFail();
 
-        $tasks = Task::where('event_id', $event->event_id)->orderBy('created_at','desc')->get();
+    $tasks = Task::with('event') // eager load event relationship
+        ->where('event_id', $event->event_id)
+        ->orderBy('created_at','desc')
+        ->get();
 
-        return view('ngo.tasks.task_list', compact('event','tasks'));
-    }
+    return view('ngo.tasks.task_list', compact('event','tasks'));
+}
+
 
     // SHOW create form (always for this event)
     public function create($eventId)

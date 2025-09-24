@@ -1,12 +1,12 @@
-<div id="section-tasks" class="mt-5 card participant-section" style="display:none">
-    <div class="card-body">
-        <div class="d-flex align-items-center justify-content-between mb-3">
+<div id="section-tasks" class="mt-4 card participant-section" style="display:none">
+    <div class="card-body p-3">
+        <div class="d-flex align-items-center justify-content-between mb-1">
             <h3 class="task-title mb-0">Tasks</h3>
 
             <!-- Add Task button -->
 
 
-            <div class="d-flex justify-content-between align-items-center mb-5">
+            <div class="d-flex justify-content-between align-items-center mb-1">
 
                 <a href="#" class="btn btn-primary btn-sm add-task-btn side-btn" role="button">
                     <i class="fa fa-plus me-1"></i> Add Task
@@ -18,7 +18,8 @@
         @include('layouts/messages')
 
         <div class="table-responsive">
-            <table class="table task-table align-middle mb-0 mt-5">
+
+            <table class="table table-sm task-table align-middle mb-0">
                 <thead>
                     <tr>
                         <th style="width:30%;">Task Title</th>
@@ -38,7 +39,8 @@
                             </td>
 
                             <td class="text-nowrap">
-                                <span class="badge-event">{{ $task->event->eventTitle ?? 'N/A' }}</span>
+                                <span class="badge-event">{{ optional($task->event)->eventTitle ?? 'N/A' }}
+                                </span>
                             </td>
 
                             <td class="text-center">
@@ -49,8 +51,11 @@
                                         data-event-id="{{ $task->event->event_id ?? ($task->event_id ?? $event->event_id) }}">
                                         Edit
                                     </button>
+
+
                                     <button type="button" class="btn btn-outline-danger btn-sm btn-delete-task"
-                                        data-event-id="{{ $event->event_id }}" data-task-id="{{ $task->task_id }}">
+                                        data-event-id="{{ $task->event->event_id ?? $task->event_id }}"
+                                        data-task-id="{{ $task->task_id }}">
                                         Delete
                                     </button>
 
@@ -96,7 +101,7 @@
 
                     if (!taskId || !eventId) {
                         console.warn('[tasks] missing data-task-id or data-event-id on button',
-                        btn);
+                            btn);
                         return;
                     }
 
@@ -152,16 +157,21 @@
                             return;
                         }
 
-                        // success: remove row
+                        // success: remove row from task list
                         const row = document.querySelector(
                             `#section-tasks tr[data-task-id="${taskId}"]`);
                         if (row) row.remove();
                         else if (btn.closest('tr')) btn.closest('tr').remove();
 
+                        // 🔥 also remove from Manage Tasks table if exists
+                        const manageRow = document.querySelector(
+                            `#section-manage-tasks tr[data-task-id="${taskId}"]`);
+                        if (manageRow) manageRow.remove();
+
                         // if table now empty, insert empty row
                         const tbody = document.querySelector(
-                            '#section-tasks table.task-table tbody') || document.querySelector(
-                            '#section-tasks table tbody');
+                            '#section-tasks table.task-table tbody'
+                        ) || document.querySelector('#section-tasks table tbody');
                         if (tbody && tbody.children.length === 0) {
                             const tr = document.createElement('tr');
                             tr.className = 'empty-row';
@@ -169,6 +179,7 @@
                                 '<td colspan="4" class="text-center">No tasks found.</td>';
                             tbody.appendChild(tr);
                         }
+
 
                         flash(body?.message || 'Task deleted', 'success');
                     } catch (err) {

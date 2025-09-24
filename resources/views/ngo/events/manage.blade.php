@@ -122,7 +122,7 @@
                     <div style="font-weight:700;margin-bottom:8px">Attendance</div>
                     
                      <a class="side-btn" data-show="qr" role="button">
-                        Task Creation
+                        Attendance Qr
                     </a>
                     <a class="side-btn" href="#">Attendance List</a>
                 </div>
