@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers\Attendances;
 
-
 use Carbon\Carbon;
 use App\Models\Event;
+use App\Models\UserPoint;
 use App\Models\Attendance;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Models\EventRegistration;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
@@ -33,14 +34,29 @@ class AttendanceController extends Controller
             return response()->json(['message' => 'Event not found'], 404);
         }
 
-        // 2) Optionally: verify user is registered/confirmed for event
-        // Uncomment and adapt if you have an event registration system:
-        // $registered = \App\Models\EventRegistration::where('event_id', $event_id)
-        //     ->where('user_id', $user->id)
-        //     ->exists();
-        // if (! $registered) {
-        //     return response()->json(['message' => 'User not registered for this event'], 403);
-        // }
+        // 2) Check if user is registered AND approved for this event
+        $registration = EventRegistration::where('event_id', $event_id)
+            ->where('user_id', $user->id)
+            ->first();
+
+        if (!$registration) {
+            return response()->json([
+                'message' => 'You are not registered for this event'
+            ], 403);
+        }
+
+        // Check registration status
+        if ($registration->status === EventRegistration::STATUS_REJECTED) {
+            return response()->json([
+                'message' => 'Your registration has been rejected for this event'
+            ], 403);
+        }
+
+        if ($registration->status !== EventRegistration::STATUS_APPROVED) {
+            return response()->json([
+                'message' => 'Your registration is pending approval for this event'
+            ], 403);
+        }
 
         // 3) Prevent duplicate attendance (fast check)
         $existing = Attendance::where('event_id', $event_id)
@@ -48,8 +64,10 @@ class AttendanceController extends Controller
             ->first();
 
         if ($existing) {
-            // You can return 200 with a message, or 409 for conflict — choose what your app expects
-            return response()->json(['message' => 'Already marked present', 'attendance' => $existing], 200);
+            return response()->json([
+                'message' => 'Attendance already recorded for this event', 
+                'attendance' => $existing
+            ], 200);
         }
 
         // 4) Create attendance inside a DB transaction (safer for concurrency)
@@ -83,8 +101,50 @@ class AttendanceController extends Controller
         }
 
         return response()->json([
-            'message' => 'Attendance recorded',
+            'message' => 'Attendance recorded successfully',
             'attendance' => $attendance,
         ], 201);
     }
+
+     /**
+     * Show list of volunteers who attended a specific event.
+     */
+  public function attendancesList($eventId, Request $request)
+{
+    $event = Event::where('event_id', $eventId)->firstOrFail();
+
+    $attendances = Attendance::with('user.volunteerProfile')
+        ->where('event_id', $event->event_id)
+        ->orderBy('created_at', 'desc')
+        ->get();
+
+    if ($request->ajax()) {
+        // return only table HTML (blade will see $ajax=true branch)
+        return view('ngo.attendances.list', [
+            'event' => $event,
+            'attendances' => $attendances,
+            'ajax' => true,
+        ])->render();
+    }
+
+    return view('ngo.attendances.list', compact('event','attendances'));
+}
+
+   public function destroy($eventId, $attendanceId)
+{
+    $attendance = Attendance::where('event_id', $eventId)
+        ->where('attendance_id', $attendanceId)
+        ->firstOrFail();
+
+    UserPoint::where('user_id', $attendance->user_id)
+    ->where('event_id', $attendance->event_id)
+    ->delete();
+
+    // Now delete the attendance itself
+    $attendance->delete();
+
+    return response()->json(['message' => 'Attendance and related points deleted successfully']);
+}
+
+
 }

@@ -120,11 +120,14 @@
 
                 <div class="side-card">
                     <div style="font-weight:700;margin-bottom:8px">Attendance</div>
-                    
-                     <a class="side-btn" data-show="qr" role="button">
+
+                    <a class="side-btn" data-show="qr" role="button">
                         Attendance Qr
                     </a>
-                    <a class="side-btn" href="#">Attendance List</a>
+
+                    <a class="side-btn" data-show="attendance" role="button">
+                        Attendance List
+                    </a>
                 </div>
             </aside>
 
@@ -375,6 +378,11 @@
 
                 <!-- Attendance QR Section -->
                 @include('ngo.attendances.qr', ['event' => $event])
+                @include('ngo.attendances.list', [
+                    'event' => $event,
+                    'attendances' => $attendances ?? collect(),
+                ])
+
 
 
 

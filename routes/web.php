@@ -2,36 +2,37 @@
 //im testing
 //testing agian
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Admin\SdgController;
 use App\Http\Controllers\Task\TaskController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Admin\SkillController;
+use App\Http\Controllers\Badge\BadgeController;
 use App\Http\Controllers\Events\EventController;
 use App\Http\Controllers\Auth\AdminLoginController;
 use App\Http\Controllers\Auth\NGOProfileController;
+use App\Http\Controllers\Badge\UserBadgeController;
+use App\Http\Controllers\Badge\UserPointController;
 use App\Http\Controllers\Auth\NGORegisterController;
 use App\Http\Controllers\Auth\AdminProfileController;
+use App\Http\Controllers\Task\AssignedTaskController;
 use App\Http\Controllers\Admin\BlogCategoryController;
+
 use App\Http\Controllers\Auth\AdminRegisterController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\NGO\TaskAssignmentController;
 use App\Http\Controllers\Admin\EventCategoryController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
-
+use App\Http\Controllers\Badge\BadgeCategoryController;
 use App\Http\Controllers\Auth\VolunteerProfileController;
+
 use App\Http\Controllers\Events\EventDiscoveryController;
+use App\Http\Controllers\Attendances\AttendanceController;
 use App\Http\Controllers\Auth\VolunteerRegisterController;
-use App\Http\Controllers\Task\AssignedTaskController;
 use App\Http\Controllers\Events\EventRegistrationController;
+
 use App\Http\Controllers\Events\NgoEventDiscoveryController;
 use App\Http\Controllers\Events\NGOEventManagementController;
-
-use App\Http\Controllers\Badge\BadgeController;
-use App\Http\Controllers\Badge\BadgeCategoryController;
-use App\Http\Controllers\Badge\UserBadgeController;
-use App\Http\Controllers\Badge\UserPointController;
-
-use App\Http\Controllers\Api\AuthController;
 /*
 |--------------------------------------------------------------------------
 | Common / Shared Routes (All Users)
@@ -145,6 +146,10 @@ Route::middleware(['auth', 'isNGO'])
         $event = \App\Models\Event::findOrFail($event);
         return view('ngo.attendances.qr', compact('event'));
     })->name('attendance.qr');
+    Route::get('/attendance-list/{eventId}', [AttendanceController::class, 'attendanceList'])->name('attendances.list');
+    Route::delete('/events/{event}/attendances/{attendance}', [AttendanceController::class, 'destroy'])->name('attendances.destroy');
+
+
         Route::get('/dashboard', fn () => view('ngo.dashboard'))->name('dashboard');
         
         // NGO Profile

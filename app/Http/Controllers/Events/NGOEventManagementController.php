@@ -2,20 +2,21 @@
 
 namespace App\Http\Controllers\Events;
 
-use App\Models\Event;
-use Illuminate\Http\Request;
-use App\Models\EventRegistration;
 use App\Models\Task;
 use App\Models\User;
+use App\Models\Event;
+use App\Models\Attendance;
+use Illuminate\Http\Request;
 use App\Models\TaskAssignment;
+use App\Models\EventRegistration;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+
+
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
-
-
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Validator;
 use App\Jobs\SendParticipantEmailJob;
+use Illuminate\Support\Facades\Validator;
 
 
 class NGOEventManagementController extends Controller
@@ -100,9 +101,13 @@ public function manage($event_id, Request $request)
         ->where('event_id', $event->event_id)
         ->get();
 
+      $attendances = Attendance::with(['user.volunteerProfile'])
+        ->where('event_id', $event->event_id)
+        ->get();
+
     // Pass assignedMap to the view so Blade can render data-assigned-tasks
     return view('ngo.events.manage', compact(
-        'event', 'registered', 'confirmed', 'rejected', 'search', 'tasks', 'confirmedParticipants', 'assignedMap'
+        'event', 'registered', 'confirmed', 'rejected', 'search', 'tasks', 'confirmedParticipants', 'assignedMap', 'attendances'
     ));
 }
 
