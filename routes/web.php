@@ -146,7 +146,8 @@ Route::middleware(['auth', 'isNGO'])
         $event = \App\Models\Event::findOrFail($event);
         return view('ngo.attendances.qr', compact('event'));
     })->name('attendance.qr');
-    Route::get('/attendance-list/{eventId}', [AttendanceController::class, 'attendanceList'])->name('attendances.list');
+    // <-- Fix: call the plural method that actually exists in controller
+    Route::get('/attendance-list/{eventId}', [AttendanceController::class, 'attendancesList'])->name('attendances.list');
     Route::delete('/events/{event}/attendances/{attendance}', [AttendanceController::class, 'destroy'])->name('attendances.destroy');
 
 

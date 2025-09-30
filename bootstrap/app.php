@@ -12,11 +12,15 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
-        'isVolunteer' => \App\Http\Middleware\IsVolunteer::class,
-        'isNGO' => \App\Http\Middleware\IsNGO::class,
-        'isAdmin' => \App\Http\Middleware\IsAdmin::class,
-    ]);
+            'isVolunteer' => \App\Http\Middleware\IsVolunteer::class,
+            'isNGO' => \App\Http\Middleware\IsNGO::class,
+            'isAdmin' => \App\Http\Middleware\IsAdmin::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
-    })->create();
+    })
+    ->withProviders([
+        App\Providers\BroadcastServiceProvider::class,
+    ])
+    ->create();

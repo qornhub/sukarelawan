@@ -12,6 +12,9 @@ use App\Models\EventRegistration;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use App\Events\AttendanceCreated;
+use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Auth;
 
 class AttendanceController extends Controller
@@ -83,22 +86,36 @@ class AttendanceController extends Controller
                     $points = (int) $event->points;
                 }
 
-                $a = Attendance::create([
-                    'attendance_id'  => (string) Str::uuid(),
-                    'event_id'       => $event->event_id ?? $event->id ?? null,
-                    'user_id'        => $user->id,
-                    'attendanceTime' => Carbon::now()->toDateTimeString(),
-                    'pointEarned'    => $points,
-                    'status'         => 'present',
-                ]);
+               $a = Attendance::create([
+            'attendance_id'  => (string) Str::uuid(),
+            'event_id'       => $event->event_id ?? $event->id ?? null,
+            'user_id'        => $user->id,
+            'attendanceTime' => Carbon::now()->toDateTimeString(),
+            'pointEarned'    => $points,
+            'status'         => 'present',
+        ]);
+        return $a;
+    });
+        // render row HTML using the partial
+    $html = View::make('ngo.attendances._row', ['attendance' => $attendance])->render();
+    // after $attendance is created
+$html = View::make('ngo.attendances._row', ['attendance' => $attendance])->render();
 
-                return $a;
-            });
-        } catch (\Exception $e) {
-            // log error and return friendly message
-            Log::error('Attendance create failed: '.$e->getMessage());
-            return response()->json(['message' => 'Could not record attendance'], 500);
-        }
+// DEBUG: log that we're about to broadcast
+Log::info('attendance: broadcasting for attendance_id='.$attendance->attendance_id.' event_id='.$attendance->event_id);
+
+// broadcast
+event(new AttendanceCreated($attendance, $html));
+
+// DEBUG: log broadcast complete (ShouldBroadcastNow sends immediately)
+Log::info('attendance: broadcasted for attendance_id='.$attendance->attendance_id);
+
+    
+
+} catch (\Exception $e) {
+    Log::error('Attendance create failed: '.$e->getMessage());
+    return response()->json(['message' => 'Could not record attendance'], 500);
+}
 
         return response()->json([
             'message' => 'Attendance recorded successfully',

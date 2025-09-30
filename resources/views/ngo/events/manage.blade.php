@@ -8,6 +8,14 @@
 
     <!-- CSRF for AJAX -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <script>
+        // ensures Echo will POST to the correct absolute auth endpoint
+        window.__BROADCAST_AUTH_ENDPOINT = "{{ url('/broadcasting/auth') }}";
+        // pass current event id (or empty string if none)
+        window.__EVENT_ID = "{{ $event->event_id ?? '' }}";
+    </script>
+
+    @vite(['resources/js/app.js', 'resources/css/app.css'])
 
     <!-- Fonts & icons -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
