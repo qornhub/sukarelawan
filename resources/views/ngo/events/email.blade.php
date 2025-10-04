@@ -12,7 +12,7 @@
 
 <div id="section-email" class="participant-section" style="display:none;">
 
-    
+
     <div class="card mt-4">
         <div class="card-body">
             <h4 class="mb-3">Email Participants</h4>
@@ -131,15 +131,17 @@
                             @endforeach
                         @endif
 
-                        {{-- Attended - fallback empty if not provided --}}
+                       
+                        {{-- Attended --}}
                         @if (isset($attendedList) && $attendedList->count())
                             <hr />
                             <div class="fw-semibold mb-1">Attended</div>
-                            @foreach ($attendedList as $p)
+                            @foreach ($attendedList as $a)
                                 @php
-                                    $uid = $p->id ?? ($p->user_id ?? null);
-                                    $email = $p->email ?? null;
-                                    $name = $p->name ?? ($p->user->name ?? 'Participant');
+                                    $user = $a->user ?? null;
+                                    $uid = $user->id ?? null;
+                                    $email = $user->email ?? null;
+                                    $name = $user->name ?? 'Participant';
                                 @endphp
                                 <label class="d-flex align-items-center gap-2 mb-1 participant-row">
                                     <input type="checkbox" class="form-check-input participant-checkbox"
@@ -152,6 +154,7 @@
                                 </label>
                             @endforeach
                         @endif
+
 
                         @if (!$registeredList->count() && !$confirmedList->count() && !$rejectedList->count())
                             <div class="text-muted small p-2">No participants available for this event.</div>
@@ -169,7 +172,7 @@
 
                 <div class="mb-3">
                     <label class="form-label">Message</label>
-                
+
                     <textarea id="messageEditor" name="message" class="form-control" required></textarea>
 
                 </div>
@@ -192,250 +195,256 @@
 
 
 @push('scripts')
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    // ---------------- TinyMCE safety (unchanged) ----------------
-    if (typeof tinymce !== 'undefined') {
-        try {
-            tinymce.init({
-                selector: '#messageEditor',
-                height: 300,
-                menubar: false,
-                plugins: 'link lists table code',
-                toolbar: 'undo redo | bold italic underline | bullist numlist | alignleft aligncenter alignright | link | code',
-                setup: function (editor) {
-                    editor.on('change', function () { tinymce.triggerSave(); });
-                }
-            });
-        } catch (e) {
-            console.warn('[email] tinymce init failed', e);
-        }
-    }
-
-    // ---------------- helpers ----------------
-    const toS = v => v == null ? '' : String(v).trim();
-    const norm = s => toS(s).toLowerCase();
-    const unique = arr => Array.from(new Set(arr.map(toS))).filter(Boolean);
-    const isEmail = s => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(s).trim());
-
-    function parseManualEmails(str) {
-        if (!str) return [];
-        return String(str).split(',')
-            .map(s => s.trim())
-            .filter(Boolean)
-            .map(s => s.replace(/\s+/g, ''))
-            .filter(isEmail);
-    }
-
-    // ---------------- elements ----------------
-    const emailForm = document.getElementById('emailForm');
-    const selectedChips = document.getElementById('selectedChips');
-    const selectedCount = document.getElementById('selectedCount');
-    const recipientEmails = document.getElementById('recipient_emails');
-    const recipientUserIds = document.getElementById('recipient_user_ids');
-    const toManual = document.getElementById('toManual');
-    const clearBtn = document.getElementById('clearSelection');
-    const sendBtn = document.getElementById('sendBtn');
-
-    if (!emailForm || !selectedChips || !selectedCount || !recipientEmails || !recipientUserIds) {
-        // required DOM not present — bail
-        return;
-    }
-
-    function getCheckboxes() {
-        return Array.from(document.querySelectorAll('.participant-checkbox') || []);
-    }
-
-    // ---------------- core refresh function ----------------
-    function refreshRecipients() {
-        const checkboxes = getCheckboxes();
-        const emails = [];
-        const userIds = [];
-
-        checkboxes.forEach(cb => {
-            try {
-                if (cb.checked) {
-                    const em = toS(cb.dataset.email);
-                    const id = toS(cb.dataset.id);
-                    if (em && isEmail(em)) emails.push(em);
-                    if (id) userIds.push(id);
-                }
-            } catch (e) { /* ignore malformed */ }
-        });
-
-        // manual emails (validated)
-        const manual = toS(toManual?.value || '');
-        parseManualEmails(manual).forEach(e => emails.push(e));
-
-        const uniqueEmails = Array.from(new Set(emails.map(e => toS(e)))).filter(Boolean);
-        const uniqueUserIds = unique(userIds);
-
-        // render chips
-        selectedChips.innerHTML = '';
-
-        if (!uniqueEmails.length) {
-            const ph = document.createElement('div');
-            ph.className = 'selected-placeholder text-muted';
-            ph.textContent = 'No recipients selected';
-            selectedChips.appendChild(ph);
-        } else {
-            uniqueEmails.forEach(e => {
-                const emailNormalized = toS(e);
-                const chip = document.createElement('div');
-                chip.className = 'chip';
-                chip.setAttribute('data-email', emailNormalized);
-
-                const label = document.createElement('span');
-                label.className = 'chip-label';
-                label.textContent = emailNormalized;
-                label.title = emailNormalized;
-
-                const btn = document.createElement('button');
-                btn.type = 'button';
-                btn.className = 'chip-remove';
-                btn.setAttribute('aria-label', 'Remove ' + emailNormalized);
-                btn.innerHTML = '&times;';
-
-                btn.addEventListener('click', function (evt) {
-                    evt.stopPropagation();
-                    // uncheck any checkbox with matching email (case-insensitive)
-                    const boxes = getCheckboxes();
-                    let removedFromCheckbox = false;
-                    boxes.forEach(cb => {
-                        try {
-                            if (norm(cb.dataset.email) === norm(emailNormalized)) {
-                                cb.checked = false;
-                                removedFromCheckbox = true;
-                            }
-                        } catch (e) {}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // ---------------- TinyMCE safety (unchanged) ----------------
+            if (typeof tinymce !== 'undefined') {
+                try {
+                    tinymce.init({
+                        selector: '#messageEditor',
+                        height: 300,
+                        menubar: false,
+                        plugins: 'link lists table code',
+                        toolbar: 'undo redo | bold italic underline | bullist numlist | alignleft aligncenter alignright | link | code',
+                        setup: function(editor) {
+                            editor.on('change', function() {
+                                tinymce.triggerSave();
+                            });
+                        }
                     });
+                } catch (e) {
+                    console.warn('[email] tinymce init failed', e);
+                }
+            }
 
-                    if (!removedFromCheckbox && toManual) {
-                        // remove from manual input if it exists there
-                        const remaining = parseManualEmails(toManual.value).filter(x => norm(x) !== norm(emailNormalized));
-                        toManual.value = remaining.join(', ');
-                    }
+            // ---------------- helpers ----------------
+            const toS = v => v == null ? '' : String(v).trim();
+            const norm = s => toS(s).toLowerCase();
+            const unique = arr => Array.from(new Set(arr.map(toS))).filter(Boolean);
+            const isEmail = s => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(s).trim());
 
-                    // re-render
-                    refreshRecipients();
-                });
+            function parseManualEmails(str) {
+                if (!str) return [];
+                return String(str).split(',')
+                    .map(s => s.trim())
+                    .filter(Boolean)
+                    .map(s => s.replace(/\s+/g, ''))
+                    .filter(isEmail);
+            }
 
-                chip.appendChild(label);
-                chip.appendChild(btn);
-                selectedChips.appendChild(chip);
-            });
-        }
+            // ---------------- elements ----------------
+            const emailForm = document.getElementById('emailForm');
+            const selectedChips = document.getElementById('selectedChips');
+            const selectedCount = document.getElementById('selectedCount');
+            const recipientEmails = document.getElementById('recipient_emails');
+            const recipientUserIds = document.getElementById('recipient_user_ids');
+            const toManual = document.getElementById('toManual');
+            const clearBtn = document.getElementById('clearSelection');
+            const sendBtn = document.getElementById('sendBtn');
 
-        selectedCount.textContent = uniqueEmails.length;
-        recipientEmails.value = uniqueEmails.join(',');
-        recipientUserIds.value = uniqueUserIds.join(',');
-    }
-
-    // ---------------- group button behaviour ----------------
-    function showAlert(message) {
-        // simple alert fallback; you can replace with prettier toast
-        try {
-            // use Bootstrap toast if available later; for now simple
-            alert(message);
-        } catch (e) {
-            console.warn('[email] alert failed', e);
-        }
-    }
-
-    document.querySelectorAll('.select-group').forEach(btn => {
-        btn.addEventListener('click', function (ev) {
-            ev.preventDefault();
-            const group = this.dataset.group;
-            const boxes = getCheckboxes().filter(cb => toS(cb.dataset.group) === toS(group));
-
-            if (!boxes.length) {
-                // nothing to select — show message and do not toggle or focus
-                showAlert(`No participants found for "${group}".`);
-                // ensure visual pressed state removed
-                this.classList.remove('active');
-                this.setAttribute('aria-pressed', 'false');
-                this.blur();
+            if (!emailForm || !selectedChips || !selectedCount || !recipientEmails || !recipientUserIds) {
+                // required DOM not present — bail
                 return;
             }
 
-            // toggle: if any in group currently unchecked -> check ALL; otherwise uncheck ALL
-            const anyUnchecked = boxes.some(cb => !cb.checked);
-            boxes.forEach(cb => cb.checked = anyUnchecked);
-
-            // update button visual + accessibility
-            if (anyUnchecked) {
-                this.classList.add('active');
-                this.setAttribute('aria-pressed', 'true');
-            } else {
-                this.classList.remove('active');
-                this.setAttribute('aria-pressed', 'false');
+            function getCheckboxes() {
+                return Array.from(document.querySelectorAll('.participant-checkbox') || []);
             }
 
-            // remove focus (prevents persistent blue focus outline)
-            this.blur();
+            // ---------------- core refresh function ----------------
+            function refreshRecipients() {
+                const checkboxes = getCheckboxes();
+                const emails = [];
+                const userIds = [];
 
-            refreshRecipients();
-        });
-    });
+                checkboxes.forEach(cb => {
+                    try {
+                        if (cb.checked) {
+                            const em = toS(cb.dataset.email);
+                            const id = toS(cb.dataset.id);
+                            if (em && isEmail(em)) emails.push(em);
+                            if (id) userIds.push(id);
+                        }
+                    } catch (e) {
+                        /* ignore malformed */ }
+                });
 
-    // ---------------- clear selection ----------------
-    if (clearBtn) {
-        clearBtn.addEventListener('click', function (ev) {
-            ev.preventDefault();
-            getCheckboxes().forEach(cb => cb.checked = false);
-            if (toManual) toManual.value = '';
-            refreshRecipients();
-            document.querySelectorAll('.select-group').forEach(b => {
-                b.classList.remove('active');
-                b.setAttribute('aria-pressed', 'false');
-            });
-            if (clearBtn.blur) clearBtn.blur();
-        });
-    }
+                // manual emails (validated)
+                const manual = toS(toManual?.value || '');
+                parseManualEmails(manual).forEach(e => emails.push(e));
 
-    // ---------------- listen for checkbox changes (delegated) ----------------
-    document.addEventListener('change', function (e) {
-        if (e.target && e.target.matches && e.target.matches('.participant-checkbox')) {
-            // keep the group button visual state in sync:
-            const group = toS(e.target.dataset.group || '');
-            if (group) {
-                const btn = Array.from(document.querySelectorAll('.select-group')).find(x => toS(x.dataset.group) === group);
-                if (btn) {
-                    const boxes = getCheckboxes().filter(cb => toS(cb.dataset.group) === group);
-                    const anyChecked = boxes.some(cb => cb.checked);
-                    btn.classList.toggle('active', anyChecked);
-                    btn.setAttribute('aria-pressed', anyChecked ? 'true' : 'false');
+                const uniqueEmails = Array.from(new Set(emails.map(e => toS(e)))).filter(Boolean);
+                const uniqueUserIds = unique(userIds);
+
+                // render chips
+                selectedChips.innerHTML = '';
+
+                if (!uniqueEmails.length) {
+                    const ph = document.createElement('div');
+                    ph.className = 'selected-placeholder text-muted';
+                    ph.textContent = 'No recipients selected';
+                    selectedChips.appendChild(ph);
+                } else {
+                    uniqueEmails.forEach(e => {
+                        const emailNormalized = toS(e);
+                        const chip = document.createElement('div');
+                        chip.className = 'chip';
+                        chip.setAttribute('data-email', emailNormalized);
+
+                        const label = document.createElement('span');
+                        label.className = 'chip-label';
+                        label.textContent = emailNormalized;
+                        label.title = emailNormalized;
+
+                        const btn = document.createElement('button');
+                        btn.type = 'button';
+                        btn.className = 'chip-remove';
+                        btn.setAttribute('aria-label', 'Remove ' + emailNormalized);
+                        btn.innerHTML = '&times;';
+
+                        btn.addEventListener('click', function(evt) {
+                            evt.stopPropagation();
+                            // uncheck any checkbox with matching email (case-insensitive)
+                            const boxes = getCheckboxes();
+                            let removedFromCheckbox = false;
+                            boxes.forEach(cb => {
+                                try {
+                                    if (norm(cb.dataset.email) === norm(emailNormalized)) {
+                                        cb.checked = false;
+                                        removedFromCheckbox = true;
+                                    }
+                                } catch (e) {}
+                            });
+
+                            if (!removedFromCheckbox && toManual) {
+                                // remove from manual input if it exists there
+                                const remaining = parseManualEmails(toManual.value).filter(x =>
+                                    norm(x) !== norm(emailNormalized));
+                                toManual.value = remaining.join(', ');
+                            }
+
+                            // re-render
+                            refreshRecipients();
+                        });
+
+                        chip.appendChild(label);
+                        chip.appendChild(btn);
+                        selectedChips.appendChild(chip);
+                    });
+                }
+
+                selectedCount.textContent = uniqueEmails.length;
+                recipientEmails.value = uniqueEmails.join(',');
+                recipientUserIds.value = uniqueUserIds.join(',');
+            }
+
+            // ---------------- group button behaviour ----------------
+            function showAlert(message) {
+                // simple alert fallback; you can replace with prettier toast
+                try {
+                    // use Bootstrap toast if available later; for now simple
+                    alert(message);
+                } catch (e) {
+                    console.warn('[email] alert failed', e);
                 }
             }
+
+            document.querySelectorAll('.select-group').forEach(btn => {
+                btn.addEventListener('click', function(ev) {
+                    ev.preventDefault();
+                    const group = this.dataset.group;
+                    const boxes = getCheckboxes().filter(cb => toS(cb.dataset.group) === toS(
+                    group));
+
+                    if (!boxes.length) {
+                        // nothing to select — show message and do not toggle or focus
+                        showAlert(`No participants found for "${group}".`);
+                        // ensure visual pressed state removed
+                        this.classList.remove('active');
+                        this.setAttribute('aria-pressed', 'false');
+                        this.blur();
+                        return;
+                    }
+
+                    // toggle: if any in group currently unchecked -> check ALL; otherwise uncheck ALL
+                    const anyUnchecked = boxes.some(cb => !cb.checked);
+                    boxes.forEach(cb => cb.checked = anyUnchecked);
+
+                    // update button visual + accessibility
+                    if (anyUnchecked) {
+                        this.classList.add('active');
+                        this.setAttribute('aria-pressed', 'true');
+                    } else {
+                        this.classList.remove('active');
+                        this.setAttribute('aria-pressed', 'false');
+                    }
+
+                    // remove focus (prevents persistent blue focus outline)
+                    this.blur();
+
+                    refreshRecipients();
+                });
+            });
+
+            // ---------------- clear selection ----------------
+            if (clearBtn) {
+                clearBtn.addEventListener('click', function(ev) {
+                    ev.preventDefault();
+                    getCheckboxes().forEach(cb => cb.checked = false);
+                    if (toManual) toManual.value = '';
+                    refreshRecipients();
+                    document.querySelectorAll('.select-group').forEach(b => {
+                        b.classList.remove('active');
+                        b.setAttribute('aria-pressed', 'false');
+                    });
+                    if (clearBtn.blur) clearBtn.blur();
+                });
+            }
+
+            // ---------------- listen for checkbox changes (delegated) ----------------
+            document.addEventListener('change', function(e) {
+                if (e.target && e.target.matches && e.target.matches('.participant-checkbox')) {
+                    // keep the group button visual state in sync:
+                    const group = toS(e.target.dataset.group || '');
+                    if (group) {
+                        const btn = Array.from(document.querySelectorAll('.select-group')).find(x => toS(x
+                            .dataset.group) === group);
+                        if (btn) {
+                            const boxes = getCheckboxes().filter(cb => toS(cb.dataset.group) === group);
+                            const anyChecked = boxes.some(cb => cb.checked);
+                            btn.classList.toggle('active', anyChecked);
+                            btn.setAttribute('aria-pressed', anyChecked ? 'true' : 'false');
+                        }
+                    }
+                    refreshRecipients();
+                }
+            });
+
+            // ---------------- form submit ----------------
+            emailForm.addEventListener('submit', function(e) {
+                if (typeof tinymce !== 'undefined') {
+                    try {
+                        tinymce.triggerSave();
+                    } catch (er) {}
+                }
+
+                refreshRecipients();
+
+                if (!recipientEmails.value) {
+                    e.preventDefault();
+                    showAlert(
+                        'Please select at least one valid recipient (checkboxes or manual "To" field).');
+                    return false;
+                }
+
+                if (sendBtn) {
+                    sendBtn.disabled = true;
+                    sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Sending…';
+                }
+            });
+
+            // initial render
             refreshRecipients();
-        }
-    });
-
-    // ---------------- form submit ----------------
-    emailForm.addEventListener('submit', function (e) {
-        if (typeof tinymce !== 'undefined') {
-            try { tinymce.triggerSave(); } catch (er) { }
-        }
-
-        refreshRecipients();
-
-        if (!recipientEmails.value) {
-            e.preventDefault();
-            showAlert('Please select at least one valid recipient (checkboxes or manual "To" field).');
-            return false;
-        }
-
-        if (sendBtn) {
-            sendBtn.disabled = true;
-            sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Sending…';
-        }
-    });
-
-    // initial render
-    refreshRecipients();
-});
-</script>
+        });
+    </script>
 @endpush
-
-
-

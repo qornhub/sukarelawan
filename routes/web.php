@@ -33,6 +33,11 @@ use App\Http\Controllers\Events\EventRegistrationController;
 
 use App\Http\Controllers\Events\NgoEventDiscoveryController;
 use App\Http\Controllers\Events\NGOEventManagementController;
+
+use App\Http\Controllers\Blog\BlogPostController;
+use App\Http\Controllers\Blog\VolunteerBlogPostController;
+use App\Http\Controllers\Blog\NGOBlogPostController;
+use App\Http\Controllers\Blog\AdminBlogPostController;
 /*
 |--------------------------------------------------------------------------
 | Common / Shared Routes (All Users)
@@ -53,9 +58,6 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 Route::post('/logout/ngo', [LoginController::class, 'logoutNgo'])->name('logout.ngo');
 Route::post('/logout/volunteer', [LoginController::class, 'logoutVolunteer'])->name('logout.volunteer');
 
-
-
-
 // Public volunteer page
 Route::get('/volunteer', [EventDiscoveryController::class, 'index'])->name('volunteer.index.public');
 
@@ -70,9 +72,9 @@ Route::get('/', fn () => redirect('/register/volunteer'));
 Route::get('/volunteers/{id}', [VolunteerProfileController::class, 'show'])->name('volunteer.profile.show');
 Route::get('volunteer/{id}/badges', [UserBadgeController::class, 'showByUser'])->name('volunteer.badges.show');
 
-
-
-
+//Anyone (guests) can view public posts and single post pages.
+Route::get('/blogs', [BlogPostController::class, 'index'])->name('blogs.index');
+Route::get('/blogs/{id}', [BlogPostController::class, 'show'])->name('blogs.show');
 
 
 /*
@@ -112,15 +114,17 @@ Route::middleware(['auth', 'isVolunteer'])
         Route::get('my-tasks', [AssignedTaskController::class, 'index'])->name('tasks.assigned.index');
         Route::get('my-tasks/{task}', [AssignedTaskController::class, 'show'])->name('tasks.assigned.show');
          
-        Route::get('rewards', [UserPointController::class, 'index'])
-            ->name('rewards.index');
-        
+        //reward
+        Route::get('rewards', [UserPointController::class, 'index'])->name('rewards.index');
+        Route::get('user-badges', [UserBadgeController::class, 'index'])->name('user_badges.index');
+        Route::post('badges/{badge}/claim', [UserBadgeController::class, 'claim'])->name('badges.claim');
 
-        Route::get('user-badges', [UserBadgeController::class, 'index'])
-            ->name('user_badges.index');
-
-        Route::post('badges/{badge}/claim', [UserBadgeController::class, 'claim'])
-            ->name('badges.claim');
+        //Blog
+        Route::get('/blogs/create', [VolunteerBlogPostController::class, 'create'])->name('blogs.create');
+        Route::post('/blogs', [VolunteerBlogPostController::class, 'store'])->name('blogs.store');
+        Route::get('/blogs/{id}/edit', [VolunteerBlogPostController::class, 'edit'])->name('blogs.edit');
+        Route::put('/blogs/{id}', [VolunteerBlogPostController::class, 'update'])->name('blogs.update');
+        Route::delete('/blogs/{id}', [VolunteerBlogPostController::class, 'destroy'])->name('blogs.destroy');
     });
 
 
@@ -129,7 +133,6 @@ Route::middleware(['auth', 'isVolunteer'])
 | NGO Routes
 |--------------------------------------------------------------------------
 */
-
 // Registration
 Route::get('/register/ngo', [NGORegisterController::class, 'showRegisterForm'])->name('register.ngo');
 Route::post('/register/ngo', [NGORegisterController::class, 'register']);
@@ -179,7 +182,7 @@ Route::middleware(['auth', 'isNGO'])
         Route::post('/events/{event}/registrations/{registration}/reject', [NGOEventManagementController::class, 'reject'])->name('events.registrations.reject');
         //Route::get('/events/{event}/participants', [NGOEventManagementController::class, 'participants'])->name('events.participants');
 
-       Route::get('events/{event}/tasks',          [TaskController::class, 'index'])->name('tasks.index');
+        Route::get('events/{event}/tasks',          [TaskController::class, 'index'])->name('tasks.index');
         Route::get('events/{event}/tasks/create',   [TaskController::class, 'create'])->name('tasks.create');
         Route::post('events/{event}/tasks',         [TaskController::class, 'store'])->name('tasks.store');
         Route::get('/events/{event}/tasks/{task}/edit', [TaskController::class, 'edit'])->name('tasks.edit');
@@ -187,13 +190,17 @@ Route::middleware(['auth', 'isNGO'])
         Route::delete('events/{event}/tasks/{task}',    [TaskController::class, 'destroy'])->name('tasks.destroy');
 
         // Assignments
-          Route::post('/tasks/{task}/assign', [AssignedTaskController::class, 'assign'])->name('tasks.assign');
-    Route::delete('/tasks/{task}/unassign/{userId}', [AssignedTaskController::class, 'unassign'])->name('tasks.unassign');
-    //Route::get('/tasks/{task}/assigned', [TaskController::class, 'assignedList']);
-    Route::get('/tasks/{task}/assigned', [TaskController::class, 'assignedList'])->name('tasks.assigned');
-
-    Route::post('events/{event}/email', [NGOEventManagementController::class, 'sendEmail'])->name('events.email.send');
-
+        Route::post('/tasks/{task}/assign', [AssignedTaskController::class, 'assign'])->name('tasks.assign');
+        Route::delete('/tasks/{task}/unassign/{userId}', [AssignedTaskController::class, 'unassign'])->name('tasks.unassign');
+        //Route::get('/tasks/{task}/assigned', [TaskController::class, 'assignedList']);
+        Route::get('/tasks/{task}/assigned', [TaskController::class, 'assignedList'])->name('tasks.assigned');
+        Route::post('events/{event}/email', [NGOEventManagementController::class, 'sendEmail'])->name('events.email.send');
+   
+        Route::get('/blogs/create', [NGOBlogPostController::class, 'create'])->name('blogs.create');
+        Route::post('/blogs', [NGOBlogPostController::class, 'store'])->name('blogs.store');
+        Route::get('/blogs/{id}/edit', [NGOBlogPostController::class, 'edit'])->name('blogs.edit');
+        Route::put('/blogs/{id}', [NGOBlogPostController::class, 'update'])->name('blogs.update');
+        Route::delete('/blogs/{id}', [NGOBlogPostController::class, 'destroy'])->name('blogs.destroy');
 
     
 
@@ -279,10 +286,19 @@ Route::middleware(['auth', 'isAdmin'])
         // User Badges (view earned badges system-wide)
         Route::get('user-badges', [UserBadgeController::class, 'index'])->name('user_badges.index');
         Route::post('/badges/{badge}/claim', [UserBadgeController::class, 'claim'])->name('volunteer.badges.claim');
-    
-
 
         // User Points (view all user points)
         Route::get('user-points', [UserPointController::class, 'manage'])->name('user_points.manage');
+
+        Route::get('/blogs/create', [AdminBlogPostController::class, 'create'])->name('blogs.create');
+        Route::post('/blogs', [AdminBlogPostController::class, 'store'])->name('blogs.store');
+        Route::get('/blogs/{id}/edit', [AdminBlogPostController::class, 'edit'])->name('blogs.edit');
+        Route::put('/blogs/{id}', [AdminBlogPostController::class, 'update'])->name('blogs.update');
+
+        // Admin-only force delete any blog
+        Route::delete('/blogs/{id}/force', [AdminBlogPostController::class, 'adminDestroy'])->name('blogs.adminDestroy');
+
+        // Admin deleting own post (optional)
+        Route::delete('/blogs/{id}', [AdminBlogPostController::class, 'destroy'])->name('blogs.destroy');
 
     });

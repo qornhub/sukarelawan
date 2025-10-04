@@ -23,7 +23,7 @@
             <a href="{{ route('volunteer.index.public') }}" class="volunteer-nav-link active"><i class="fas fa-home"></i>
                 Home</a>
             <!--<a href= class="volunteer-nav-link"><i class="fas fa-calendar-alt"></i> Event</a>-->
-            <a href="#" class="volunteer-nav-link"><i class="fas fa-blog"></i> Blog</a>
+            <a href="{{route('blogs.index')}}" class="volunteer-nav-link"><i class="fas fa-blog"></i> Blog</a>
             <a href="{{ route('volunteer.rewards.index') }}" class="volunteer-nav-link"><i class="fas fa-award"></i> Reward</a>
         </nav>
 

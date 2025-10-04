@@ -72,9 +72,11 @@
             {{-- Name + role --}}
             <div class="profile-header">
                 <h1 class="profile-name">{{ $profile->organizationName ?? 'Unnamed NGO' }}</h1>
-                <div>
-                    <span class="profile-badge">{{ ucfirst(auth()->user()->role->roleName) }}</span>
-                </div>
+                <span class="profile-badge">
+                    {{ $profile instanceof \App\Models\NGOProfile ? 'NGO' : 'Profile' }}
+                </span>
+
+
             </div>
 
 

@@ -407,6 +407,7 @@
 
         .pagination .page-item.active .page-link {
             background-color: var(--primary-purple);
+            color: #fff;
             border-color: var(--primary-purple);
         }
 

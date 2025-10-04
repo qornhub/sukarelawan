@@ -22,35 +22,47 @@ public function show($id = null)
 {
     // If no id is passed → show logged-in user's profile
     $user = $id ? User::findOrFail($id) : Auth::user();
-
     $profile = $user->volunteerProfile;
-
     $today = now()->toDateString();
 
-   // Upcoming events = approved + not ended
-$upcomingEvents = Event::whereHas('registrations', function ($q) use ($user) {
-        $q->where('user_id', $user->id)
-          ->where('status', 'approved'); // ✅ only approved registrations
-    })
-    ->whereDate('eventEnd', '>=', $today)
-    ->get();
+    // Upcoming events = approved + not ended + NOT already attended
+    // newest (by eventStart) first, paginated 3 per page
+    $upcomingEvents = Event::whereHas('registrations', function ($q) use ($user) {
+            $q->where('user_id', $user->id)
+              ->where('status', 'approved');
+        })
+        ->whereDate('eventEnd', '>=', $today)
+        ->whereDoesntHave('attendances', function ($q) use ($user) {
+            $q->where('user_id', $user->id);
+        })
+        ->orderByDesc('eventStart')
+        ->paginate(3, ['*'], 'upcoming_page');
 
-    $pastEvents = Event::whereHas('attendances', fn($q) => 
-        $q->where('user_id', $user->id)
-    )->get();
+    // Past events — events where we have an attendance record for the user
+    // newest (most recent eventStart) first, paginated 3 per page
+    $pastEvents = Event::whereHas('attendances', function ($q) use ($user) {
+            $q->where('user_id', $user->id);
+        })
+        ->with(['attendances' => function ($q) use ($user) {
+            $q->where('user_id', $user->id);
+        }])
+        ->orderByDesc('eventStart')
+        ->paginate(3, ['*'], 'past_page');
 
     $blogPosts   = BlogPost::where('user_id', $user->id)->get();
     $totalPoints = Attendance::where('user_id', $user->id)->sum('pointEarned');
-    //$badges      = UserBadge::where('user_id', $user->id)->with('badge')->get()->pluck('badge');
-     // Load the badges for this user
+
+     // <-- changed: paginate user badges, 5 per page. named page param 'earned_page'
     $userBadges = UserBadge::with('badge')
         ->where('user_id',  $user->id)
-        ->get();
+        ->orderByDesc('created_at')
+        ->paginate(5, ['*'], 'earned_page');
 
     return view('volunteer.profile.profile', compact(
         'profile', 'upcomingEvents', 'pastEvents', 'blogPosts', 'totalPoints', 'userBadges'
     ));
 }
+
 
 
 
