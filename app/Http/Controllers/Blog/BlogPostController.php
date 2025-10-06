@@ -10,16 +10,31 @@ use App\Models\BlogPost;
 class BlogPostController extends Controller
 {
     /**
-     * Public index - show only published posts (paginated).
-     */
-    public function index(Request $request)
-    {
-        $posts = BlogPost::where('status', 'published')
-            ->orderBy('published_at', 'desc')
-            ->paginate(10);
+ * Public index - show only published posts (paginated), with search support.
+ */
+public function index(Request $request)
+{
+    $query = BlogPost::where('status', 'published');
 
-        return view('volunteer.blogs.index', compact('posts'));
+    // 🔍 If user entered a search keyword
+    if ($search = $request->input('q')) {
+        $query->where(function ($q) use ($search) {
+            $q->where('title', 'like', "%{$search}%")
+              ->orWhere('blogSummary', 'like', "%{$search}%")
+              ->orWhere('content', 'like', "%{$search}%");
+              
+        });
     }
+
+    // 📝 Order by published date (newest first)
+    $posts = $query->orderBy('published_at', 'desc')->paginate(10);
+
+    // 🧭 Keep search keyword in pagination links
+    $posts->appends($request->only('q'));
+
+    return view('volunteer.blogs.index', compact('posts'));
+}
+
 
     /**
      * Show single post.
@@ -40,7 +55,7 @@ class BlogPostController extends Controller
         // Post is draft => only owner (author) can view it
         $this->ensureOwnerOnly($post);
 
-        return view('blogs.show', compact('post'));
+        return view('volunteer.blogs.show', compact('post'));
     }
 
     /**

@@ -2,46 +2,61 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Create blog</title> 
+    <title>Create Blog</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <!-- Bootstrap CSS (via CDN) -->
+    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Optionally include Bootstrap Icons if you use them -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-    <style>
-        body { background-color: #f8f9fa; }
-        .card { border-radius: .6rem; }
-    </style>
+
+    <!-- Page CSS (contains hero, grid and preview styles) -->
+    <link rel="stylesheet" href="{{ asset('css/blogs/create.css') }}">
+
 </head>
 <body class="bg-light">
 
     @include('layouts.volunteer_header')
+    
+
+    <header class="hero mb-3">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <h1 class="hero-title">Blog Management</h1>
+
+        </div>
+    </header>
     @include('layouts.messages')
 
-    <div class="container py-4">
-        <div class="row justify-content-center">
-            <div class="col-lg-10">
-                <div class="card shadow-sm">
-                    <div class="card-header bg-primary text-white d-flex align-items-center justify-content-between">
-                        <h5 class="mb-0">Create Blog Post</h5>
-                        <a href="{{ route('blogs.index') }}" class="btn btn-sm btn-light">← Back to Blog</a>
-                    </div>
+   
+    
 
-                    <div class="card-body">
-                        <form action="{{ route('volunteer.blogs.store') }}" method="POST" enctype="multipart/form-data">
-                            @include('volunteer.blogs._form')
-                        </form>
-                    </div>
-                </div>
+   <!-- MAIN: form area -->
+<main class="my-4">
+    <div class="row justify-content-center mx-0">
+        <div class="col-12 px-5">
+            <!-- top label area (left aligned heading like screenshot) -->
+            <div class="d-flex align-items-center mb-3">
+                
+                <div class="section-title">Blog DETAILS</div>
             </div>
+
+            <!-- form wrapper (single form - partial contains fields/grid) -->
+            <form action="{{ route('volunteer.blogs.store') }}" method="POST" enctype="multipart/form-data" novalidate>
+                @csrf
+                <div class="form-section p-0">
+                    @include('volunteer.blogs._form')
+                </div>
+            </form>
         </div>
     </div>
-@include('layouts.volunteer_footer')
-    <!-- Bootstrap JS (via CDN) -->
+</main>
+
+    @include('layouts.volunteer_footer')
+
+    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- Stacked scripts (TinyMCE from the form partial will be pushed here) -->
+    {{-- render scripts pushed by the partial (TinyMCE + preview) --}}
     @stack('scripts')
 </body>
 </html>

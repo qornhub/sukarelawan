@@ -5,10 +5,10 @@ namespace App\Http\Controllers\Blog;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use App\Models\BlogPost;
 use App\Models\BlogCategory;
+use Carbon\Carbon;
 
 class VolunteerBlogPostController extends Controller
 {
@@ -22,33 +22,30 @@ class VolunteerBlogPostController extends Controller
     // Store new blog post (volunteer)
     public function store(Request $request)
     {
-        $input = [
-            'title'        => $request->input('title'),
-            'content'      => $request->input('content'),
-            'category_id'  => $request->input('category_id'),
-            'status'       => $request->input('status', 'draft'),
-            'published_at' => $request->input('published_at', null),
-        ];
-
-        $rules = [
+        // Validate request (use controller validation because textarea is handled by TinyMCE)
+        $validated = $request->validate([
             'title'        => 'required|string|max:255',
+            'summary'      => 'nullable|string|max:500',
             'content'      => 'required|string',
             'category_id'  => 'required|exists:blog_categories,blogCategory_id',
             'status'       => 'required|in:draft,published',
             'published_at' => 'nullable|date',
             'image'        => 'nullable|image|max:5120',
-        ];
+        ]);
 
-        $validator = Validator::make($input + $request->only('image','blogImage','blog_image'), $rules);
-
-        if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
+        // Normalize published_at (datetime-local from browser -> Y-m-d H:i:s)
+        if ($request->filled('published_at')) {
+            try {
+                $validated['published_at'] = Carbon::parse($request->input('published_at'))->toDateTimeString();
+            } catch (\Throwable $e) {
+                // leave as-is; validation above should have caught invalid dates
+            }
+        } else {
+            $validated['published_at'] = null;
         }
 
-        // Image handling
-        $defaultBlogImage = 'default-blog.jpg';
+        // Image handling (same style as your Event controller)
         $imageFileName = null;
-
         if ($request->hasFile('image') || $request->hasFile('blogImage') || $request->hasFile('blog_image')) {
             $file = $request->hasFile('image') ? $request->file('image')
                   : ($request->hasFile('blogImage') ? $request->file('blogImage') : $request->file('blog_image'));
@@ -64,15 +61,17 @@ class VolunteerBlogPostController extends Controller
             $file->move($destFolder, $imageFileName);
         }
 
+        // Prepare payload
         $payload = [
             'blogPost_id'  => (string) Str::uuid(),
             'user_id'      => Auth::id(),
-            'category_id'  => $input['category_id'],
-            'title'        => $input['title'],
-            'content'      => $input['content'],
+            'category_id'  => $validated['category_id'],
+            'title'        => $validated['title'],
+            'summary'      => $validated['summary'] ?? null,
+            'content'      => $validated['content'],
             'image'        => $imageFileName,
-            'status'       => $input['status'],
-            'published_at' => ($input['status'] === 'published' && empty($input['published_at'])) ? now() : $input['published_at'],
+            'status'       => $validated['status'],
+            'published_at' => ($validated['status'] === 'published' && empty($validated['published_at'])) ? now() : $validated['published_at'],
         ];
 
         BlogPost::create($payload);
@@ -103,37 +102,37 @@ class VolunteerBlogPostController extends Controller
             abort(403);
         }
 
-        $input = [
-            'title'        => $request->input('title'),
-            'content'      => $request->input('content'),
-            'category_id'  => $request->input('category_id'),
-            'status'       => $request->input('status', $post->status),
-            'published_at' => $request->input('published_at', $post->published_at),
-        ];
-
-        $rules = [
+        // Validate input
+        $validated = $request->validate([
             'title'        => 'required|string|max:255',
+            'summary'      => 'nullable|string|max:500',
             'content'      => 'required|string',
             'category_id'  => 'nullable|exists:blog_categories,blogCategory_id',
             'status'       => 'required|in:draft,published',
             'published_at' => 'nullable|date',
             'image'        => 'nullable|image|max:5120',
-        ];
+        ]);
 
-        $validator = Validator::make($input + $request->only('image','blogImage','blog_image'), $rules);
-
-        if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
+        // Normalize published_at if provided
+        if ($request->filled('published_at')) {
+            try {
+                $validated['published_at'] = Carbon::parse($request->input('published_at'))->toDateTimeString();
+            } catch (\Throwable $e) {
+                // ignore; validator should have prevented invalid date
+            }
+        } else {
+            // keep existing published_at if not provided and not changing to draft
+            if (!isset($validated['published_at'])) {
+                $validated['published_at'] = $post->published_at;
+            }
         }
 
         // Image handling (replace if uploaded)
-        $defaultBlogImage = 'default-blog.jpg';
-
         if ($request->hasFile('image') || $request->hasFile('blogImage') || $request->hasFile('blog_image')) {
             if ($post->image) {
                 $oldBasename = basename($post->image);
                 $oldPath = public_path('images/Blog/' . $oldBasename);
-                if ($oldBasename !== $defaultBlogImage && file_exists($oldPath)) {
+                if ($oldBasename !== 'default-blog.jpg' && file_exists($oldPath)) {
                     @unlink($oldPath);
                 }
             }
@@ -152,19 +151,20 @@ class VolunteerBlogPostController extends Controller
         }
 
         // Update fields
-        $post->category_id = $input['category_id'];
-        $post->title       = $input['title'];
-        $post->content     = $input['content'];
-        $post->status      = $input['status'];
+        $post->category_id = $validated['category_id'] ?? $post->category_id;
+        $post->title       = $validated['title'];
+        $post->summary     = $validated['summary'] ?? $post->summary;
+        $post->content     = $validated['content'];
+        $post->status      = $validated['status'];
 
-        if ($post->status === 'published' && empty($input['published_at'])) {
+        if ($post->status === 'published' && empty($validated['published_at'])) {
             if (empty($post->published_at)) {
                 $post->published_at = now();
             }
         } elseif ($post->status === 'draft') {
             $post->published_at = null;
         } else {
-            $post->published_at = $input['published_at'];
+            $post->published_at = $validated['published_at'];
         }
 
         $post->save();

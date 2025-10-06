@@ -173,7 +173,9 @@
                             </button>
                         </li>
                         <li class="nav-item me-5">
-                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#blog">
+                            <button
+                                class="nav-link {{ request()->has('tab') && request('tab') == 'blog' ? 'active' : '' }}"
+                                data-bs-toggle="tab" data-bs-target="#blog">
                                 <i class="fas fa-blog me-2"></i>My Blog
                             </button>
                         </li>
@@ -306,21 +308,71 @@
 
 
 
+
+                        {{-- Blog Posts tab --}}
                         <!-- Blog Posts -->
-                        <div class="tab-pane fade" id="blog">
+                        <div class="tab-pane fade {{ request()->has('tab') && request('tab') == 'blog' ? 'show active' : '' }}"
+                            id="blog">
                             @forelse($blogPosts as $post)
-                                <div class="card event-card">
+                                @php
+                                    // Determine visibility and excerpt
+                                    $isOwner = auth()->check() && auth()->id() === $profile->user_id;
+                                    $canView = $post->status === 'published' || $isOwner;
+
+                                    // excerpt: prefer summary, fallback to stripped content
+                                    $excerpt = $post->summary
+                                        ? $post->summary
+                                        : \Illuminate\Support\Str::limit(strip_tags($post->content), 120, '...');
+
+                                    $imageUrl = $post->image
+                                        ? asset('images/Blog/' . $post->image)
+                                        : asset('images/Blog/default-blog.jpg');
+
+                                    // published display date: prefer published_at then created_at
+                                    $displayDate = $post->published_at
+                                        ? \Carbon\Carbon::parse($post->published_at)->format('j M Y')
+                                        : ($post->created_at
+                                            ? \Carbon\Carbon::parse($post->created_at)->format('j M Y')
+                                            : '-');
+
+                                    // build role-based edit route for owner
+                                    $editRoute = null;
+                                    if ($isOwner && auth()->check()) {
+                                        $r = strtolower(optional(auth()->user()->role)->roleName ?? 'volunteer');
+                                        $editRoute = route($r . '.blogs.edit', $post->blogPost_id);
+                                    }
+                                @endphp
+
+                                <a href="{{ $editRoute }}" class="card event-card mb-3 event-card-link"
+                                    style="text-decoration: none; color: inherit;">
+                                    <img src="{{ $imageUrl }}" class="card-img-top" alt="{{ $post->title }}"
+                                        style="height:200px; object-fit:cover;">
                                     <div class="card-body">
-                                        <h5 class="card-title">{{ $post->title }}</h5>
-                                        <p class="text-muted">Published:
-                                            {{ \Carbon\Carbon::parse($post->created_at)->format('j M Y') }}</p>
-                                        <p class="card-text mt-3">{{ Str::limit($post->excerpt, 120) }}</p>
-                                        <a href="{{ route('blog.show', $post) }}"
-                                            class="btn btn-sm btn-outline-primary mt-2">
-                                            Read more <i class="fas fa-arrow-right ms-1"></i>
-                                        </a>
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <h5 class="card-title mb-1">{{ $post->title }}</h5>
+                                            @if ($post->status !== 'published')
+                                                @if ($isOwner)
+                                                    <span class="badge bg-warning text-dark p-2 mb-1">
+                                                        <i class="fas fa-edit me-1"></i> Draft
+                                                    </span>
+                                                @else
+                                                    <span class="badge bg-secondary p-2 mb-1">Private</span>
+                                                @endif
+                                            @endif
+                                        </div>
+
+                                        <p class="text-muted small mb-2 mt-2">{{ $excerpt }}</p>
+
+                                        <div class="d-flex flex-wrap gap-3 mt-3">
+                                            <div><i class="fas fa-calendar text-primary me-1"></i> Published:
+                                                {{ $displayDate }}</div>
+                                            <div><i class="fas fa-folder text-primary me-1"></i>
+                                                {{ optional($post->category)->categoryName ?? 'Uncategorized' }}</div>
+                                            <div><i class="fas fa-user text-primary me-1"></i>
+                                                {{ optional($post->user)->name ?? $profile->name }}</div>
+                                        </div>
                                     </div>
-                                </div>
+                                </a>
                             @empty
                                 <div class="card">
                                     <div class="card-body text-center py-4">
@@ -329,7 +381,24 @@
                                     </div>
                                 </div>
                             @endforelse
+
+                            
+
+                            @if ($blogPosts->hasPages())
+                                <div class="d-flex justify-content-center mt-3 events-pagination">
+                                    {{ $blogPosts->links('pagination::bootstrap-5') }}
+                                </div>
+                            @endif
                         </div>
+
+
+
+
+
+
+
+
+                        <!--two div dont move-->
                     </div>
 
                 </div>

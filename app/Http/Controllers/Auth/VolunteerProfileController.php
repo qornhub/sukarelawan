@@ -49,19 +49,40 @@ public function show($id = null)
         ->orderByDesc('eventStart')
         ->paginate(3, ['*'], 'past_page');
 
-    $blogPosts   = BlogPost::where('user_id', $user->id)->get();
     $totalPoints = Attendance::where('user_id', $user->id)->sum('pointEarned');
 
-     // <-- changed: paginate user badges, 5 per page. named page param 'earned_page'
+    // paginate user badges, 5 per page. named page param 'earned_page'
     $userBadges = UserBadge::with('badge')
         ->where('user_id',  $user->id)
         ->orderByDesc('created_at')
         ->paginate(5, ['*'], 'earned_page');
 
+    // ---------- Blog posts for profile ----------
+    // Owner sees all posts (draft + published); others see only published
+    $isOwner = Auth::check() && Auth::id() === $user->id;
+
+    $blogQuery = BlogPost::where('user_id', $user->id)
+        ->with(['category', 'user'])
+        ->orderByDesc('created_at');
+
+    if (! $isOwner) {
+        $blogQuery->where('status', 'published');
+    }
+
+    // Paginate blog posts separately (6 per page). Use page param 'blog_page'
+    $blogPosts = $blogQuery->paginate(3, ['*'], 'blog_page');
+
     return view('volunteer.profile.profile', compact(
-        'profile', 'upcomingEvents', 'pastEvents', 'blogPosts', 'totalPoints', 'userBadges'
+        'profile',
+        'upcomingEvents',
+        'pastEvents',
+        'blogPosts',
+        'totalPoints',
+        'userBadges',
+        'isOwner'
     ));
 }
+
 
 
 

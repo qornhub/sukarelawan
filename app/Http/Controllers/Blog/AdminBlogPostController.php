@@ -22,6 +22,7 @@ class AdminBlogPostController extends Controller
     {
         $input = [
             'title'        => $request->input('title'),
+            'summary'      => $request->input('summary'),
             'content'      => $request->input('content'),
             'category_id'  => $request->input('category_id'),
             'status'       => $request->input('status', 'draft'),
@@ -30,6 +31,7 @@ class AdminBlogPostController extends Controller
 
         $rules = [
             'title'        => 'required|string|max:255',
+            'summary'      => 'nullable|string|max:500',
             'content'      => 'required|string',
             'category_id'  => 'required|exists:blog_categories,blogCategory_id',
             'status'       => 'required|in:draft,published',
@@ -38,8 +40,11 @@ class AdminBlogPostController extends Controller
         ];
 
         $validator = Validator::make($input + $request->only('image','blogImage','blog_image'), $rules);
-        if ($validator->fails()) return redirect()->back()->withErrors($validator)->withInput();
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
 
+        // Handle image upload
         $imageFileName = null;
         if ($request->hasFile('image') || $request->hasFile('blogImage') || $request->hasFile('blog_image')) {
             $file = $request->hasFile('image') ? $request->file('image')
@@ -56,6 +61,7 @@ class AdminBlogPostController extends Controller
             'user_id'      => Auth::id(),
             'category_id'  => $input['category_id'],
             'title'        => $input['title'],
+            'summary'      => $input['summary'],
             'content'      => $input['content'],
             'image'        => $imageFileName,
             'status'       => $input['status'],
@@ -70,9 +76,6 @@ class AdminBlogPostController extends Controller
     public function edit($id)
     {
         $post = BlogPost::where('blogPost_id', $id)->firstOrFail();
-
-        // Admins can edit any post OR their own; we'll allow both
-        // (middleware 'isAdmin' already protects admin routes)
         $categories = BlogCategory::orderBy('categoryName')->get();
         return view('admin.blogs.edit', compact('post','categories'));
     }
@@ -81,9 +84,9 @@ class AdminBlogPostController extends Controller
     {
         $post = BlogPost::where('blogPost_id', $id)->firstOrFail();
 
-        // Admins may update any post (no ownership restriction)
         $input = [
             'title'        => $request->input('title'),
+            'summary'      => $request->input('summary'),
             'content'      => $request->input('content'),
             'category_id'  => $request->input('category_id'),
             'status'       => $request->input('status', $post->status),
@@ -92,6 +95,7 @@ class AdminBlogPostController extends Controller
 
         $rules = [
             'title'        => 'required|string|max:255',
+            'summary'      => 'nullable|string|max:500',
             'content'      => 'required|string',
             'category_id'  => 'nullable|exists:blog_categories,blogCategory_id',
             'status'       => 'required|in:draft,published',
@@ -100,8 +104,11 @@ class AdminBlogPostController extends Controller
         ];
 
         $validator = Validator::make($input + $request->only('image','blogImage','blog_image'), $rules);
-        if ($validator->fails()) return redirect()->back()->withErrors($validator)->withInput();
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
 
+        // Image upload (replace old if any)
         if ($request->hasFile('image') || $request->hasFile('blogImage') || $request->hasFile('blog_image')) {
             if ($post->image) {
                 $oldBasename = basename($post->image);
@@ -123,6 +130,7 @@ class AdminBlogPostController extends Controller
 
         $post->category_id = $input['category_id'];
         $post->title       = $input['title'];
+        $post->summary     = $input['summary'];
         $post->content     = $input['content'];
         $post->status      = $input['status'];
 
@@ -139,7 +147,6 @@ class AdminBlogPostController extends Controller
         return redirect()->route('blogs.show', $post->blogPost_id)->with('success', 'Blog post updated.');
     }
 
-    // Admin: delete (admin-only) - can delete any post
     public function adminDestroy($id)
     {
         $post = BlogPost::where('blogPost_id', $id)->firstOrFail();
@@ -157,10 +164,8 @@ class AdminBlogPostController extends Controller
         return back()->with('success', 'Blog post removed by Admin.');
     }
 
-    // Admin: delete own post (optional route)
     public function destroy($id)
     {
-        // allow admin to delete their own post (same as adminDestroy but returns to blogs.index)
         $post = BlogPost::where('blogPost_id', $id)->firstOrFail();
 
         if ($post->image) {

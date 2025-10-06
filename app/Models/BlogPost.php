@@ -21,6 +21,7 @@ class BlogPost extends Model
         'user_id',
         'category_id',
         'title',
+        'blogSummary',
         'content',
         'image',
         'status',        // 'draft' | 'published'
