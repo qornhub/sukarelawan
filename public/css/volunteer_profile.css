@@ -59,7 +59,6 @@ body {
 }
 
 /* Avatar that overlaps the cover */
-
 .profile-avatar {
     position: absolute;
     bottom: 1px; /* overlap amount */
@@ -73,19 +72,18 @@ body {
     object-fit: cover;
     background: #fff;
 }
+
 .cover-photo {
     height: 320px;
     width: 100%;
     background-size: cover;
     background-position: center;
-
     display: block;
 }
 
 /* Floating edit button on cover */
 .edit-profile-btn {
     position: absolute;
-
     right: 50px;
     top: calc(85% + 10px - 24px);
     z-index: 30;
@@ -102,6 +100,7 @@ body {
     border: 1px solid rgba(0, 0, 0, 0.06);
     transition: transform 0.18s ease, box-shadow 0.18s ease;
 }
+
 .edit-profile-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 10px 24px rgba(30, 40, 60, 0.14);
@@ -110,7 +109,6 @@ body {
 /* -------------------------
    PROFILE HEADER & BADGE
    ------------------------- */
-
 .cover-container .profile-header {
     position: absolute;
     left: 206px;
@@ -123,6 +121,7 @@ body {
     z-index: 20;
     margin-bottom: 20px;
 }
+
 .cover-container .profile-header .profile-name {
     font-size: 2.4rem !important;
     font-weight: 700 !important;
@@ -136,6 +135,7 @@ body {
 .profile-role {
     margin-top: 6px;
 }
+
 .profile-subtitle {
     font-size: 0.95rem;
     color: #6c757d;
@@ -158,112 +158,223 @@ body {
 }
 
 /* -------------------------
-   CARDS & INFO LIST
+   CARDS & INFO LIST - FIXED SIZING
    ------------------------- */
 .card {
     border: none;
     border-radius: var(--border-radius);
     box-shadow: var(--card-shadow);
-    margin-bottom: 20px;
+    margin-bottom: 1.5rem;
     transition: transform 0.25s ease, box-shadow 0.25s ease;
     overflow: hidden;
     background: #fff;
-    padding-right: 40px;
+    
+    /* REMOVED: padding-right: 40px; - This was causing the weird sizing */
 }
+
 .card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 0.5rem 2rem rgba(58, 59, 69, 0.12);
+    transform: translateY(-3px);
+    box-shadow: 0 0.5rem 2rem rgba(58, 59, 69, 0.15);
 }
 
 .card-header {
-    background-color: #fff;
-    border-bottom: 1px solid #eaecf4;
-    font-weight: 700;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #eaecef;
+    font-weight: 600;
     color: var(--text-color);
-    padding: 15px 20px;
-    font-size: 1.05rem;
+    padding: 1rem 1.25rem;
+    font-size: 1rem;
 }
 
+.card-body {
+    padding: 1rem;
+}
+
+/* Info items styling */
 .info-item {
     display: flex;
-    padding: 12px 15px;
+    align-items: flex-start;
+    padding: 0.75rem 0;
     border-bottom: 1px solid #f0f2f5;
-    align-items: center;
 }
+
 .info-item:last-child {
     border-bottom: none;
 }
 
 .info-icon {
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
     background-color: rgba(78, 115, 223, 0.08);
-    border-radius: 50%;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-right: 15px;
+    margin-right: 12px;
     color: var(--primary-color);
     flex-shrink: 0;
+    font-size: 0.9rem;
+}
+
+.info-item div .text-muted {
+    font-size: 0.8rem;
+    margin-bottom: 2px;
+}
+
+.info-item div:last-child {
+    flex: 1;
+}
+
+/* -------------------------
+   STATS CARDS - FIXED SIZING
+   ------------------------- */
+.stat-card {
+    text-align: center;
+    padding: 0.75rem;
+}
+
+.stat-number {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    line-height: 1.2;
+}
+
+.stat-label {
+    font-size: 0.8rem;
+    color: #666;
+    margin-top: 0.25rem;
 }
 
 /* -------------------------
    NAV TAB STYLES
    ------------------------- */
-/* Make tab content cover up to nav */
-
 .nav-tabs {
-    border-bottom: none;
+    border-bottom: 1px solid #dee2e6;
+    padding: 0 1.25rem;
+    margin-bottom: 0;
 }
+
 .nav-tabs .nav-link {
     border: none;
     color: #6c757d;
     font-weight: 600;
-    padding: 12px 20px;
+    padding: 0.75rem 1rem;
     position: relative;
     transition: all 0.2s;
+    margin-bottom: -1px;
 }
+
 .nav-tabs .nav-link:hover {
     color: var(--primary-color);
+    border-color: transparent;
 }
+
 .nav-tabs .nav-link.active {
     color: var(--primary-color);
     background: transparent;
-}
-.nav-tabs .nav-link.active::after {
-    content: "";
-    position: absolute;
-    bottom: -2px;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: var(--primary-color);
+    border: none;
+    border-bottom: 3px solid var(--primary-color);
 }
 
 /* -------------------------
-   EVENT CARDS & BADGES
+   EVENT & BLOG CARDS - FIXED SIZING
    ------------------------- */
 .event-card {
-    border-left: 4px solid var(--primary-color);
+    border-radius: var(--border-radius);
+    box-shadow: var(--card-shadow);
     transition: all 0.2s;
-    margin-bottom: 15px;
-}
-.event-card:hover {
-    border-left-color: var(--success-color);
+    margin-bottom: 1rem;
+    border: 1px solid #eaecef;
+    overflow: hidden;
 }
 
-.event-date {
-    background: rgba(78, 115, 223, 0.08);
-    color: var(--primary-color);
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: 600;
+.event-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
+    text-decoration: none;
+    color: inherit;
 }
+
+.event-card .card-img-top {
+    height: 180px;
+    object-fit: cover;
+    width: 100%;
+}
+
+.event-card .card-body {
+    padding: 1.25rem;
+}
+
+.event-card .card-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
 /* -------------------------
-   Pagination
+   POINTS & REWARDS - FIXED SIZING
    ------------------------- */
-/* === EVENTS pagination (Upcoming & Past) === */
+.points-display {
+    font-size: 3rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    text-align: center;
+    margin: 1rem 0;
+    line-height: 1;
+}
+
+/* Earned Rewards Section */
+.earned-wrapper {
+    margin-top: 0.5rem;
+}
+
+.earned-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.earned-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem;
+    background: #fff;
+    border: 1px solid #eaecef;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    min-height: auto;
+}
+
+.earned-item:hover {
+    background: #f8f9fa;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.earned-badge-img {
+    width: 50px;
+    height: 50px;
+    object-fit: contain;
+    border-radius: 6px;
+    background-color: #fff;
+    margin-right: 0.75rem;
+}
+
+.earned-item div > div:first-child {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.earned-item div > .small {
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+/* -------------------------
+   PAGINATION
+   ------------------------- */
 .events-pagination .pagination .page-item .page-link {
     color: #004aad;
     border: 1px solid #004aad;
@@ -283,10 +394,9 @@ body {
     color: #fff;
 }
 
-/* === REWARDS pagination === */
 .rewards-pagination .pagination {
     justify-content: center;
-    margin-top: 15px;
+    margin-top: 1rem;
 }
 
 .rewards-pagination .pagination .page-link {
@@ -302,127 +412,14 @@ body {
     color: #fff;
     border-color: var(--primary-purple);
 }
+
 .rewards-pagination .pagination .page-item .page-link:hover {
-    background-color:var(--primary-purple);
+    background-color: var(--primary-purple);
     color: #fff;
 }
 
 /* -------------------------
-   POINTS & REWARDS
-   ------------------------- */
-.points-display {
-    font-size: 3.5rem;
-    font-weight: 700;
-    color: var(--primary-color);
-    text-align: center;
-    margin: 15px 0;
-    line-height: 1;
-}
-
-/* ===== Earned Rewards Section ===== */
-.earned-wrapper {
-    margin-top: 10px;
-}
-
-/* The list itself (vertical column layout) */
-.earned-list {
-    display: flex;
-    flex-direction: column;
-    gap: 20px; /* spacing between badge rows */
-}
-
-/* Each badge row */
-.earned-item {
-    display: flex;
-    align-items: center;
-    padding: 12px 15px;
-    background: #fff;
-    border: 1px solid #7209b7;
-    border-radius: 8px;
-    transition: box-shadow 0.2s ease-in-out, transform 0.2s ease-in-out;
-    min-height: 110px;
-}
-
-.earned-item:hover {
-    background: #fafafa;
-    transform: translateY(-2px);
-    box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.08);
-}
-
-/* Badge image */
-.earned-badge-img {
-    width: 110px;
-    height: 110px;
-    object-fit: contain;
-    border-radius: 6px;
-    
-    background-color: #fff;
-}
-
-/* Badge title */
-.earned-item div > div:first-child {
-    font-size: 1rem;
-    font-weight: 600;
-    color:var(--primary-purple);
-}
-
-/* Claimed date */
-.earned-item div > .small {
-    font-size: 0.85rem;
-    color: #6c757d;
-}
-
-
-
-
-
-
-
-/* -------------------------
-   STATS CARDS
-   ------------------------- */
-.section-title {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: var(--text-color);
-    margin-bottom: 20px;
-    padding-bottom: 10px;
-    border-bottom: 2px solid #eaecf4;
-}
-
-.tab-content {
-    padding-top: 20px;
-}
-
-.progress {
-    height: 8px;
-    border-radius: 4px;
-}
-
-.stat-card {
-    background: linear-gradient(
-        135deg,
-        var(--primary-color),
-        var(--primary-light)
-    );
-    color: white;
-    border-radius: var(--border-radius);
-    padding: 15px;
-    text-align: center;
-    margin-bottom: 15px;
-}
-.stat-number {
-    font-size: 1.8rem;
-    font-weight: 700;
-    margin-bottom: 5px;
-}
-.stat-label {
-    opacity: 0.9;
-    font-size: 0.85rem;
-}
-
-/* -------------------------
-   FORM (from your login CSS) - consistent tokens
+   FORM STYLES
    ------------------------- */
 .form-section {
     background: #fff;
@@ -434,6 +431,7 @@ body {
     position: relative;
     overflow: hidden;
 }
+
 .form-section::before {
     content: "";
     position: absolute;
@@ -457,17 +455,21 @@ body {
     border-radius: var(--rounded-sm);
     transition: all 0.25s;
 }
+
 .form-control:focus {
     border-color: var(--primary-color);
     box-shadow: 0 0 0 0.2rem rgba(44, 62, 80, 0.12);
 }
+
 .form-control.error {
     border-color: var(--error-color);
     background-color: #fff9fa;
 }
+
 .input-icon {
     position: relative;
 }
+
 .input-icon i {
     position: absolute;
     top: 50%;
@@ -476,6 +478,7 @@ body {
     color: #adb5bd;
     transition: color 0.2s;
 }
+
 .input-icon.error i {
     color: var(--error-color);
 }
@@ -490,6 +493,7 @@ body {
     position: relative;
     overflow: hidden;
 }
+
 .btn-primary:hover {
     background-color: var(--primary-hover);
     transform: translateY(-2px);
@@ -505,19 +509,22 @@ body {
     border: 1px solid #f5c2c7;
     color: var(--error-color);
 }
+
 #form-errors ul {
     margin-bottom: 0;
     padding-left: 1.5rem;
 }
+
 #form-errors li {
     margin-bottom: 0.25rem;
 }
+
 #form-errors li:last-child {
     margin-bottom: 0;
 }
 
 /* -------------------------
-   Utilities & small helpers
+   UTILITIES
    ------------------------- */
 .bg-right {
     background: linear-gradient(
@@ -534,21 +541,25 @@ body {
     padding: 2rem;
     color: #fff;
 }
+
 .bg-right-content {
     max-width: 500px;
     margin: 0 auto;
     text-align: center;
 }
+
 .header-logo {
     display: flex;
     align-items: center;
     gap: 10px;
     margin-bottom: 1.5rem;
 }
+
 .header-logo i {
     font-size: 2rem;
     color: var(--primary-color);
 }
+
 .header-logo h1 {
     font-size: 1.8rem;
     font-weight: 700;
@@ -557,31 +568,40 @@ body {
 }
 
 /* -------------------------
-   Responsive
+   RESPONSIVE DESIGN
    ------------------------- */
 @media (max-width: 992px) {
     .cover-container {
         height: 220px;
         margin-bottom: 70px;
     }
+    
     .profile-avatar {
         width: 140px;
         height: 140px;
         bottom: -70px;
         left: 20px;
     }
-    .profile-header {
-        padding-left: 180px;
+    
+    .cover-container .profile-header {
+        left: 180px;
     }
+    
     .bg-right {
         display: none;
+    }
+    
+    .card-body {
+        padding: 1rem;
     }
 }
 
 @media (max-width: 768px) {
     .cover-container {
         margin-bottom: 60px;
+        height: 200px;
     }
+    
     .profile-avatar {
         position: static;
         margin: -70px auto 15px auto;
@@ -589,24 +609,62 @@ body {
         width: 120px;
         height: 120px;
     }
-    .profile-header {
-        display: block;
+    
+    .cover-container .profile-header {
+        position: static;
         text-align: center;
-        padding-left: 0;
-        margin-top: -20px; /* less lift for mobile */
+        margin: -20px auto 0 auto;
+        align-items: center;
     }
-    .profile-text {
-        margin-top: 8px;
-    }
-
+    
     .profile-name {
-        font-size: 1.4rem;
+        font-size: 1.8rem !important;
     }
-
+    
     .profile-badge {
         margin: 0 auto;
     }
+    
     .form-section {
         padding: 1.5rem;
+    }
+    
+    .card-header,
+    .card-body {
+        padding: 0.75rem 1rem;
+    }
+    
+    .earned-badge-img {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .points-display {
+        font-size: 2.5rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .cover-container .profile-header .profile-name {
+        font-size: 1.6rem !important;
+    }
+    
+    .info-item {
+        padding: 0.5rem 0;
+    }
+    
+    .info-icon {
+        width: 28px;
+        height: 28px;
+        margin-right: 10px;
+    }
+    
+    .stat-number {
+        font-size: 1.25rem;
+    }
+    
+    .nav-tabs .nav-link {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.9rem;
     }
 }

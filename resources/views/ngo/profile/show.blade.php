@@ -160,145 +160,296 @@
                     </div>
                 </div>
 
-                {{-- MIDDLE: Tabs --}}
                 <div class="col-lg-6">
-                    <div class="card">
-                        <div class="card-body">
-                            <ul class="nav nav-tabs">
-                                <li class="nav-item">
-                                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#ongoing">
-                                        <i class="fas fa-play-circle me-2"></i>Ongoing Event
-                                    </button>
-                                </li>
-                                <li class="nav-item">
-                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#past">
-                                        <i class="fas fa-history me-2"></i>Past Event
-                                    </button>
-                                </li>
-                                <li class="nav-item">
-                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#blog">
-                                        <i class="fas fa-blog me-2"></i>My Blog
-                                    </button>
-                                </li>
-                            </ul>
+                    <div class="card" style="border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+                        <!-- Tabs Navigation -->
+                        <ul class="nav nav-tabs" id="profileTabs" role="tablist">
+                            <li class="nav-item me-2" role="presentation">
+                                <button
+                                    class="nav-link {{ !request('past_page') && !request()->has('tab') ? 'active' : '' }}"
+                                    id="upcoming-tab" data-bs-toggle="tab" data-bs-target="#upcoming" type="button"
+                                    role="tab" aria-controls="upcoming" aria-selected="true">
+                                    <i class="fas fa-calendar-check me-2"></i>Ongoing Events
+                                </button>
+                            </li>
 
-                            <div class="tab-content mt-3">
-                                {{-- ongoing events --}}
-                                <div class="tab-pane fade show active" id="ongoing">
-                                    @forelse($ongoingEvents as $event)
-                                        @php
-                                            $eventImage = $event->eventImage
-                                                ? asset('images/events/' . $event->eventImage)
-                                                : asset('images/events/default-event.jpg');
-                                            $start = $event->eventStart
-                                                ? \Carbon\Carbon::parse($event->eventStart)
-                                                : null;
-                                            $end = $event->eventEnd ? \Carbon\Carbon::parse($event->eventEnd) : null;
-                                        @endphp
+                            <li class="nav-item me-2" role="presentation">
+                                <button class="nav-link {{ request('past_page') ? 'active' : '' }}" id="past-tab"
+                                    data-bs-toggle="tab" data-bs-target="#past" type="button" role="tab"
+                                    aria-controls="past" aria-selected="false">
+                                    <i class="fas fa-history me-2"></i>Past Events
+                                </button>
+                            </li>
 
-                                        <a href="{{ route('ngo.profile.eventEditDelete', $event->event_id) }}"
-                                            class="card event-card mb-3 event-card-link"
-                                            style="text-decoration: none; color: inherit;">
-                                            @if (!empty($event->eventImage))
-                                                <img src="{{ $eventImage }}" class="card-img-top"
-                                                    alt="{{ $event->eventTitle }}"
-                                                    style="height:200px; object-fit:cover;">
+                            @auth
+                                @if (strtolower(auth()->user()->role->roleName ?? (auth()->user()->role ?? '')) === 'ngo')
+                                    <li class="nav-item me-5" role="presentation">
+                                        <button
+                                            class="nav-link {{ request()->has('tab') && request('tab') == 'blog' ? 'active' : '' }}"
+                                            id="blog-tab" data-bs-toggle="tab" data-bs-target="#blog" type="button"
+                                            role="tab" aria-controls="blog" aria-selected="false">
+                                            <i class="fas fa-blog me-2"></i>My Blog
+                                        </button>
+                                    </li>
+                                @endif
+                            @endauth
+                        </ul>
+
+                        <!-- Tabs Content -->
+                        <div class="tab-content mt-0" id="profileTabsContent">
+                            <!-- Ongoing Events Tab (uses $ongoingEvents) -->
+                            <div class="tab-pane fade {{ !request('past_page') && !request()->has('tab') ? 'show active' : '' }}"
+                                id="upcoming" role="tabpanel" aria-labelledby="upcoming-tab">
+                                @forelse($ongoingEvents as $event)
+                                    @php
+                                        $eventImage = $event->eventImage
+                                            ? asset('images/events/' . $event->eventImage)
+                                            : asset('images/events/default-event.jpg');
+                                        $start = $event->eventStart ? \Carbon\Carbon::parse($event->eventStart) : null;
+                                        $end = $event->eventEnd ? \Carbon\Carbon::parse($event->eventEnd) : null;
+                                    @endphp
+
+                                    <a href="{{ route('ngo.profile.eventEditDelete', $event->event_id) }}"
+                                        class="card event-card mb-3 event-card-link"
+                                        style="text-decoration: none; color: inherit;">
+                                        <img src="{{ $eventImage }}" class="card-img-top"
+                                            alt="{{ $event->eventTitle }}"
+                                            style="height: 180px; object-fit: cover; border-top-left-radius: 8px; border-top-right-radius: 8px;">
+                                        <div class="card-body">
+                                            <div class="d-flex justify-content-between align-items-start">
+                                                <h5 class="card-title mb-1">{{ $event->eventTitle }}</h5>
+                                                @if (!empty($event->eventPoints))
+                                                    <span class="badge bg-light text-primary p-2 mb-1">
+                                                        <i class="fas fa-coins me-1"></i> {{ $event->eventPoints }}
+                                                        points
+                                                    </span>
+                                                @endif
+                                            </div>
+
+                                            <p class="text-muted small mb-2 mt-2">
+                                                {{ $event->eventSummary ?? 'No description available' }}
+                                            </p>
+
+                                            <div class="d-flex flex-wrap gap-3 mt-3">
+                                                <div>
+                                                    <i class="fas fa-clock text-primary me-1"></i>
+                                                    {{ $start ? $start->format('j M Y g:i A') : '-' }} –
+                                                    {{ $end ? $end->format('j M Y g:i A') : '—' }}
+                                                </div>
+                                                <div>
+                                                    <i class="fas fa-map-marker-alt text-primary me-1"></i>
+                                                    {{ $event->venueName ?? '-' }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </a>
+                                @empty
+                                    <div class="card">
+                                        <div class="card-body text-center py-5">
+                                            <i class="fas fa-calendar-times text-muted fa-2x mb-3"></i>
+                                            <p class="text-muted mb-0">No ongoing events</p>
+                                        </div>
+                                    </div>
+                                @endforelse
+
+                                {{-- Pagination for Ongoing Event --}}
+                                 
+                                @if ($ongoingEvents->hasPages())
+                                    <div class="d-flex justify-content-center mt-3 events-pagination">
+                                        {{ $ongoingEvents->links('pagination::bootstrap-5') }}
+                                    </div>
+                                @endif
+                            </div>
+
+                            <!-- Past Events Tab (uses $pastEvents) -->
+                            <!-- Past Events Tab (matches Ongoing Events design) -->
+                            <div class="tab-pane fade {{ request('past_page') ? 'show active' : '' }}" id="past"
+                                role="tabpanel" aria-labelledby="past-tab">
+
+                                @forelse($pastEvents as $event)
+                                    @php
+                                        $eventImage = $event->eventImage
+                                            ? asset('images/events/' . $event->eventImage)
+                                            : asset('images/events/default-event.jpg');
+                                        $start = $event->eventStart ? \Carbon\Carbon::parse($event->eventStart) : null;
+                                        $end = $event->eventEnd ? \Carbon\Carbon::parse($event->eventEnd) : null;
+                                    @endphp
+
+                                    <a href="{{ route('ngo.profile.eventEditDelete', $event->event_id) }}"
+                                        class="card event-card mb-3 event-card-link"
+                                        style="text-decoration: none; color: inherit;">
+                                        <img src="{{ $eventImage }}" class="card-img-top"
+                                            alt="{{ $event->eventTitle }}"
+                                            style="height: 180px; object-fit: cover; border-top-left-radius: 8px; border-top-right-radius: 8px;">
+                                        <div class="card-body">
+                                            <div class="d-flex justify-content-between align-items-start">
+                                                <h5 class="card-title mb-1">{{ $event->eventTitle }}</h5>
+                                                @if (!empty($event->eventPoints))
+                                                    <span class="badge bg-light text-primary p-2 mb-1">
+                                                        <i class="fas fa-coins me-1"></i> {{ $event->eventPoints }}
+                                                        points
+                                                    </span>
+                                                @endif
+                                            </div>
+
+                                            <p class="text-muted small mb-2 mt-2">
+                                                {{ $event->eventSummary ?? 'No description available' }}
+                                            </p>
+
+                                            <div class="d-flex flex-wrap gap-3 mt-3">
+                                                <div>
+                                                    <i class="fas fa-clock text-primary me-1"></i>
+                                                    {{ $start ? $start->format('j M Y g:i A') : '-' }} –
+                                                    {{ $end ? $end->format('j M Y g:i A') : '—' }}
+                                                </div>
+                                                <div>
+                                                    <i class="fas fa-map-marker-alt text-primary me-1"></i>
+                                                    {{ $event->venueName ?? '-' }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </a>
+                                @empty
+                                    <div class="card">
+                                        <div class="card-body text-center py-4">
+                                            <i class="fas fa-history text-muted fa-2x mb-3"></i>
+                                            <p class="text-muted mb-0">No past events</p>
+                                        </div>
+                                    </div>
+                                @endforelse
+
+                                
+                                 {{-- Pagination for Past Events --}}
+                                @if ($pastEvents->hasPages())
+                                    <div class="d-flex justify-content-center mt-3 events-pagination">
+                                        {{ $pastEvents->links('pagination::bootstrap-5') }}
+                                    </div>
+                                @endif
+                            </div>
+
+
+                            <!-- Blog Posts Tab (uses $blogPosts) -->
+                            <div class="tab-pane fade {{ request()->has('tab') && request('tab') == 'blog' ? 'show active' : '' }}"
+                                id="blog" role="tabpanel" aria-labelledby="blog-tab">
+
+                                @forelse($blogPosts as $post)
+                                    @php
+                                        $isOwner = auth()->check() && auth()->id() === $profile->user_id;
+                                        $canView = $post->status === 'published' || $isOwner;
+
+                                        // excerpt: prefer blogSummary, fallback to stripped content
+                                        $excerpt = $post->blogSummary
+                                            ? $post->blogSummary
+                                            : \Illuminate\Support\Str::limit(strip_tags($post->content), 120, '...');
+
+                                        $imageUrl = $post->image
+                                            ? asset('images/Blog/' . $post->image)
+                                            : asset('images/Blog/default-blog.jpg');
+
+                                        $displayDate = $post->published_at
+                                            ? \Carbon\Carbon::parse($post->published_at)->format('j M Y')
+                                            : ($post->created_at
+                                                ? \Carbon\Carbon::parse($post->created_at)->format('j M Y')
+                                                : '-');
+
+                                        // public & owner routes for blog (NGO controller handles manage/edit/destroy)
+                                        $publicRoute = route('blogs.show', $post->blogPost_id);
+                                        $ownerManageRoute = $isOwner
+                                            ? route('ngo.blogs.manage', $post->blogPost_id)
+                                            : null;
+                                        $ownerEditRoute = $isOwner ? route('ngo.blogs.edit', $post->blogPost_id) : null;
+                                        $ownerDeleteRoute = $isOwner
+                                            ? route('ngo.blogs.destroy', $post->blogPost_id)
+                                            : null;
+
+                                        $cardLink = $ownerManageRoute ?? $publicRoute;
+                                        $authorName =
+                                            optional($post->user)->name ??
+                                            ($profile->organizationName ?? ($profile->name ?? 'Unknown'));
+                                    @endphp
+
+                                    <a href="{{ $cardLink }}" class="text-decoration-none text-reset">
+                                        <div class="card event-card mb-3">
+                                            @if ($imageUrl)
+                                                <img src="{{ $imageUrl }}" class="card-img-top"
+                                                    alt="{{ $post->title }}"
+                                                    style="height: 180px; object-fit: cover; border-top-left-radius: 8px; border-top-right-radius: 8px;">
                                             @endif
 
                                             <div class="card-body">
                                                 <div class="d-flex justify-content-between align-items-start">
-                                                    <h5 class="card-title mb-1">{{ $event->eventTitle }}</h5>
-                                                    <span
-                                                        class="event-date">{{ $start ? $start->format('j M Y') : '-' }}</span>
+                                                    <h5 class="card-title mb-1">{{ $post->title }}</h5>
+
+                                                    @if ($post->status !== 'published')
+                                                        @if ($isOwner)
+                                                            <span class="badge bg-warning text-dark p-2 mb-1">
+                                                                <i class="fas fa-edit me-1"></i> Draft
+                                                            </span>
+                                                        @else
+                                                            <span class="badge bg-secondary p-2 mb-1">Private</span>
+                                                        @endif
+                                                    @endif
                                                 </div>
 
-                                                <p class="text-muted small mb-2 mt-2">{{ $event->eventSummary }}</p>
+                                                <p class="text-muted small mb-2 mt-2">{{ $excerpt }}</p>
 
-                                                <div class="d-flex flex-wrap gap-3">
-                                                    <div><i class="fas fa-clock text-primary me-1"></i>
-                                                        {{ $start ? $start->format('j M Y g:i A') : '-' }} –
-                                                        {{ $end ? $end->format('j M Y g:i A') : '—' }}
+                                                <div class="d-flex flex-wrap gap-3 mt-3 small text-muted">
+                                                    <div>
+                                                        <i class="fas fa-calendar text-primary me-1"></i>
+                                                        {{ $displayDate }}
                                                     </div>
-                                                    <div><i class="fas fa-map-marker-alt text-primary me-1"></i>
-                                                        {{ $event->venueName ?? '-' }}</div>
-                                                </div>
-                                            </div>
-                                        </a>
-                                    @empty
-                                        <div class="card">
-                                            <div class="card-body text-center py-5">
-                                                <i class="fas fa-calendar-times text-muted fa-2x mb-3"></i>
-                                                <p class="text-muted mb-0">No ongoing events</p>
-                                            </div>
-                                        </div>
-                                    @endforelse
-                                </div>
-
-                                {{-- Past --}}
-                                <div class="tab-pane fade" id="past">
-                                    @forelse($pastEvents as $event)
-                                        <div class="card event-card mb-3">
-
-
-                                            @if (!empty($event->eventImage))
-                                                <img src="{{ asset('images/events/' . $event->eventImage) }}"
-                                                    class="card-img-top" alt="{{ $event->eventTitle }}"
-                                                    style="height:200px; object-fit:cover;">
-                                            @endif
-
-                                            <div class="card-body">
-                                                <h5 class="card-title mb-1">{{ $event->eventTitle }}</h5>
-                                                <p class="text-muted small mb-2 mt-2"> {{ $event->eventSummary }}</p>
-
-                                                <div class="d-flex flex-wrap gap-3">
-                                                    <div><i class="fas fa-calendar-alt me-1"></i>
-                                                        {{ optional($event->eventEnd) ? \Carbon\Carbon::parse($event->eventEnd)->format('j M Y') : '-' }}
+                                                    <div>
+                                                        <i class="fas fa-folder text-primary me-1"></i>
+                                                        {{ optional($post->category)->categoryName ?? 'Uncategorized' }}
                                                     </div>
-                                                    <div><i class="fas fa-clock me-1"></i>
-                                                        {{ $event->eventStart ?? '-' }} –
-                                                        {{ $event->eventEnd ?? '-' }}</div>
-                                                    <div><i class="fas fa-map-marker-alt me-1"></i>
-                                                        {{ $event->venueName ?? '-' }}</div>
+                                                    <div>
+                                                        <i class="fas fa-user text-primary me-1"></i>
+                                                        {{ $authorName }}
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </div>
-                                    @empty
-                                        <div class="card">
-                                            <div class="card-body text-center py-5">
-                                                <i class="fas fa-history text-muted fa-2x mb-3"></i>
-                                                <p class="text-muted mb-0">No past events</p>
-                                            </div>
-                                        </div>
-                                    @endforelse
-                                </div>
 
-                                {{-- Blog --}}
-                                <div class="tab-pane fade" id="blog">
-                                    @forelse($blogs as $blog)
-                                        <div class="card mb-3">
-                                            <div class="card-body">
-                                                <h5 class="card-title">{{ $blog->title }}</h5>
-                                                <p class="text-muted small mb-2">Published:
-                                                    {{ \Carbon\Carbon::parse($blog->created_at)->format('j M Y') }}</p>
-                                                <p class="mb-2">
-                                                    {{ Str::limit($blog->excerpt ?? $blog->content, 140) }}</p>
-                                                <a href="{{ route('blog.show', $blog->id) }}"
-                                                    class="btn btn-sm btn-outline-primary">Read more</a>
+                                                {{-- Owner inline actions (not part of the card link) --}}
+                                                @if ($isOwner)
+                                                    <div class="d-flex justify-content-start gap-2 mt-3">
+                                                        <a href="{{ $ownerEditRoute }}"
+                                                            class="btn btn-sm btn-outline-success"
+                                                            onclick="event.stopPropagation();">
+                                                            <i class="fas fa-pen me-1"></i> Edit
+                                                        </a>
+
+                                                        <form action="{{ $ownerDeleteRoute }}" method="POST"
+                                                            class="d-inline-block"
+                                                            onsubmit="event.stopPropagation(); return confirm('Delete this post?');">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button class="btn btn-sm btn-outline-danger">
+                                                                <i class="fas fa-trash me-1"></i> Delete
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                @endif
                                             </div>
                                         </div>
-                                    @empty
-                                        <div class="card">
-                                            <div class="card-body text-center py-5">
-                                                <i class="fas fa-file-alt text-muted fa-2x mb-3"></i>
-                                                <p class="text-muted mb-0">No blog posts yet</p>
-                                            </div>
+                                    </a>
+                                @empty
+                                    <div class="card">
+                                        <div class="card-body text-center py-4">
+                                            <i class="fas fa-file-alt text-muted fa-2x mb-3"></i>
+                                            <p class="text-muted mb-0">No blog posts yet</p>
                                         </div>
-                                    @endforelse
-                                </div>
+                                    </div>
+                                @endforelse
+
+                                @if ($blogPosts->hasPages())
+                                    <div class="d-flex justify-content-center mt-3 events-pagination">
+                                        {{ $blogPosts->withQueryString()->links('pagination::bootstrap-5') }}
+                                    </div>
+                                @endif
                             </div>
                         </div>
                     </div>
                 </div>
+
 
                 {{-- RIGHT: Total Events --}}
                 <div class="col-lg-3">
@@ -322,6 +473,7 @@
 
     {{-- scripts --}}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/show.js"></script>
     <script>
         document.addEventListener('click', function(e) {
             // if the click was on an inner interactive element inside a clickable card, do nothing

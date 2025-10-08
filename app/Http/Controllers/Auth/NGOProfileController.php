@@ -75,9 +75,9 @@ public function show($id = null)
     if (! $ownerColumn || is_null($ownerValue)) {
         return view('ngo.profile.show', [
             'profile'       => $profile,
-            'ongoingEvents' => collect(),
+            'ongoingEvents' => collect(), // blade is defensive so this is OK
             'pastEvents'    => collect(),
-            'blogs'         => collect(),
+            'blogPosts'     => collect(),
             'totalEvents'   => 0,
             'isOwner'       => $isOwner,
         ]);
@@ -87,7 +87,12 @@ public function show($id = null)
     $baseQuery = Event::where($ownerColumn, $ownerValue);
     $now = now();
 
-    $ongoingEvents = (clone $baseQuery)
+    // -----------------------
+    // Paginate ongoing events
+    // -----------------------
+    // Use a custom page parameter 'ongoing_page' so pagination for ongoing/past don't collide.
+    // Change 6 to whatever items-per-page you prefer.
+    $ongoingQuery = (clone $baseQuery)
         ->where(function ($q) use ($now) {
             $q->where(function ($q2) use ($now) {
                 $q2->whereNotNull('eventEnd')->where('eventEnd', '>=', $now);
@@ -96,10 +101,14 @@ public function show($id = null)
                 $q2->whereNull('eventEnd')->where('eventStart', '>=', $now);
             });
         })
-        ->orderBy('eventStart', 'asc')
-        ->get();
+        ->orderBy('eventStart', 'asc');
 
-    $pastEvents = (clone $baseQuery)
+    $ongoingEvents = $ongoingQuery->paginate(3, ['*'], 'ongoing_page')->withQueryString();
+
+    // ----------------------
+    // Paginate past events
+    // ----------------------
+    $pastQuery = (clone $baseQuery)
         ->where(function ($q) use ($now) {
             $q->where(function ($q2) use ($now) {
                 $q2->whereNotNull('eventEnd')->where('eventEnd', '<', $now);
@@ -108,32 +117,47 @@ public function show($id = null)
                 $q2->whereNull('eventEnd')->where('eventStart', '<', $now);
             });
         })
-        ->orderBy('eventEnd', 'desc')
-        ->get();
+        ->orderBy('eventEnd', 'desc');
+
+    $pastEvents = $pastQuery->paginate(3, ['*'], 'past_page')->withQueryString();
 
     $totalEvents = (clone $baseQuery)->count();
 
     // Blogs: prefer user_id, fallback to ngo_profile_id (ngo_id)
-    $blogs = collect();
+    $blogQuery = null;
     if (Schema::hasColumn('blog_posts', 'user_id')) {
-        $blogs = BlogPost::where('user_id', $profile->user_id)
-            ->orderBy('created_at', 'desc')
-            ->get();
+        $blogQuery = BlogPost::where('user_id', $profile->user_id);
     } elseif (Schema::hasColumn('blog_posts', 'ngo_profile_id')) {
-        $blogs = BlogPost::where('ngo_profile_id', $profile->ngo_id ?? $profile->id)
+        $blogQuery = BlogPost::where('ngo_profile_id', $profile->ngo_id ?? $profile->id);
+    }
+
+    // If we couldn't find any blog linking column, set an empty paginator-like collection
+    if (! $blogQuery) {
+        $blogPosts = collect();
+    } else {
+        // only owners can see drafts; others see published only
+        if (! $isOwner) {
+            $blogQuery = $blogQuery->where('status', 'published');
+        }
+
+        // order & paginate (keeps previous behaviour)
+        $blogPosts = $blogQuery->orderBy('published_at', 'desc')
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->paginate(3)
+            ->withQueryString();
     }
 
     return view('ngo.profile.show', compact(
         'profile',
         'ongoingEvents',
         'pastEvents',
-        'blogs',
+        'blogPosts',
         'totalEvents',
         'isOwner'
     ));
 }
+
+
 
 
 

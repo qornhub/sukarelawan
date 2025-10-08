@@ -6,63 +6,39 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\BlogPost;
+use App\Models\Role;
 
 class BlogPostController extends Controller
 {
-    /**
- * Public index - show only published posts (paginated), with search support.
- */
-public function index(Request $request)
-{
-    $query = BlogPost::where('status', 'published');
+    public function index(Request $request)
+    {
+        $query = BlogPost::where('status', 'published');
 
-    // 🔍 If user entered a search keyword
-    if ($search = $request->input('q')) {
-        $query->where(function ($q) use ($search) {
-            $q->where('title', 'like', "%{$search}%")
-              ->orWhere('blogSummary', 'like', "%{$search}%")
-              ->orWhere('content', 'like', "%{$search}%");
-              
-        });
+        if ($search = $request->input('q')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('blogSummary', 'like', "%{$search}%")
+                  ->orWhere('content', 'like', "%{$search}%");
+            });
+        }
+
+        $posts = $query->orderBy('published_at', 'desc')->paginate(10);
+        $posts->appends($request->only('q'));
+
+        return view($this->viewForRole('blogs.index'), compact('posts'));
     }
 
-    // 📝 Order by published date (newest first)
-    $posts = $query->orderBy('published_at', 'desc')->paginate(10);
-
-    // 🧭 Keep search keyword in pagination links
-    $posts->appends($request->only('q'));
-
-    return view('volunteer.blogs.index', compact('posts'));
-}
-
-
-    /**
-     * Show single post.
-     *
-     * - If post is 'published' => anyone can view.
-     * - If post is 'draft' => only the owner (author) can view (403 otherwise).
-     *
-     * @param string $id  blogPost_id (UUID)
-     */
     public function show($id)
     {
         $post = BlogPost::where('blogPost_id', $id)->firstOrFail();
 
-        if ($post->status === 'published') {
-            return view('volunteer.blogs.show', compact('post'));
+        if ($post->status !== 'published') {
+            $this->ensureOwnerOnly($post);
         }
 
-        // Post is draft => only owner (author) can view it
-        $this->ensureOwnerOnly($post);
-
-        return view('volunteer.blogs.show', compact('post'));
+        return view($this->viewForRole('blogs.show'), compact('post'));
     }
 
-    /**
-     * Allow only the owner (author) of the post.
-     *
-     * Aborts 403 if the authenticated user is not the post owner.
-     */
     protected function ensureOwnerOnly(BlogPost $post)
     {
         if (! Auth::check()) {
@@ -71,11 +47,68 @@ public function index(Request $request)
 
         $user = Auth::user();
 
-        // Owner allowed
         if ($user->id === $post->user_id) {
             return true;
         }
 
         abort(403);
+    }
+
+    /**
+     * Determine view prefix based on the current user's role.
+     *
+     * Uses these fallbacks:
+     *  1) $user->role->roleName
+     *  2) $user->role_id -> lookup in roles table
+     *  3) $user->roleName (string column on users)
+     *  4) fallback 'volunteer'
+     *
+     * Returned view is like 'admin.blogs.index' or 'ngo.blogs.show'
+     */
+    protected function viewForRole(string $viewPath): string
+    {
+        $prefix = 'volunteer'; // default fallback
+
+        if (! Auth::check()) {
+            return "{$prefix}.{$viewPath}";
+        }
+
+        $user = Auth::user();
+        $roleName = null;
+
+        // 1) relation: $user->role->roleName
+        if (isset($user->role) && is_object($user->role) && isset($user->role->roleName)) {
+            $roleName = $user->role->roleName;
+        }
+
+        // 2) fallback: users.role_id -> lookup Role model
+        if (! $roleName && ! empty($user->role_id)) {
+            // Role::find() expects PK, adjust if your Role primary key is 'role_id'
+            $role = Role::where('role_id', $user->role_id)->first();
+            if ($role && isset($role->roleName)) {
+                $roleName = $role->roleName;
+            }
+        }
+
+        // 3) fallback: direct attribute on users (if you happened to store roleName on user)
+        if (! $roleName && ! empty($user->roleName)) {
+            $roleName = $user->roleName;
+        }
+
+        if ($roleName) {
+            $roleName = strtolower(trim($roleName));
+            if (in_array($roleName, ['admin', 'administrator'])) {
+                $prefix = 'admin';
+            } elseif (in_array($roleName, ['ngo', 'organization', 'org'])) {
+                $prefix = 'ngo';
+            } elseif (in_array($roleName, ['volunteer', 'user'])) {
+                $prefix = 'volunteer';
+            } else {
+                
+                $prefix = 'volunteer';
+            }
+        }
+
+        return "{$prefix}.{$viewPath}";
     }
 }

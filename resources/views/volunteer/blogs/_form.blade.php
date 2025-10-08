@@ -94,23 +94,27 @@
                 </div>
 
                 <!-- Blog Summary - Full Width -->
-                <div class="col-12">
-                    <label for="summary" class="form-label">Blog Summary</label>
-                    <textarea
-                        name="summary"
-                        id="summary"
-                        class="form-control @error('summary') is-invalid @enderror"
-                        rows="4"
-                        maxlength="300"
-                        placeholder="Brief summary of your blog post (max 300 characters)"
-                    >{{ old('summary', $post->summary ?? '') }}</textarea>
-                    <div class="char-counter">
-                        <span id="summary-counter">0</span>/300 characters
-                    </div>
-                    @error('summary')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
+<div class="col-12">
+    <label for="blogSummary" class="form-label">Blog Summary</label>
+    
+    <textarea
+        name="blogSummary"
+        id="blogSummary"
+        class="form-control @error('blogSummary') is-invalid @enderror"
+        rows="4"
+        maxlength="300"
+        placeholder="Brief summary of your blog post (max 300 characters)"
+    >{{ old('blogSummary', $post->blogSummary ?? '') }}</textarea>
+
+    <div class="char-counter">
+        <span class="char-counter" id="summary-counter">0</span>/300 characters
+    </div>
+
+    @error('blogSummary')
+        <div class="invalid-feedback">{{ $message }}</div>
+    @enderror
+</div>
+
 
                 <!-- Header Image - Full Width -->
                 <div class="col-12">
@@ -205,7 +209,7 @@
 
     // Character counter for summary
     document.addEventListener('DOMContentLoaded', function() {
-        const summaryTextarea = document.getElementById('summary');
+        const summaryTextarea = document.getElementById('blogSummary');
         const counter = document.getElementById('summary-counter');
         
         if (summaryTextarea && counter) {

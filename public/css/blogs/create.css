@@ -120,18 +120,22 @@ body {
 }
 
 .form-label {
-    font-weight: 500;
+    font-weight: 600;
     color: var(--text-color);
     margin-bottom: 8px;
     font-size: 0.95rem;
 }
 
+/* Increase font size for all form inputs and textareas */
+.form-control {
+  font-size: 1.9rem; /* default ~1rem, increase to 1.1 or 1.2 */
+}
 /* Simplified Form Controls - Default Bootstrap style */
 .form-control, .form-select {
     border: 1px solid #ced4da;
     border-radius: 0.375rem;
     padding: 0.375rem 0.75rem;
-    font-size: 0.7rem;
+    font-size: 0.9rem;
     font-weight: 400;
     transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
     background: #fff;
@@ -347,7 +351,7 @@ textarea.form-control {
     font-size: 0.8rem;
     color: #a0aec0;
     text-align: right;
-    margin-top: 4px;
+    margin-top: 2px;
 }
 
 /* Body background adjustment to use the gradient */

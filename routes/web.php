@@ -125,6 +125,7 @@ Route::middleware(['auth', 'isVolunteer'])
         Route::get('/blogs/{id}/edit', [VolunteerBlogPostController::class, 'edit'])->name('blogs.edit');
         Route::put('/blogs/{id}', [VolunteerBlogPostController::class, 'update'])->name('blogs.update');
         Route::delete('/blogs/{id}', [VolunteerBlogPostController::class, 'destroy'])->name('blogs.destroy');
+         Route::get('/blogs/{id}', [VolunteerBlogPostController::class, 'manage'])->name('blogs.manage');
     });
 
 
@@ -201,6 +202,8 @@ Route::middleware(['auth', 'isNGO'])
         Route::get('/blogs/{id}/edit', [NGOBlogPostController::class, 'edit'])->name('blogs.edit');
         Route::put('/blogs/{id}', [NGOBlogPostController::class, 'update'])->name('blogs.update');
         Route::delete('/blogs/{id}', [NGOBlogPostController::class, 'destroy'])->name('blogs.destroy');
+        Route::get('/blogs/{id}', [NGOBlogPostController::class, 'manage'])->name('blogs.manage');
+
 
     
 

@@ -71,7 +71,7 @@ if ($filename) {
         <nav class="ngo-nav-section">
             <a href="{{ route('ngo.events.index') }}" class="ngo-nav-link active"><i class="fas fa-home"></i> Home</a>
             <a href="{{ route('ngo.events.index') }}" class="ngo-nav-link"><i class="fas fa-calendar-alt"></i> Event</a>
-            <a href="#" class="ngo-nav-link"><i class="fas fa-blog"></i> Blog</a>
+            <a href="{{ route('blogs.index') }}" class="ngo-nav-link"><i class="fas fa-blog"></i> Blog</a>
         </nav>
 
         <div class="desktop-profile">
@@ -123,7 +123,7 @@ if ($filename) {
             <a href="{{ route('ngo.events.index') }}" class="ngo-nav-link active"><i class="fas fa-home"></i> Home</a>
             <a href="{{ route('ngo.events.index') }}" class="ngo-nav-link"><i class="fas fa-calendar-alt"></i>
                 Event</a>
-            <a href="#" class="ngo-nav-link"><i class="fas fa-blog"></i> Blog</a>
+            <a href="{{ route('blogs.index') }}" class="ngo-nav-link"><i class="fas fa-blog"></i> Blog</a>
         </nav>
 
         <div class="ngo-profile-section">

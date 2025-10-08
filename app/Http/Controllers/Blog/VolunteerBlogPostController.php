@@ -25,7 +25,7 @@ class VolunteerBlogPostController extends Controller
         // Validate request (use controller validation because textarea is handled by TinyMCE)
         $validated = $request->validate([
             'title'        => 'required|string|max:255',
-            'summary'      => 'nullable|string|max:500',
+            'blogSummary'      => 'nullable|string|max:300',
             'content'      => 'required|string',
             'category_id'  => 'required|exists:blog_categories,blogCategory_id',
             'status'       => 'required|in:draft,published',
@@ -67,7 +67,7 @@ class VolunteerBlogPostController extends Controller
             'user_id'      => Auth::id(),
             'category_id'  => $validated['category_id'],
             'title'        => $validated['title'],
-            'summary'      => $validated['summary'] ?? null,
+            'blogSummary'      => $validated['blogSummary'] ?? null,
             'content'      => $validated['content'],
             'image'        => $imageFileName,
             'status'       => $validated['status'],
@@ -105,7 +105,7 @@ class VolunteerBlogPostController extends Controller
         // Validate input
         $validated = $request->validate([
             'title'        => 'required|string|max:255',
-            'summary'      => 'nullable|string|max:500',
+            'blogSummary'      => 'nullable|string|max:300',
             'content'      => 'required|string',
             'category_id'  => 'nullable|exists:blog_categories,blogCategory_id',
             'status'       => 'required|in:draft,published',
@@ -153,7 +153,7 @@ class VolunteerBlogPostController extends Controller
         // Update fields
         $post->category_id = $validated['category_id'] ?? $post->category_id;
         $post->title       = $validated['title'];
-        $post->summary     = $validated['summary'] ?? $post->summary;
+        $post->blogSummary     = $validated['blogSummary'] ?? $post->blogSummary;
         $post->content     = $validated['content'];
         $post->status      = $validated['status'];
 
@@ -194,4 +194,34 @@ class VolunteerBlogPostController extends Controller
 
         return redirect()->route('blogs.index')->with('success', 'Blog post deleted.');
     }
+
+    /**
+ * Show management page for owner, otherwise redirect to public view.
+ *
+ * Behaviour:
+ *  - If visitor is owner:
+ *      - draft -> redirect to volunteer.blogs.edit
+ *      - published -> show volunteer.blogs.blogEditDelete
+ *  - If visitor NOT owner:
+ *      - redirect to public blogs.show
+ */
+public function manage($id)
+{
+    // Load post
+    $post = BlogPost::where('blogPost_id', $id)->firstOrFail();
+
+    // Not owner -> send to public show page
+    if (! Auth::check() || Auth::id() !== $post->user_id) {
+        return redirect()->route('blogs.show', $post->blogPost_id);
+    }
+
+    // Owner
+    if ($post->status === 'draft') {
+        // Owner editing draft -> go straight to edit form
+        return redirect()->route('volunteer.blogs.edit', $post->blogPost_id);
+    }
+
+    // Owner and published -> show the edit/delete UI
+    return view('volunteer.blogs.blogEditDelete', compact('post'));
+}
 }

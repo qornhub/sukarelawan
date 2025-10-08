@@ -12,17 +12,6 @@ use Carbon\Carbon;
 
 class NGOBlogPostController extends Controller
 {
-    // List NGO posts
-    public function index()
-    {
-        $posts = BlogPost::where('user_id', Auth::id())
-            ->with('category')
-            ->latest()
-            ->paginate(10);
-
-        return view('blogs.index', compact('posts'));
-    }
-
     // Show create form
     public function create()
     {
@@ -35,7 +24,7 @@ class NGOBlogPostController extends Controller
     {
         $validated = $request->validate([
             'title'        => 'required|string|max:255',
-            'summary'      => 'nullable|string|max:500',
+            'blogSummary'      => 'nullable|string|max:300',
             'content'      => 'required|string',
             'category_id'  => 'required|exists:blog_categories,blogCategory_id',
             'status'       => 'required|in:draft,published',
@@ -76,7 +65,7 @@ class NGOBlogPostController extends Controller
             'user_id'      => Auth::id(),
             'category_id'  => $validated['category_id'],
             'title'        => $validated['title'],
-            'summary'      => $validated['summary'] ?? null,
+            'blogSummary'      => $validated['blogSummary'] ?? null,
             'content'      => $validated['content'],
             'image'        => $imageFileName,
             'status'       => $validated['status'],
@@ -85,7 +74,7 @@ class NGOBlogPostController extends Controller
                 : $validated['published_at'],
         ]);
 
-        return redirect()->route('ngo.blogs.index')->with('success', 'Blog post created.');
+        return redirect()->route('blogs.index')->with('success', 'Blog post created.');
     }
 
     // Show edit form
@@ -106,13 +95,13 @@ class NGOBlogPostController extends Controller
     {
         $post = BlogPost::where('blogPost_id', $id)->firstOrFail();
 
-        if ($post->user_id !== Auth::id()) {
+        if (Auth::id() !== $post->user_id) {
             abort(403);
         }
 
         $validated = $request->validate([
             'title'        => 'required|string|max:255',
-            'summary'      => 'nullable|string|max:500',
+            'blogSummary'      => 'nullable|string|max:300',
             'content'      => 'required|string',
             'category_id'  => 'nullable|exists:blog_categories,blogCategory_id',
             'status'       => 'required|in:draft,published',
@@ -157,7 +146,7 @@ class NGOBlogPostController extends Controller
         }
 
         $post->title       = $validated['title'];
-        $post->summary     = $validated['summary'] ?? $post->summary;
+        $post->blogSummary     = $validated['blogSummary'] ?? $post->summary;
         $post->content     = $validated['content'];
         $post->category_id = $validated['category_id'] ?? $post->category_id;
         $post->status      = $validated['status'];
@@ -198,4 +187,24 @@ class NGOBlogPostController extends Controller
 
         return redirect()->route('blogs.index')->with('success', 'Blog post deleted.');
     }
+
+    public function manage($id)
+{
+    // Load post
+    $post = BlogPost::where('blogPost_id', $id)->firstOrFail();
+
+    // Not owner -> send to public show page
+    if (! Auth::check() || Auth::id() !== $post->user_id) {
+        return redirect()->route('blogs.show', $post->blogPost_id);
+    }
+
+    // Owner
+    if ($post->status === 'draft') {
+        // Owner editing draft -> go straight to edit form
+        return redirect()->route('ngo.blogs.edit', $post->blogPost_id);
+    }
+
+    // Owner and published -> show the edit/delete UI
+    return view('ngo.blogs.blogEditDelete', compact('post'));
+}
 }

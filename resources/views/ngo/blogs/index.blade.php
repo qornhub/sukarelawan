@@ -17,7 +17,7 @@
 <body>
 
     {{-- header / nav include --}}
-    @include('layouts.volunteer_header')
+    @include('layouts.ngo_header')
 
     {{-- HERO --}}
     <section class="blog-hero">
@@ -67,22 +67,41 @@
     <main>
         <div class="container main-content">
 
-            {{-- New blog button --}}
-            @php
-                $createRoute = null;
-                if (auth()->check()) {
-                    $user = auth()->user();
-                    if (isset($user->role) && in_array(strtolower($user->role), ['volunteer', 'ngo', 'admin'])) {
-                        $createRoute = route(strtolower($user->role) . '.blogs.create');
-                    } elseif (property_exists($user, 'is_admin') && $user->is_admin) {
-                        $createRoute = route('admin.blogs.create');
-                    } else {
-                        $createRoute = route('volunteer.blogs.create');
-                    }
-                } else {
-                    $createRoute = route('login');
-                }
-            @endphp
+          @php
+    $createRoute = null;
+
+    if (auth()->check()) {
+        $user = auth()->user();
+        $roleName = null;
+
+        // If User has a 'role' relationship
+        if (isset($user->role) && isset($user->role->roleName)) {
+            $roleName = strtolower($user->role->roleName);
+        }
+
+        // If User has role_id but relationship not loaded (fallback)
+        if (!$roleName && isset($user->role_id)) {
+            $role = \App\Models\Role::where('role_id', $user->role_id)->first();
+            if ($role) {
+                $roleName = strtolower($role->roleName);
+            }
+        }
+
+        // Default to volunteer if role not found
+        if (!$roleName) {
+            $roleName = 'volunteer';
+        }
+
+        if (in_array($roleName, ['volunteer', 'ngo', 'admin'])) {
+            $createRoute = route($roleName . '.blogs.create');
+        } else {
+            $createRoute = route('volunteer.blogs.create');
+        }
+    } else {
+        $createRoute = route('login');
+    }
+@endphp
+
 
             <div>
                 <div class="d-flex justify-content-end mb-4">
@@ -208,7 +227,7 @@
         </div>
     </main>
 
-    @include('layouts.volunteer_footer')
+    @include('layouts.ngo_footer')
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
