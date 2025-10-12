@@ -85,4 +85,9 @@ class BlogPost extends Model
     {
         return $query->where('status', 'draft');
     }
+
+    public function comments()
+{
+    return $this->hasMany(BlogComment::class, 'blogPost_id');
+}
 }

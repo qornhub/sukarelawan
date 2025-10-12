@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers\Blog;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
-use App\Models\BlogPost;
-use App\Models\BlogCategory;
 use Carbon\Carbon;
+use App\Models\BlogPost;
+use App\Models\BlogComment;
+use Illuminate\Support\Str;
+use App\Models\BlogCategory;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 
 class NGOBlogPostController extends Controller
 {
@@ -192,6 +193,10 @@ class NGOBlogPostController extends Controller
 {
     // Load post
     $post = BlogPost::where('blogPost_id', $id)->firstOrFail();
+    $comments = BlogComment::where('blogPost_id', $post->blogPost_id)
+    ->orderBy('created_at', 'asc')
+    ->paginate(3, ['*'], 'comments_page')
+    ->withQueryString();
 
     // Not owner -> send to public show page
     if (! Auth::check() || Auth::id() !== $post->user_id) {
@@ -205,6 +210,6 @@ class NGOBlogPostController extends Controller
     }
 
     // Owner and published -> show the edit/delete UI
-    return view('ngo.blogs.blogEditDelete', compact('post'));
+    return view('ngo.blogs.blogEditDelete', compact('post', 'comments'));
 }
 }

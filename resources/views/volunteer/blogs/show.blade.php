@@ -8,7 +8,11 @@
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Font Awesome v6 CDN -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link rel="stylesheet" href="{{ asset('css/blogs/show.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/blogs/comment.css') }}">
     
 </head>
 <body>
@@ -111,38 +115,16 @@
 
                         <!-- Comments Section -->
                         <div>
-                            <h2 class="content-title">Comments</h2>
+                           
                             
                             <!-- Hardcoded Comments for testing -->
-                            <div class="comment-card">
-                                <div class="comment-header">
-                                    <span class="comment-author">Ralph Edwards</span>
-                                    <span class="comment-date">Aug. 19, 2020</span>
-                                </div>
-                                <p class="comment-text">
-                                    In natural genetics/ biochemical reactions associated with cancer screening, a single generation of disease cells collected over time.
-                                </p>
-                            </div>
-                            
-                            <div class="comment-card">
-                                <div class="comment-header">
-                                    <span class="comment-author">Brucean Chan</span>
-                                    <span class="comment-date">Aug. 19, 2020</span>
-                                </div>
-                                <p class="comment-text">
-                                    Helen wrote an oral talk about "We use drugs."
-                                </p>
-                            </div>
-                            
-                            <div class="comment-card">
-                                <div class="comment-header">
-                                    <span class="comment-author">Data</span>
-                                    <span class="comment-date">Aug. 19, 2020</span>
-                                </div>
-                                <p class="comment-text">
-                                    Source information and references for the research data.
-                                </p>
-                            </div>
+                             @include('partials.blog.comments', [
+    'post'               => $post,
+    'profileRelation'    => 'volunteerProfile',
+    'profileRoute'       => 'volunteer.profile.show',
+    'profileStoragePath' => 'images/profiles/'
+])
+
                         </div>
                     </div>
                 </div>
@@ -154,7 +136,7 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
+@stack('scripts')
     <!-- Enhanced Read More/Less Functionality -->
     <script>
         function toggleReadMore() {
@@ -216,6 +198,6 @@
         window.addEventListener('resize', handleResize);
     </script>
 
-    @stack('scripts')
+    
 </body>
 </html>

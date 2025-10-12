@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers\Blog;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use App\Models\BlogPost;
 use App\Models\Role;
+use App\Models\BlogPost;
+use App\Models\BlogComment;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 
 class BlogPostController extends Controller
 {
@@ -35,8 +36,12 @@ class BlogPostController extends Controller
         if ($post->status !== 'published') {
             $this->ensureOwnerOnly($post);
         }
+        $comments = BlogComment::where('blogPost_id', $post->blogPost_id)
+    ->orderBy('created_at', 'asc')
+    ->paginate(3, ['*'], 'comments_page')
+    ->withQueryString();
 
-        return view($this->viewForRole('blogs.show'), compact('post'));
+        return view($this->viewForRole('blogs.show'), compact('post','comments'));
     }
 
     protected function ensureOwnerOnly(BlogPost $post)

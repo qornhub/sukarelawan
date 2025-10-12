@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers\Events;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\Event;
-use App\Models\EventCategory;
 use Carbon\Carbon;
+use App\Models\Event;
+use App\Models\EventComment;
+use Illuminate\Http\Request;
+use App\Models\EventCategory;
+use App\Http\Controllers\Controller;
 
 class NgoEventDiscoveryController extends Controller
 {
@@ -91,12 +92,22 @@ class NgoEventDiscoveryController extends Controller
     public function show($event_id)
     {
         $event = Event::with(['category', 'organizer'])->findOrFail($event_id);
-        return view('ngo.events.show', compact('event'));
+        $comments = EventComment::where('event_id', $event->event_id)
+    ->with('user')
+    ->orderBy('created_at', 'asc')
+    ->paginate(5, ['*'], 'event_comments_page')
+    ->withQueryString();
+        return view('ngo.events.show', compact('event' , 'comments'));
     }
 
     public function show2($event_id)
     {
         $event = Event::with(['category', 'organizer'])->findOrFail($event_id);
-        return view('ngo.profile.eventEditDelete', compact('event'));
+        $comments = EventComment::where('event_id', $event->event_id)
+    ->with('user')
+    ->orderBy('created_at', 'asc')
+    ->paginate(5, ['*'], 'event_comments_page')
+    ->withQueryString();
+        return view('ngo.profile.eventEditDelete', compact('event', 'comments'));
     }
 }

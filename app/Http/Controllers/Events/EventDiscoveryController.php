@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Events;
 use Carbon\Carbon;
 use App\Models\Task;
 use App\Models\Event;
+use App\Models\EventComment;
 use Illuminate\Http\Request;
 use App\Models\EventCategory;
 use App\Models\TaskAssignment;
@@ -139,7 +140,15 @@ class EventDiscoveryController extends Controller
     $registrations   = $event->registrations->sortByDesc('created_at')->values();
     $registeredCount = $registrations->count();
 
-    return view('volunteer.events.show', compact('event', 'registrations', 'registeredCount'));
+    $comments = EventComment::where('event_id', $event->event_id)
+    ->with('user')
+    ->orderBy('created_at', 'asc')
+    ->paginate(5, ['*'], 'event_comments_page')
+    ->withQueryString();
+
+
+
+    return view('volunteer.events.show', compact('event', 'registrations', 'registeredCount', 'comments'));
 }
 
 
@@ -176,8 +185,13 @@ public function show2($event_id)
 
     // pass a simple bool so blade can auto-open the modal in this same request
     $autoOpenAssignments = $assignments->count() > 0;
+    $comments = EventComment::where('event_id', $event->event_id)
+    ->with('user')
+    ->orderBy('created_at', 'asc')
+    ->paginate(5, ['*'], 'event_comments_page')
+    ->withQueryString();
 
-    return view('volunteer.profile.registrationEditDelete', compact('event', 'registration', 'assignments', 'autoOpenAssignments'));
+    return view('volunteer.profile.registrationEditDelete', compact('event', 'registration', 'assignments', 'autoOpenAssignments', 'comments'));
 }
 
 

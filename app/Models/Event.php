@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+
 use Illuminate\Database\Eloquent\Model;
 
 class Event extends Model
@@ -70,5 +71,9 @@ public function skills()
         return $this->hasMany(Task::class, 'event_id', 'event_id');
     }
 
+    public function comments()
+{
+    return $this->hasMany(EventComment::class, 'event_id', 'event_id');
+}
 
 }

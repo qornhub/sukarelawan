@@ -9,35 +9,63 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Admin\SkillController;
 use App\Http\Controllers\Badge\BadgeController;
 use App\Http\Controllers\Events\EventController;
+use App\Http\Controllers\Blog\BlogPostController;
 use App\Http\Controllers\Auth\AdminLoginController;
 use App\Http\Controllers\Auth\NGOProfileController;
 use App\Http\Controllers\Badge\UserBadgeController;
 use App\Http\Controllers\Badge\UserPointController;
 use App\Http\Controllers\Auth\NGORegisterController;
+use App\Http\Controllers\Blog\BlogCommentController;
+use App\Http\Controllers\Blog\NGOBlogPostController;
+
 use App\Http\Controllers\Auth\AdminProfileController;
 use App\Http\Controllers\Task\AssignedTaskController;
 use App\Http\Controllers\Admin\BlogCategoryController;
-
 use App\Http\Controllers\Auth\AdminRegisterController;
 use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\Blog\AdminBlogPostController;
 use App\Http\Controllers\NGO\TaskAssignmentController;
+
 use App\Http\Controllers\Admin\EventCategoryController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Badge\BadgeCategoryController;
-use App\Http\Controllers\Auth\VolunteerProfileController;
+use App\Http\Controllers\Events\EventCommentController;
 
+use App\Http\Controllers\Auth\VolunteerProfileController;
 use App\Http\Controllers\Events\EventDiscoveryController;
+
 use App\Http\Controllers\Attendances\AttendanceController;
 use App\Http\Controllers\Auth\VolunteerRegisterController;
+use App\Http\Controllers\Blog\VolunteerBlogPostController;
 use App\Http\Controllers\Events\EventRegistrationController;
 
 use App\Http\Controllers\Events\NgoEventDiscoveryController;
 use App\Http\Controllers\Events\NGOEventManagementController;
 
-use App\Http\Controllers\Blog\BlogPostController;
-use App\Http\Controllers\Blog\VolunteerBlogPostController;
-use App\Http\Controllers\Blog\NGOBlogPostController;
-use App\Http\Controllers\Blog\AdminBlogPostController;
+/*authenticated user routes*/   
+Route::middleware(['auth'])->group(function () {
+    // Create
+    Route::post('/blogs/{post}/comments', [BlogCommentController::class, 'store'])
+        ->name('blogs.comments.store');
+
+    // Update (owner only — enforced in controller)
+    Route::put('/blogs/{post}/comments/{comment}', [BlogCommentController::class, 'update'])
+        ->name('blogs.comments.update');
+
+    // Delete (owner or admin — enforced in controller)
+    Route::delete('/blogs/{post}/comments/{comment}', [BlogCommentController::class, 'destroy'])
+        ->name('blogs.comments.destroy');
+
+         // Event comments (create / update / delete)
+    Route::post('/events/{event}/comments', [EventCommentController::class, 'store'])
+        ->name('events.comments.store');
+
+    Route::put('/events/{event}/comments/{comment}', [EventCommentController::class, 'update'])
+        ->name('events.comments.update');
+
+    Route::delete('/events/{event}/comments/{comment}', [EventCommentController::class, 'destroy'])
+        ->name('events.comments.destroy');
+});
 /*
 |--------------------------------------------------------------------------
 | Common / Shared Routes (All Users)

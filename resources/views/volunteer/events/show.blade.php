@@ -12,6 +12,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/events/event_show.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/blogs/comment.css') }}">
 </head>
 
 <body>
@@ -153,6 +154,30 @@
                         @endif
                     </div>
                 </section>
+
+                {{-- commetn --}}
+                <section class="content-card">
+
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h4 class="section-heading mb-0">
+                            <i class="fas fa-comments icon"></i>
+                            Comments ({{ $comments->total() ?? count($comments) }})
+                        </h4>
+                    </div>
+
+
+                    @include('partials.events.comments', [
+                        'event' => $event,
+                        'comments' => $comments,
+                        // optional:
+                        'profileRelation' => 'volunteerProfile',
+                        'profileRoute' => 'volunteer.profile.show',
+                        'profileStoragePath' => 'images/profiles/',
+                    ])
+
+                </section>
+
+
 
 
             </div>
@@ -402,6 +427,7 @@
     @include('layouts.volunteer_footer')
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    @stack('scripts')
 </body>
 
 </html>

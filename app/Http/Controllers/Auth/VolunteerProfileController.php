@@ -72,6 +72,7 @@ public function show($id = null)
     // Paginate blog posts separately (6 per page). Use page param 'blog_page'
     $blogPosts = $blogQuery->paginate(3, ['*'], 'blog_page');
 
+    
     return view('volunteer.profile.profile', compact(
         'profile',
         'upcomingEvents',

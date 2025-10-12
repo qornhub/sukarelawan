@@ -12,6 +12,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/events/event_show.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/blogs/comment.css') }}">
 <style>
     
 /* Assignment banner refined */
@@ -461,6 +462,19 @@
                     </div>
                 </section>
 
+                 {{-- commetn--}}
+                <section class="content-card">
+@include('partials.events.comments', [
+    'event' => $event,
+    'comments' => $comments,
+    // optional:
+    'profileRelation' => 'volunteerProfile',
+    'profileRoute' => 'volunteer.profile.show',
+    'profileStoragePath' => 'images/profiles/'
+])
+
+                     </section>
+
 
             </div>
 
@@ -665,6 +679,7 @@
             }
         });
     </script>
+    @stack('scripts')
 @endif
 
 

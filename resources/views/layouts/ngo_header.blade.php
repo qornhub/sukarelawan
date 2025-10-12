@@ -1,13 +1,13 @@
 {{-- resources/views/layouts/ngo_header.blade.php --}}
 <div class="ngo-header-component">
-   @php
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Auth;
+    @php
+        use Illuminate\Support\Str;
+        use Illuminate\Support\Facades\Auth;
 
-$user = Auth::user();
-$ngoProfile = optional($user)->ngoProfile; // NGOProfile or null
+        $user = Auth::user();
+        $ngoProfile = optional($user)->ngoProfile; // NGOProfile or null
 
-// Name: prefer organizationName from NGO profile, then user's name, then Anonymous
+        // Name: prefer organizationName from NGO profile, then user's name, then Anonymous
 $name = $ngoProfile->organizationName ?? ($user->name ?? 'Anonymous');
 
 // Role: normalized to lowercase (fallback to 'ngo')
@@ -49,15 +49,19 @@ if ($filename) {
 
     // If none existed but the stored value looks like a storage path, prefer storage url
     if ($profileImageUrl === asset('images/default-profile.png')) {
-        if (Str::startsWith($filename, 'profiles/') || Str::startsWith($filename, 'covers/') || Str::contains($filename, 'storage')) {
+        if (
+            Str::startsWith($filename, 'profiles/') ||
+            Str::startsWith($filename, 'covers/') ||
+            Str::contains($filename, 'storage')
+        ) {
             $profileImageUrl = asset('storage/' . ltrim($filename, '/'));
         } else {
             // fallback: try images/profiles with basename
             $profileImageUrl = asset('images/profiles/' . $basename);
+                }
+            }
         }
-    }
-}
-@endphp
+    @endphp
 
 
     <!-- NGO Header -->
@@ -69,9 +73,21 @@ if ($filename) {
 
         <!-- Desktop Navigation and Profile -->
         <nav class="ngo-nav-section">
-            <a href="{{ route('ngo.events.index') }}" class="ngo-nav-link active"><i class="fas fa-home"></i> Home</a>
-            <a href="{{ route('ngo.events.index') }}" class="ngo-nav-link"><i class="fas fa-calendar-alt"></i> Event</a>
-            <a href="{{ route('blogs.index') }}" class="ngo-nav-link"><i class="fas fa-blog"></i> Blog</a>
+            <a href="{{ route('ngo.events.index') }}"
+                class="ngo-nav-link {{ request()->routeIs('ngo.events.index') ? 'active' : '' }}">
+                <i class="fas fa-home"></i> Home
+            </a>
+
+            <a href="{{ route('ngo.events.index') }}"
+                class="ngo-nav-link {{ request()->routeIs('ngo.events.*') ? 'active' : '' }}">
+                <i class="fas fa-calendar-alt"></i> Event
+            </a>
+
+            <a href="{{ route('blogs.index') }}"
+                class="ngo-nav-link {{ request()->routeIs('blogs.index') ? 'active' : '' }}">
+                <i class="fas fa-blog"></i> Blog
+            </a>
+
         </nav>
 
         <div class="desktop-profile">
@@ -89,7 +105,6 @@ if ($filename) {
                             <a href="{{ route('ngo.profile.self') }}" class="ngo-dropdown-item">
                                 <i class="fas fa-user-circle"></i> My Profile
                             </a>
-                            
                         @endif
                     @endauth
 
@@ -128,7 +143,7 @@ if ($filename) {
 
         <div class="ngo-profile-section">
             <img src="{{ $profileImageUrl }}" alt="Profile Photo" class="ngo-profile-img">
-            
+
             <div class="ngo-profile-info">
                 <p class="ngo-profile-name">{{ $name }}</p>
                 <p class="ngo-profile-role">{{ ucfirst($roleNameLower ?? 'ngo') }}</p>

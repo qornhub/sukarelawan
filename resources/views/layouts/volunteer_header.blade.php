@@ -20,11 +20,21 @@
 
         <!-- Desktop Navigation and Profile -->
         <nav class="volunteer-nav-section">
-            <a href="{{ route('volunteer.index.public') }}" class="volunteer-nav-link active"><i class="fas fa-home"></i>
-                Home</a>
-            <!--<a href= class="volunteer-nav-link"><i class="fas fa-calendar-alt"></i> Event</a>-->
-            <a href="{{route('blogs.index')}}" class="volunteer-nav-link"><i class="fas fa-blog"></i> Blog</a>
-            <a href="{{ route('volunteer.rewards.index') }}" class="volunteer-nav-link"><i class="fas fa-award"></i> Reward</a>
+           <a href="{{ route('volunteer.index.public') }}" 
+   class="volunteer-nav-link {{ request()->routeIs('volunteer.index.public') ? 'active' : '' }}">
+   <i class="fas fa-home"></i> Home
+</a>
+
+<a href="{{ route('blogs.index') }}" 
+   class="volunteer-nav-link {{ request()->routeIs('blogs.index') ? 'active' : '' }}">
+   <i class="fas fa-blog"></i> Blog
+</a>
+
+<a href="{{ route('volunteer.rewards.index') }}" 
+   class="volunteer-nav-link {{ request()->routeIs('volunteer.rewards.index') ? 'active' : '' }}">
+   <i class="fas fa-award"></i> Reward
+</a>
+
         </nav>
 
         <div class="desktop-profile">
