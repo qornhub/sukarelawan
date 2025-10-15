@@ -73,8 +73,8 @@ if ($filename) {
 
         <!-- Desktop Navigation and Profile -->
         <nav class="ngo-nav-section">
-            <a href="{{ route('ngo.events.index') }}"
-                class="ngo-nav-link {{ request()->routeIs('ngo.events.index') ? 'active' : '' }}">
+            <a href="{{ route('ngo.dashboard') }}"
+                class="ngo-nav-link {{ request()->routeIs('ngo.dashboard') ? 'active' : '' }}">
                 <i class="fas fa-home"></i> Home
             </a>
 

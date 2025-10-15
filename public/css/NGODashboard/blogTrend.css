@@ -1,0 +1,102 @@
+/* Blog Stat Card */
+.blog-stat-card {
+    border: none;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    background: white;
+    transition: all 0.3s ease;
+}
+
+.blog-stat-card:hover {
+    box-shadow: var(--card-shadow);
+    transform: translateY(-2px);
+}
+
+.blog-stat-card .card-body {
+    padding: 2rem 1.5rem;
+}
+
+.blog-stat-icon {
+    font-size: 2.5rem;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+}
+
+.blog-stat-label {
+    color: var(--muted);
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.5rem;
+}
+
+.blog-stat-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    line-height: 1;
+    margin: 0.5rem 0;
+}
+
+.btn-create-blog {
+    background: var(--primary-color);
+    border: none;
+    color:white;
+    border-radius: var(--rounded-sm);
+    padding: 0.6rem 1.5rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.btn-create-blog:hover {
+    background: var(--primary-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 74, 173, 0.3);
+}
+
+/* Animation for blog stat value */
+@keyframes countUpBlog {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.blog-stat-value {
+    animation: countUpBlog 0.6s ease-out;
+}
+
+/* Responsive adjustments for blog section */
+@media (max-width: 768px) {
+    .blog-stat-card .card-body {
+        padding: 1.5rem 1.25rem;
+    }
+    
+    .blog-stat-icon {
+        font-size: 2rem;
+    }
+    
+    .blog-stat-value {
+        font-size: 2rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .blog-stat-card {
+        margin-bottom: 1rem;
+    }
+    
+    .blog-stat-card .card-body {
+        padding: 1.25rem 1rem;
+    }
+    
+    .blog-stat-value {
+        font-size: 1.75rem;
+    }
+}

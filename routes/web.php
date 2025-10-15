@@ -1,6 +1,7 @@
 <?php
 //im testing
 //testing agian
+use App\Models\Event;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Admin\SdgController;
@@ -10,37 +11,39 @@ use App\Http\Controllers\Admin\SkillController;
 use App\Http\Controllers\Badge\BadgeController;
 use App\Http\Controllers\Events\EventController;
 use App\Http\Controllers\Blog\BlogPostController;
+use App\Http\Controllers\NGO\DashboardController;
 use App\Http\Controllers\Auth\AdminLoginController;
 use App\Http\Controllers\Auth\NGOProfileController;
 use App\Http\Controllers\Badge\UserBadgeController;
 use App\Http\Controllers\Badge\UserPointController;
 use App\Http\Controllers\Auth\NGORegisterController;
+
 use App\Http\Controllers\Blog\BlogCommentController;
 use App\Http\Controllers\Blog\NGOBlogPostController;
-
 use App\Http\Controllers\Auth\AdminProfileController;
 use App\Http\Controllers\Task\AssignedTaskController;
 use App\Http\Controllers\Admin\BlogCategoryController;
 use App\Http\Controllers\Auth\AdminRegisterController;
 use App\Http\Controllers\Auth\ResetPasswordController;
+
 use App\Http\Controllers\Blog\AdminBlogPostController;
 use App\Http\Controllers\NGO\TaskAssignmentController;
-
 use App\Http\Controllers\Admin\EventCategoryController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
+
 use App\Http\Controllers\Badge\BadgeCategoryController;
 use App\Http\Controllers\Events\EventCommentController;
 
 use App\Http\Controllers\Auth\VolunteerProfileController;
 use App\Http\Controllers\Events\EventDiscoveryController;
-
 use App\Http\Controllers\Attendances\AttendanceController;
 use App\Http\Controllers\Auth\VolunteerRegisterController;
+
 use App\Http\Controllers\Blog\VolunteerBlogPostController;
 use App\Http\Controllers\Events\EventRegistrationController;
-
 use App\Http\Controllers\Events\NgoEventDiscoveryController;
 use App\Http\Controllers\Events\NGOEventManagementController;
+use App\Http\Controllers\Events\AdminEventDiscoveryController;
 
 /*authenticated user routes*/   
 Route::middleware(['auth'])->group(function () {
@@ -173,9 +176,10 @@ Route::middleware(['auth', 'isNGO'])
     ->prefix('ngo')
     ->name('ngo.')
     ->group(function () {
+        Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-          Route::get('events/{event}/qr', function ($event) {
-        $event = \App\Models\Event::findOrFail($event);
+        Route::get('events/{event}/qr', function ($event) {
+        $event = Event::findOrFail($event);
         return view('ngo.attendances.qr', compact('event'));
     })->name('attendance.qr');
     // <-- Fix: call the plural method that actually exists in controller
@@ -183,7 +187,7 @@ Route::middleware(['auth', 'isNGO'])
     Route::delete('/events/{event}/attendances/{attendance}', [AttendanceController::class, 'destroy'])->name('attendances.destroy');
 
 
-        Route::get('/dashboard', fn () => view('ngo.dashboard'))->name('dashboard');
+        
         
         // NGO Profile
         //Route::get('/profile', [NGOProfileController::class, 'show'])->name('profile.show');
@@ -267,7 +271,11 @@ Route::middleware(['auth', 'isAdmin'])
         Route::post('/profile/update', [AdminProfileController::class, 'update'])->name('profile.update');
 
         // Admin event deletion
+        Route::get('/events', [AdminEventDiscoveryController::class, 'index'])->name('events.index');
+Route::get('/events/{id}', [AdminEventDiscoveryController::class, 'show'])->name('events.show');
         Route::delete('/events/{event}', [EventController::class, 'adminDestroy'])->name('events.destroy');
+
+
         Route::get('/sdg', [SdgController::class, 'index'])->name('sdg.sdg-list');
         Route::get('/sdg/create', [SdgController::class, 'create'])->name('sdg.create');
         Route::post('/sdg', [SdgController::class, 'store'])->name('sdg.store'); // Save new SDG
@@ -320,9 +328,14 @@ Route::middleware(['auth', 'isAdmin'])
 
         // User Points (view all user points)
         Route::get('user-points', [UserPointController::class, 'manage'])->name('user_points.manage');
+        
+        // Admin listing (shows drafts + published)
+Route::get('/blogs', [AdminBlogPostController::class, 'index'])->name('blogs.index');
+
 
         Route::get('/blogs/create', [AdminBlogPostController::class, 'create'])->name('blogs.create');
         Route::post('/blogs', [AdminBlogPostController::class, 'store'])->name('blogs.store');
+        Route::get('/blogs/{id}', [AdminBlogPostController::class, 'show'])->name('blogs.show');
         Route::get('/blogs/{id}/edit', [AdminBlogPostController::class, 'edit'])->name('blogs.edit');
         Route::put('/blogs/{id}', [AdminBlogPostController::class, 'update'])->name('blogs.update');
 

@@ -322,7 +322,7 @@ class EventController extends Controller
 
 
         $event->delete();
-        return back()->with('success', 'Event removed by Admin.');
+         return redirect()->route('admin.events.index')->with('success', 'Event removed by Admin.');
     }
 
     // Private NGO check

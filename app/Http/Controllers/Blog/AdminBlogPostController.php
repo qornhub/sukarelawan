@@ -2,16 +2,55 @@
 
 namespace App\Http\Controllers\Blog;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Auth;
 use App\Models\BlogPost;
+use App\Models\BlogComment;
+use Illuminate\Support\Str;
 use App\Models\BlogCategory;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 class AdminBlogPostController extends Controller
 {
+
+     public function index(Request $request)
+    {
+        $query = BlogPost::query();
+
+        if ($search = $request->input('q')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  // support both column names to avoid runtime errors
+                  ->orWhere('summary', 'like', "%{$search}%")
+                  ->orWhere('blogSummary', 'like', "%{$search}%")
+                  ->orWhere('content', 'like', "%{$search}%");
+            });
+        }
+
+        $posts = $query->orderBy('created_at', 'desc')->paginate(10);
+        $posts->appends($request->only('q'));
+
+        return view('admin.blogs.index', compact('posts'));
+    }
+
+    /**
+     * Admin show: view a single post (admin can view drafts & published).
+     */
+    public function show($id)
+    {
+        $post = BlogPost::where('blogPost_id', $id)->firstOrFail();
+
+        // Load comments (admin sees all comments)
+        $comments = BlogComment::where('blogPost_id', $post->blogPost_id)
+            ->orderBy('created_at', 'asc')
+            ->paginate(5, ['*'], 'comments_page')
+            ->withQueryString();
+
+        return view('admin.blogs.show', compact('post', 'comments'));
+    }
+
+
     public function create()
     {
         $categories = BlogCategory::orderBy('categoryName')->get();
@@ -22,7 +61,7 @@ class AdminBlogPostController extends Controller
     {
         $input = [
             'title'        => $request->input('title'),
-            'summary'      => $request->input('summary'),
+            'blogSummary'      => $request->input('blogSummary'),
             'content'      => $request->input('content'),
             'category_id'  => $request->input('category_id'),
             'status'       => $request->input('status', 'draft'),
@@ -31,7 +70,7 @@ class AdminBlogPostController extends Controller
 
         $rules = [
             'title'        => 'required|string|max:255',
-            'summary'      => 'nullable|string|max:500',
+            'blogSummary'      => 'nullable|string|max:500',
             'content'      => 'required|string',
             'category_id'  => 'required|exists:blog_categories,blogCategory_id',
             'status'       => 'required|in:draft,published',
@@ -61,7 +100,7 @@ class AdminBlogPostController extends Controller
             'user_id'      => Auth::id(),
             'category_id'  => $input['category_id'],
             'title'        => $input['title'],
-            'summary'      => $input['summary'],
+            'blogSummary'      => $input['blogSummary'],
             'content'      => $input['content'],
             'image'        => $imageFileName,
             'status'       => $input['status'],
@@ -86,7 +125,7 @@ class AdminBlogPostController extends Controller
 
         $input = [
             'title'        => $request->input('title'),
-            'summary'      => $request->input('summary'),
+            'blogSummary'      => $request->input('blogSummary'),
             'content'      => $request->input('content'),
             'category_id'  => $request->input('category_id'),
             'status'       => $request->input('status', $post->status),
@@ -95,7 +134,7 @@ class AdminBlogPostController extends Controller
 
         $rules = [
             'title'        => 'required|string|max:255',
-            'summary'      => 'nullable|string|max:500',
+            'blogSummary'      => 'nullable|string|max:500',
             'content'      => 'required|string',
             'category_id'  => 'nullable|exists:blog_categories,blogCategory_id',
             'status'       => 'required|in:draft,published',
@@ -130,7 +169,7 @@ class AdminBlogPostController extends Controller
 
         $post->category_id = $input['category_id'];
         $post->title       = $input['title'];
-        $post->summary     = $input['summary'];
+        $post->blogSummary     = $input['blogSummary'];
         $post->content     = $input['content'];
         $post->status      = $input['status'];
 
@@ -147,22 +186,23 @@ class AdminBlogPostController extends Controller
         return redirect()->route('blogs.show', $post->blogPost_id)->with('success', 'Blog post updated.');
     }
 
-    public function adminDestroy($id)
-    {
-        $post = BlogPost::where('blogPost_id', $id)->firstOrFail();
+  public function adminDestroy($id)
+{
+    $post = BlogPost::where('blogPost_id', $id)->firstOrFail();
 
-        if ($post->image) {
-            $basename = basename($post->image);
-            $path = public_path('images/Blog/' . $basename);
-            if ($basename !== 'default-blog.jpg' && file_exists($path)) {
-                @unlink($path);
-            }
+    if ($post->image) {
+        $basename = basename($post->image);
+        $path = public_path('images/Blog/' . $basename);
+        if ($basename !== 'default-blog.jpg' && file_exists($path)) {
+            @unlink($path);
         }
-
-        $post->delete();
-
-        return back()->with('success', 'Blog post removed by Admin.');
     }
+
+    $post->delete();
+
+    // Redirect admin back to admin listing after deletion
+    return redirect()->route('admin.blogs.index')->with('success', 'Blog post removed by Admin.');
+}
 
     public function destroy($id)
     {

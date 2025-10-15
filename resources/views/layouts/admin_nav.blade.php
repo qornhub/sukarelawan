@@ -384,7 +384,7 @@
                 </div>
 
                 <div class="submenu" id="event-submenu" role="menu" aria-label="Event submenu">
-                    <a href="#" role="menuitem" data-key="event-discovery">Event Discovery</a>
+                    <a href="{{ route('admin.events.index') }}" role="menuitem" data-key="event-discovery">Event Discovery</a>
                     <a href="{{ route('admin.eventCategory.eventCategory-list') }}" role="menuitem"
                         data-key="event-category">Event Category</a>
                     <a href="{{ route('admin.sdg.sdg-list') }}" role="menuitem" data-key="event-sdg">Event SDG</a>
@@ -404,7 +404,7 @@
                 </div>
 
                 <div class="submenu" id="blog-submenu" role="menu" aria-label="blog submenu">
-                    <a href="#" role="menuitem" data-key="event-discovery">Blog Post</a>
+                    <a href="{{ route('admin.blogs.index') }}" role="menuitem" data-key="event-discovery">Blog Post</a>
                     <a href="{{ route('admin.blogcategory.category-list') }}" role="menuitem" data-key="event-category">Blog Category</a>
                 </div>
             </div>

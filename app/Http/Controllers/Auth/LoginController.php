@@ -82,7 +82,7 @@ public function loginAdmin(Request $request)
         }
 
         if ($roleName === 'ngo') {
-            return redirect()->route('ngo.events.index');
+            return redirect()->route('ngo.dashboard');
         }
 
         
