@@ -1,0 +1,253 @@
+:root {
+    /* Primary palette */
+    --primary-color: #004aad;
+    --primary-hover: #003780;
+    --primary-light: #6c8aec;
+
+    /* Text & backgrounds */
+    --text-color: #333;
+    --light-gray: #f9f9f9;
+    --muted: #6c757d;
+
+    /* Feedback */
+    --success-color: #1cc88a;
+    --error-color: #dc3545;
+    --error-bg: #f8d7da;
+
+    /* Layout tokens */
+    --shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    --card-shadow: 0 0.15rem 1.75rem rgba(58, 59, 69, 0.06);
+    --border-radius: 10px;
+    --rounded-sm: 8px;
+
+    /* Surface colors */
+    --page-bg: #f6f8fb;
+    --card-bg: #ffffff;
+    --muted-surface: #f0f2f6;
+}
+
+/* ---- Base ---- */
+body {
+    background: var(--page-bg);
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    color: var(--text-color);
+    margin: 0;
+    padding: 0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* wrapper spacing */
+.container-fluid {
+    padding-top: 18px;
+    padding-bottom: 18px;
+}
+
+/* ---- Search bar ---- */
+.input-group {
+    box-shadow: none;
+}
+
+.input-group .input-group-text {
+    background: var(--card-bg);
+    border: none;
+    border-radius: 999px 0 0 999px;
+    padding: 8px 12px;
+    color: var(--primary-color);
+    border-right: 1px solid rgba(0,0,0,0.04);
+}
+
+#admin-search {
+    border: 1px solid rgba(0,0,0,0.04);
+    border-left: none;
+    border-radius: 0 999px 999px 0;
+    padding: 10px 14px;
+    background: #ffffff;
+    box-shadow: 0 6px 18px rgba(36,63,150,0.02);
+    outline: none;
+    min-height: 42px;
+    font-size: 14px;
+    color: var(--text-color);
+}
+
+#admin-search::placeholder {
+    color: #9aa3d6;
+    opacity: 1;
+    font-weight: 500;
+}
+
+/* ---- Title ---- */
+h3 {
+    color: var(--primary-color);
+    font-weight: 700;
+    margin-bottom: 12px;
+    letter-spacing: -0.2px;
+}
+
+/* ---- Cards grid ---- */
+.row.g-3 {
+    align-items: stretch;
+}
+
+/* Card base */
+.card {
+    border: 1px solid rgba(10,20,40,0.04);
+    border-radius: var(--border-radius);
+    box-shadow: var(--card-shadow);
+    transition: transform .18s ease, box-shadow .18s ease, opacity .18s ease;
+    background: var(--card-bg);
+    overflow: hidden;
+    height: 100%;
+}
+
+/* trend icon (explicit element in markup) */
+.trend-icon {
+    display: inline-block;
+    font-size: 12px;
+    line-height: 1;
+    margin-right: 8px;
+    vertical-align: text-bottom;
+    font-weight: 700;
+}
+
+/* screen-reader-only helper */
+.sr-only {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0,0,0,0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}
+
+/* Clickable card */
+.clickable-card {
+    cursor: pointer;
+    user-select: none;
+}
+
+.clickable-card .card-body {
+    padding: 18px;
+}
+
+/* Hover / focus effect */
+.clickable-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 14px 30px rgba(20, 45, 100, 0.06);
+}
+
+/* Small label and number inside card */
+.card small.text-muted {
+    display: block;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 6px;
+    font-weight: 600;
+}
+
+.card h4 {
+    margin: 0;
+    font-size: 26px;
+    font-weight: 700;
+    color: #0f1723;
+}
+
+/* icon on right */
+.card .fa-solid,
+.card .fa-regular,
+.card .fa,
+.card i {
+    color: rgba(4, 46, 114, 0.85);
+    background: var(--muted-surface);
+    padding: 10px;
+    border-radius: 10px;
+    width: 56px;
+    height: 56px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+}
+
+/* trend text (up/down) */
+.card .text-success.small,
+.card .text-danger.small {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 13px;
+}
+
+/* right align content inside card body */
+.card .d-flex .text-end {
+    min-width: 64px;
+}
+
+/* ---- Responsive behaviour ---- */
+@media (max-width: 1100px) {
+    /* minor adjustments */
+}
+
+@media (max-width: 900px) {
+    .card h4 { font-size: 22px; }
+    #admin-search { min-height: 40px; }
+}
+
+/* ---- Minor helpers ---- */
+.text-muted {
+    color: var(--muted) !important;
+}
+
+.section-heading {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 6px 0;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+button:focus, a:focus {
+    outline: none;
+    box-shadow: 0 6px 14px rgba(100, 120, 220, 0.06);
+}
+
+/* small polish for the numbers (thousands comma) */
+h4#total-volunteers,
+h4#total-ngos,
+h4#total-events,
+h4#total-blogs {
+    letter-spacing: -0.4px;
+}
+
+/* make cards same height in a row */
+.row.g-3 > .col-md-3 {
+    display: flex;
+}
+.row.g-3 > .col-md-3 > .card {
+    flex: 1 1 auto;
+}
+
+/* ensure quick accessibility contrast for icons */
+.card .fa, .card i {
+    color: var(--primary-color);
+    opacity: 0.95;
+}
+
+/* small shadow for whole page wrapper so admin nav looks above */
+div[style*="margin-left: 70px"] {
+    transition: margin-left .18s ease;
+}
+
+/* === ADDED: ensure a right margin on your inline wrapper ===
+   This targets the inline wrapper you used in the blade:
+   <div style="margin-left: 100px;">  OR  <div style="margin-left: 70px;">
+*/
+div[style*="margin-left: 100px"],
+div[style*="margin-left: 70px"] {
+    margin-right: 40px !important;
+}

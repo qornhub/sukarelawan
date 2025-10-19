@@ -23,7 +23,7 @@ class AdminLoginController extends Controller
         if (Auth::attempt($credentials)) {
             $user = Auth::user();
             if ($user->role && $user->role->roleName === 'admin') {
-                return redirect()->route('admin.skill.skill-list');
+                return redirect()->route('admin.dashboard.index');
 
             }
 

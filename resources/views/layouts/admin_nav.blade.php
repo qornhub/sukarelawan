@@ -369,7 +369,7 @@
 
         <div class="nav-links" role="navigation" aria-label="Main Navigation">
             <!-- Home -->
-            <a href="#" class="nav-item active nav-link" data-key="home">
+            <a href="{{ route('admin.dashboard.index') }}" class="nav-item active nav-link" data-key="home">
                 <i class="fas fa-home"></i>
                 <span class="nav-text">Home</span>
             </a>

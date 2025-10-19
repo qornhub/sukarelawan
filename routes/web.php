@@ -34,11 +34,12 @@ use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Badge\BadgeCategoryController;
 use App\Http\Controllers\Events\EventCommentController;
 
+use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Auth\VolunteerProfileController;
 use App\Http\Controllers\Events\EventDiscoveryController;
 use App\Http\Controllers\Attendances\AttendanceController;
-use App\Http\Controllers\Auth\VolunteerRegisterController;
 
+use App\Http\Controllers\Auth\VolunteerRegisterController;
 use App\Http\Controllers\Blog\VolunteerBlogPostController;
 use App\Http\Controllers\Events\EventRegistrationController;
 use App\Http\Controllers\Events\NgoEventDiscoveryController;
@@ -265,16 +266,21 @@ Route::middleware(['auth', 'isAdmin'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
-        Route::get('/dashboard', fn () => view('admin.dashboard'))->name('dashboard');
+        Route::get('dashboard', [AdminDashboardController::class, 'index'])->name('dashboard.index');
+        Route::get('dashboard/chart-data', [AdminDashboardController::class, 'chartData'])->name('dashboard.chartData');
+        Route::get('dashboard/volunteer-trend', [AdminDashboardController::class, 'volunteerTrendData'])->name('dashboard.volunteerTrend');
+        Route::get('dashboard/vol-active', [AdminDashboardController::class, 'volunteerActiveStats'])->name('dashboard.volActive');
+        Route::get('dashboard/ngo-trend', [AdminDashboardController::class, 'ngoTrendData'])->name('dashboard.ngoTrend');
+        Route::get('dashboard/ngo-active', [AdminDashboardController::class, 'ngoActiveStats'])->name('dashboard.ngoActive');
+
         Route::get('/profile', [AdminProfileController::class, 'show'])->name('profile.show');
         Route::get('/profile/edit', [AdminProfileController::class, 'edit'])->name('profile.edit');
         Route::post('/profile/update', [AdminProfileController::class, 'update'])->name('profile.update');
 
         // Admin event deletion
         Route::get('/events', [AdminEventDiscoveryController::class, 'index'])->name('events.index');
-Route::get('/events/{id}', [AdminEventDiscoveryController::class, 'show'])->name('events.show');
+        Route::get('/events/{id}', [AdminEventDiscoveryController::class, 'show'])->name('events.show');
         Route::delete('/events/{event}', [EventController::class, 'adminDestroy'])->name('events.destroy');
-
 
         Route::get('/sdg', [SdgController::class, 'index'])->name('sdg.sdg-list');
         Route::get('/sdg/create', [SdgController::class, 'create'])->name('sdg.create');
@@ -330,9 +336,7 @@ Route::get('/events/{id}', [AdminEventDiscoveryController::class, 'show'])->name
         Route::get('user-points', [UserPointController::class, 'manage'])->name('user_points.manage');
         
         // Admin listing (shows drafts + published)
-Route::get('/blogs', [AdminBlogPostController::class, 'index'])->name('blogs.index');
-
-
+        Route::get('/blogs', [AdminBlogPostController::class, 'index'])->name('blogs.index');
         Route::get('/blogs/create', [AdminBlogPostController::class, 'create'])->name('blogs.create');
         Route::post('/blogs', [AdminBlogPostController::class, 'store'])->name('blogs.store');
         Route::get('/blogs/{id}', [AdminBlogPostController::class, 'show'])->name('blogs.show');

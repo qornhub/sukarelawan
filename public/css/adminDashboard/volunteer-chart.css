@@ -1,0 +1,94 @@
+:root {
+  --primary-color: #004aad;
+  --muted: #6c757d;
+  --card-bg: #ffffff;
+}
+
+/* Top-level chart area (optional wrapper styling) */
+.dashboard-chart-area,
+#dashboard-chart-area {
+  background: var(--card-bg);
+  border: 1px solid rgba(10,20,40,0.04);
+  border-radius: 10px;
+  padding: 18px;
+  box-shadow: 0 12px 28px rgba(20,40,80,0.04);
+  margin-top: 12px;
+}
+
+/* Panel header - apply to headings inside any chart card */
+.chart-card h6,
+#dashboard-chart-area h6 {
+  margin: 0;
+  font-weight: 700;
+  color: var(--primary-color);
+}
+
+.chart-card small.text-muted,
+#dashboard-chart-area small.text-muted {
+  color: var(--muted);
+}
+
+/* Period toggle buttons style (flat - no gradient)
+   Support both chart-period-btn and trend-period by targeting both classes */
+.btn-group .chart-period-btn,
+.btn-group .trend-period {
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 13px;
+  border: 1px solid rgba(0,74,173,0.08);
+  background: #ffffff;
+  color: var(--primary-color);
+  cursor: pointer;
+}
+
+.btn-group .chart-period-btn:hover,
+.btn-group .trend-period:hover {
+  background: #f0f4ff;
+  color: var(--primary-color);
+}
+
+.btn-group .chart-period-btn.active,
+.btn-group .trend-period.active {
+  background: var(--primary-color);
+  color: #fff !important;
+  border-color: rgba(0,0,0,0.05);
+  box-shadow: 0 8px 22px rgba(4, 74, 173, 0.06);
+}
+
+/* Chart canvas container */
+.chart-card canvas,
+#dashboard-chart-area canvas {
+  width: 100% !important;
+  height: auto !important;
+  display: block;
+  max-height: 420px;
+  margin-top: 10px;
+}
+
+/* Card specific sizing */
+.card.chart-card { padding: 1rem; border-radius: 10px; margin-bottom: 1.25rem; }
+.chart-canvas-wrapper { min-height: 260px; }
+.card.chart-card canvas { width: 100% !important; height: 360px !important; display:block; }
+
+/* Responsive */
+@media (max-width: 1100px) {
+  .dashboard-chart-area { padding: 14px; }
+}
+
+@media (max-width: 700px) {
+  .dashboard-chart-area .d-flex {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .btn-group .chart-period-btn,
+  .btn-group .trend-period {
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+}
+
+/* small helpers */
+.visually-hidden { /* unchanged */ }
+#dashboard-chart-area h6 { margin:0; font-weight:700; color:var(--primary-color); }
