@@ -121,7 +121,7 @@
 
                 <!-- Total Events -->
                 <div class="col-md-3">
-                    <div class="card clickable-card shadow-sm" data-metric="events" data-target="events_chart">
+                    <div class="card clickable-card shadow-sm" data-metric="events" data-target="events_chart" data-show="events">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
@@ -157,7 +157,7 @@
 
                 <!-- Total Blog Posts -->
                 <div class="col-md-3">
-                    <div class="card clickable-card shadow-sm" data-metric="blogs" data-target="blogs_chart">
+                    <div class="card clickable-card shadow-sm" data-metric="blogs" data-target="blogs_chart" data-show="blogs">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
@@ -201,6 +201,16 @@
                 {{-- NGO chart (hidden initially) --}}
                 <div id="ngo-chart-wrapper" style="display:none;">
                     @include('admin.adminDashboard.partials.ngo-chart')
+                </div>
+
+                {{-- NGO chart (hidden initially) --}}
+                <div id="events-chart-wrapper" style="display:none;">
+                    @include('admin.adminDashboard.partials.event-chart')
+                </div>
+
+                {{-- NGO chart (hidden initially) --}}
+                <div id="blogs-chart-wrapper" style="display:none;">
+                    @include('admin.adminDashboard.partials.blog-chart')
                 </div>
             </div>
 

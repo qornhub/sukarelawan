@@ -17,8 +17,13 @@ class EventCategory extends Model
     ];
 
     
-    public function events()
+  /*  public function events()
 {
     return $this->hasMany(Event::class, 'eventCategoryId', 'id');
-}
+}*/
+
+ public function events()
+    {
+        return $this->hasMany(Event::class, 'category_id', 'eventCategory_id');
+    }
 }

@@ -34,10 +34,16 @@ class AdminLoginController extends Controller
         return back()->withErrors(['email' => 'Invalid credentials.']);
     }
 
-    public function logout(Request $request)
-    {
-        Auth::logout();
-        return redirect('/admin/login');
-    }
+   public function logout(Request $request)
+{
+    Auth::logout();
+
+    // Invalidate session & regenerate CSRF token (security best practice)
+    $request->session()->invalidate();
+    $request->session()->regenerateToken();
+
+    return redirect()->route('admin.login'); // uses the named route you showed
+}
+
 }
 

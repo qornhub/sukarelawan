@@ -33,16 +33,23 @@ class EventDiscoveryController extends Controller
             'Sabah','Sarawak','Kuala Lumpur','Putrajaya','Labuan'
         ];
 
-        // Base query. Eager-load relations used by the list view.
-        // Note: loading registrations.user for each event lets you show participant avatars/counts.
-        $query = Event::with([
-            'category',
-            'organizer',
-            'sdgs',
-            'skills',
-            'registrations.user',             // eager-load user for avatar/title
-            'registrations.user.volunteerProfile',
-        ]);
+      
+
+        // base query (inside index)
+$query = Event::with([
+    'category',
+    // organizer + its profile relations
+    'organizer',
+    'organizer.ngoProfile',
+    'organizer.volunteerProfile',
+    'sdgs',
+    'skills',
+    // registrations -> user -> volunteerProfile (so registration avatars use profile data)
+    'registrations.user',
+    'registrations.user.volunteerProfile',
+    
+]);
+
 
         // Search (title / summary / description)
         if ($search) {
@@ -128,14 +135,18 @@ class EventDiscoveryController extends Controller
     
    public function show($event_id)
 {
-    $event = Event::with([
-        'category',
-        'organizer',
-        'sdgs',
-        'skills',
-        'registrations.user',
-        'registrations.user.volunteerProfile',
-    ])->findOrFail($event_id);
+   $event = Event::with([
+    'category',
+    'organizer',
+    'organizer.ngoProfile',
+    'organizer.volunteerProfile',
+    'sdgs',
+    'skills',
+    'registrations.user',
+    'registrations.user.volunteerProfile',
+    
+])->findOrFail($event_id);
+
 
     $registrations   = $event->registrations->sortByDesc('created_at')->values();
     $registeredCount = $registrations->count();
@@ -159,11 +170,14 @@ class EventDiscoveryController extends Controller
 public function show2($event_id)
 {
     $event = Event::with([
-        'category',
-        'organizer',
-        'sdgs',
-        'skills',
-    ])->findOrFail($event_id);
+    'category',
+    'organizer',
+    'organizer.ngoProfile',
+    'organizer.volunteerProfile',
+    'sdgs',
+    'skills',
+])->findOrFail($event_id);
+
 
     $userId = Auth::id();
 

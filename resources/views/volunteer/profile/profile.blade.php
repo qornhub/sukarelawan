@@ -123,35 +123,25 @@
                             style="padding: 1rem 1.25rem; font-weight: 600;">
                             <i class="fas fa-chart-line me-2"></i>Volunteer Stats
                         </div>
-                        <div class="card-body" style="padding: 1.25rem;">
-                            <div class="row">
-                                <div class="col-6 mb-3">
-                                    <div class="stat-card">
-                                        <div class="stat-number">{{ count($upcomingEvents) + count($pastEvents) }}
-                                        </div>
-                                        <div class="stat-label">Events</div>
-                                    </div>
-                                </div>
-                                <div class="col-6 mb-3">
-                                    <div class="stat-card">
-                                        <div class="stat-number">{{ $totalPoints * 2 }}</div>
-                                        <div class="stat-label">Hours</div>
-                                    </div>
-                                </div>
-                                <div class="col-6">
-                                    <div class="stat-card">
-                                        <div class="stat-number">{{ count($blogPosts) }}</div>
-                                        <div class="stat-label">Blogs</div>
-                                    </div>
-                                </div>
-                                <div class="col-6">
-                                    <div class="stat-card">
-                                        <div class="stat-number">{{ $userBadges->count() }}</div>
-                                        <div class="stat-label">Badges</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                       <div class="card-body" style="padding: 1.25rem;">
+    <div class="d-flex flex-column">
+        <div class="stat-card text-center py-3 border-bottom">
+            <div class="stat-number">{{ count($upcomingEvents) + count($pastEvents) }}</div>
+            <div class="stat-label">Events</div>
+        </div>
+
+        <div class="stat-card text-center py-3 border-bottom">
+            <div class="stat-number">{{ count($blogPosts) }}</div>
+            <div class="stat-label">Blogs</div>
+        </div>
+
+        <div class="stat-card text-center py-3">
+            <div class="stat-number">{{ $userBadges->count() }}</div>
+            <div class="stat-label">Badges</div>
+        </div>
+    </div>
+</div>
+
                     </div>
                 </div>
 

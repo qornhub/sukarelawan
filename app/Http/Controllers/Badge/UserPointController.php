@@ -34,10 +34,10 @@ public function index()
     // latest activities
     $activities = UserPoint::where('user_id', $user->id)->latest()->get();
 
-    // earned badges: server-side paginate 9 per page, page parameter name = 'earned_page'
+// earned badges (paginated for UI)
 $earnedBadges = $user->badges()
     ->withPivot('earnedDate', 'created_at')
-    ->orderByDesc('user_badges.created_at') // most-recent first
+    ->orderByDesc('user_badges.created_at')
     ->paginate(6, ['*'], 'earned_page');
 
 // decorate earned badges with image url (optional)
@@ -48,8 +48,10 @@ $earnedBadges->getCollection()->transform(function ($b) {
     return $b;
 });
 
-    // quick lookup array of earned badge ids
-    $earnedBadgeIds = $earnedBadges->pluck('badge_id')->toArray();
+// --- FIX: fetch all earned badge IDs (NOT just the paginated page) ---
+$earnedBadgeIds = $user->badges()->pluck('user_badges.badge_id')->toArray();
+
+
 
     //
     // Leaderboard: top 10 volunteers (with sum of points + avatar url)

@@ -8,8 +8,49 @@
 
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/blogs/show.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/blogs/comment.css') }}">
+    <style>
+        .post-settings {
+            top: -20px;
+            position: relative;
+            /* keeps it in normal flow (Option A) */
+            margin-bottom: 38px;
+            /* your existing gap */
+            text-align: right;
+            /* RIGHT-align the inline button inside this block */
+        }
+
+        /* keep the button visuals */
+        .post-settings .btn-settings {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.96);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            padding: 8px 10px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+            color: #333;
+        }
+
+
+
+
+        /* responsive tweaks — on small screens keep icon closer to the card */
+        @media (max-width: 767.98px) {
+            .post-settings {
+                top: -20px;
+                /* less negative on narrow screens */
+                right: 12px;
+            }
+
+            .main-content-card {
+                padding-top: 20px;
+            }
+        }
+    </style>
 
 </head>
 
@@ -39,33 +80,37 @@
 
 
 
-            <div class="register-row text-end mb-3">
-                <div class="d-flex justify-content-end mt-1">
-                    <!-- Equal-width buttons container -->
-                    <div class="d-flex gap-2 flex-fill" style="max-width: 320px;">
+            <div class="post-settings">
+                <div class="btn-group">
+                    <button type="button" class="btn btn-settings btn-sm dropdown-toggle dropdown-toggle-no-caret"
+                        data-bs-toggle="dropdown" aria-expanded="false" title="Post settings">
+                        <i class="fa fa-cog"></i>
+                    </button>
 
-                        <!-- Edit Blog (link styled as button) -->
-                        <a href="{{ route('volunteer.blogs.edit', $post->blogPost_id) }}"
-                            class="btn btn-warning flex-fill d-flex justify-content-center align-items-center"
-                            style="height: 42px;">
-                            <i class="fas fa-edit me-1"></i> Edit Blog
-                        </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        {{-- Edit --}}
+                        <li>
+                            <a class="dropdown-item" href="{{ route('ngo.blogs.edit', $post->blogPost_id) }}">
+                                <i class="fa fa-edit me-2"></i> Edit
+                            </a>
+                        </li>
 
-                        <!-- Delete Blog (form button) -->
-                        <form action="{{ route('volunteer.blogs.destroy', $post->blogPost_id) }}" method="POST"
-                            onsubmit="return confirm('Are you sure you want to delete this blog? This action cannot be undone.');"
-                            class="flex-fill">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit"
-                                class="btn btn-danger flex-fill d-flex justify-content-center align-items-center"
-                                style="height: 42px;">
-                                <i class="fas fa-trash-alt me-1"></i> Delete Blog
-                            </button>
-                        </form>
-                    </div>
+                        {{-- Delete --}}
+                        <li>
+                            <form action="{{ route('ngo.blogs.destroy', $post->blogPost_id) }}" method="POST"
+                                onsubmit="return confirm('Are you sure you want to permanently delete this post? This action cannot be undone.');"
+                                class="m-0 p-0">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="dropdown-item text-danger">
+                                    <i class="fa fa-trash me-2"></i> Delete Post
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
                 </div>
             </div>
+
 
 
             <!-- Single Card Container -->

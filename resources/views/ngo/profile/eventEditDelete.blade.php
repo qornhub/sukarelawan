@@ -85,6 +85,43 @@
             display: flex;
             justify-content: flex-start;
         }
+        /* make the form behave like the anchor nav tabs */
+.nav-tabs .delete-tab {
+  margin: 0;
+  padding: 0;
+  display: inline-flex;      /* match anchor layout */
+  align-items: center;
+  height: 100%;
+  text-decoration: none;
+  border: none;
+  background: transparent;
+ 
+  cursor: pointer;
+}
+
+/* remove default button styles and inherit the nav-tab look */
+.delete-tab-button {
+  all: unset;                /* remove default button styles */
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .6rem 1rem;       /* tune to match .nav-tab */
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+}
+
+/* optional: hover/focus visual parity with .nav-tab */
+.delete-tab-button:hover,
+.delete-tab-button:focus {
+  /* either reuse your .nav-tab hover styles, or replicate here */
+ 
+  text-decoration: none;
+  outline: none;
+}
+
     </style>
 </head>
 
@@ -127,65 +164,58 @@
    <div class="event-header mt-3">
     <div class="header-content">
         <div class="nav-container">
-            <nav class="nav-tabs">
-                <div class="nav-indicator" style="width: 88px; transform: translateX(0);"></div>
+           <nav class="nav-tabs">
+    <div class="nav-indicator" style="width: 88px; transform: translateX(0);"></div>
 
-                {{-- Event Tab --}}
-                <a href="{{ route('ngo.profile.eventEditDelete', $event->event_id) }}"
-                   class="nav-tab {{ request()->routeIs('ngo.profile.eventEditDelete') ? 'active' : '' }}"
-                   data-tab="event">
-                    <i class="fas fa-calendar-day"></i>
-                    <span>Event</span>
-                </a>
+    {{-- Event Tab --}}
+    <a href="{{ route('ngo.profile.eventEditDelete', $event->event_id) }}"
+       class="nav-tab {{ request()->routeIs('ngo.profile.eventEditDelete') ? 'active' : '' }}"
+       data-tab="event">
+        <i class="fas fa-calendar-day"></i>
+        <span>Event</span>
+    </a>
 
-                {{-- Edit Tab --}}
-                <a href="{{ route('ngo.events.event_edit', $event->event_id) }}"
-                   class="nav-tab {{ request()->routeIs('ngo.events.event_edit') ? 'active' : '' }}"
-                   data-tab="edit"
-                   onclick="event.stopPropagation();">
-                    <i class="fas fa-edit"></i>
-                    <span>Edit</span>
-                </a>
+    {{-- Edit Tab --}}
+    <a href="{{ route('ngo.events.event_edit', $event->event_id) }}"
+       class="nav-tab {{ request()->routeIs('ngo.events.event_edit') ? 'active' : '' }}"
+       data-tab="edit"
+       onclick="event.stopPropagation();">
+        <i class="fas fa-edit"></i>
+        <span>Edit</span>
+    </a>
 
-                {{-- Manage Tab --}}
-                <a href="{{ route('ngo.events.manage', $event->event_id) }}"
-                   class="nav-tab {{ request()->routeIs('ngo.events.manage') ? 'active' : '' }}"
-                   data-tab="manage">
-                    <i class="fas fa-tasks"></i>
-                    <span>Manage</span>
-                </a>
+    {{-- Manage Tab --}}
+    <a href="{{ route('ngo.events.manage', $event->event_id) }}"
+       class="nav-tab {{ request()->routeIs('ngo.events.manage') ? 'active' : '' }}"
+       data-tab="manage">
+        <i class="fas fa-tasks"></i>
+        <span>Manage</span>
+    </a>
 
-                
-            </nav>
+    {{-- Delete "tab" implemented as a form (no navigation) --}}
+    <form action="{{ route('ngo.events.destroy', $event->event_id) }}"
+          method="POST"
+          class="nav-tab delete-tab"
+          onsubmit="return confirm('Are you sure you want to delete this event? This action cannot be undone.');">
+        @csrf
+        @method('DELETE')
+
+        <button type="submit"
+                class="delete-tab-button"
+                onclick="event.stopPropagation();"
+                aria-label="Delete event">
+            <i class="fas fa-trash-alt"></i>
+            <span>Delete</span>
+        </button>
+    </form>
+</nav>
+
         </div>
     </div>
 </div>
 
 
-    <div class="container">
-        <div class="register-row text-end" style="margin-top: 18px; margin-bottom: 18px;">
-            <div class="d-flex justify-content-end gap-2 mt-3">
-
-                <!-- Wrap buttons in equal-width container -->
-                <div class="d-flex gap-2" style="width: 300px;"> <!-- adjust width as needed -->
-                    <!-- Edit -->
-
-
-                    <!-- Delete -->
-                    <form action="{{ route('ngo.events.destroy', $event->event_id) }}" method="POST"
-                        onsubmit="return confirm('Are you sure you want to delete this event? This action cannot be undone.');"
-                        class="flex-fill">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-danger w-100">
-                            <i class="fas fa-trash-alt me-1"></i> Delete
-                        </button>
-                    </form>
-                </div>
-
-            </div>
-        </div>
-    </div>
+   
 
 
 
@@ -465,9 +495,43 @@
 
                 {{-- Organizer card --}}
                 <div class="sidebar-card organizer-card">
-                    <div class="organizer-header">
+                     <div class="organizer-header">
+                        @php
+                            use Illuminate\Support\Facades\Storage;
+
+                            $default = asset('images/default-profile.png');
+                            $organizer = optional($event->organizer);
+
+                            // Try to get profile photo from organizer->ngoProfile or volunteerProfile
+                            $file =
+                                optional($organizer->ngoProfile)->profilePhoto ??
+                                (optional($organizer->volunteerProfile)->profilePhoto ?? null);
+
+                            $profileImageUrl = $default;
+
+                            if ($file) {
+                                $basename = trim(basename($file));
+
+                                // Case 1: public/images/profiles/<basename>
+                                if (file_exists(public_path("images/profiles/{$basename}"))) {
+                                    $profileImageUrl = asset("images/profiles/{$basename}");
+                                }
+                                // Case 2: public/images/<basename>
+                                elseif (file_exists(public_path("images/{$basename}"))) {
+                                    $profileImageUrl = asset("images/{$basename}");
+                                }
+                                // Case 3: stored in storage/app/public
+                                elseif (Storage::disk('public')->exists($file)) {
+                                    $profileImageUrl = Storage::disk('public')->url($file);
+                                } elseif (Storage::disk('public')->exists("profiles/{$basename}")) {
+                                    $profileImageUrl = Storage::disk('public')->url("profiles/{$basename}");
+                                }
+                            }
+                        @endphp
+
                         <div class="org-avatar">
-                            <i class="fas fa-user"></i>
+                            <img src="{{ $profileImageUrl }}" alt="Organizer Image" class="rounded-circle"
+                                style="width:60px;height:60px;object-fit:cover;">
                         </div>
                         <div>
                             <div class="organizer-label">Organized By</div>

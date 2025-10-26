@@ -16,34 +16,37 @@ use App\Http\Controllers\Auth\AdminLoginController;
 use App\Http\Controllers\Auth\NGOProfileController;
 use App\Http\Controllers\Badge\UserBadgeController;
 use App\Http\Controllers\Badge\UserPointController;
-use App\Http\Controllers\Auth\NGORegisterController;
+use App\Http\Controllers\Admin\AdminUsersController;
 
+use App\Http\Controllers\Auth\NGORegisterController;
 use App\Http\Controllers\Blog\BlogCommentController;
 use App\Http\Controllers\Blog\NGOBlogPostController;
 use App\Http\Controllers\Auth\AdminProfileController;
 use App\Http\Controllers\Task\AssignedTaskController;
 use App\Http\Controllers\Admin\BlogCategoryController;
 use App\Http\Controllers\Auth\AdminRegisterController;
-use App\Http\Controllers\Auth\ResetPasswordController;
 
+use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Blog\AdminBlogPostController;
 use App\Http\Controllers\NGO\TaskAssignmentController;
 use App\Http\Controllers\Admin\EventCategoryController;
+
 use App\Http\Controllers\Auth\ForgotPasswordController;
-
 use App\Http\Controllers\Badge\BadgeCategoryController;
-use App\Http\Controllers\Events\EventCommentController;
 
+use App\Http\Controllers\Events\EventCommentController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Auth\VolunteerProfileController;
 use App\Http\Controllers\Events\EventDiscoveryController;
-use App\Http\Controllers\Attendances\AttendanceController;
 
+use App\Http\Controllers\Attendances\AttendanceController;
 use App\Http\Controllers\Auth\VolunteerRegisterController;
 use App\Http\Controllers\Blog\VolunteerBlogPostController;
 use App\Http\Controllers\Events\EventRegistrationController;
 use App\Http\Controllers\Events\NgoEventDiscoveryController;
+use App\Http\Controllers\Admin\AdminDashboardBlogsController;
 use App\Http\Controllers\Events\NGOEventManagementController;
+use App\Http\Controllers\Admin\AdminDashboardEventsController;
 use App\Http\Controllers\Events\AdminEventDiscoveryController;
 
 /*authenticated user routes*/   
@@ -272,6 +275,25 @@ Route::middleware(['auth', 'isAdmin'])
         Route::get('dashboard/vol-active', [AdminDashboardController::class, 'volunteerActiveStats'])->name('dashboard.volActive');
         Route::get('dashboard/ngo-trend', [AdminDashboardController::class, 'ngoTrendData'])->name('dashboard.ngoTrend');
         Route::get('dashboard/ngo-active', [AdminDashboardController::class, 'ngoActiveStats'])->name('dashboard.ngoActive');
+        Route::get('dashboard/events/creation-trend', [AdminDashboardEventsController::class, 'creationTrend'])->name('dashboard.events.creationTrend');
+        Route::get('dashboard/events/category-distribution', [AdminDashboardEventsController::class, 'categoryDistribution'])->name('dashboard.events.categoryDistribution');
+        Route::get('dashboard/events/registration-status', [AdminDashboardEventsController::class, 'registrationStatusSummary'])->name('dashboard.events.registrationStatus');
+        Route::get('dashboard/events/attendance-rate', [AdminDashboardEventsController::class, 'attendanceRateTopEvents'])->name('dashboard.events.attendanceRate');
+        Route::get('dashboard/events/active-summary', [AdminDashboardEventsController::class, 'activeVsCompleted'])->name('dashboard.events.activeSummary');
+        
+        Route::get('users', [AdminUsersController::class, 'index'])->name('users.index');
+        Route::get('users/{id}', [AdminUsersController::class, 'show'])->name('users.show');
+        Route::delete('users/{id}', [AdminUsersController::class, 'destroy'])->name('users.destroy');
+
+        
+Route::get('dashboard/blogs/posts-trend', [AdminDashboardBlogsController::class, 'postsTrend'])->name('dashboard.blogs.postsTrend');
+Route::get('dashboard/blogs/top-authors', [AdminDashboardBlogsController::class, 'topAuthors'])->name('dashboard.blogs.topAuthors');
+Route::get('dashboard/blogs/category-distribution', [AdminDashboardBlogsController::class, 'categoryDistribution'])->name('dashboard.blogs.categoryDistribution');
+Route::get('dashboard/blogs/comments-per-post', [AdminDashboardBlogsController::class, 'commentsPerBlog'])->name('dashboard.blogs.commentsPerPost');
+Route::get('dashboard/blogs/status-summary', [AdminDashboardBlogsController::class, 'statusSummary'])->name('dashboard.blogs.statusSummary');
+Route::get('dashboard/blogs/avg-comments', [AdminDashboardBlogsController::class, 'avgCommentsPerPost'])->name('dashboard.blogs.avgComments');
+
+
 
         Route::get('/profile', [AdminProfileController::class, 'show'])->name('profile.show');
         Route::get('/profile/edit', [AdminProfileController::class, 'edit'])->name('profile.edit');

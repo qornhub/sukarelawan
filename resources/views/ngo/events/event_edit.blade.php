@@ -124,6 +124,43 @@
             display: flex;
             justify-content: flex-start;
         }
+
+                /* make the form behave like the anchor nav tabs */
+.nav-tabs .delete-tab {
+  margin: 0;
+  padding: 0;
+  display: inline-flex;      /* match anchor layout */
+  align-items: center;
+  height: 100%;
+  text-decoration: none;
+  border: none;
+  background: transparent;
+  
+  cursor: pointer;
+}
+
+/* remove default button styles and inherit the nav-tab look */
+.delete-tab-button {
+  all: unset;                /* remove default button styles */
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .6rem 1rem;       /* tune to match .nav-tab */
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+}
+
+/* optional: hover/focus visual parity with .nav-tab */
+.delete-tab-button:hover,
+.delete-tab-button:focus {
+  /* either reuse your .nav-tab hover styles, or replicate here */
+ 
+  text-decoration: none;
+  outline: none;
+}
     </style>
 </head>
 
@@ -139,39 +176,55 @@
     </div>
 </header>
 
-            <div class="event-header mt-2">
+              <div class="event-header mt-3">
     <div class="header-content">
         <div class="nav-container">
-            <nav class="nav-tabs">
-                <div class="nav-indicator" style="width: 88px; transform: translateX(0);"></div>
+           <nav class="nav-tabs">
+    <div class="nav-indicator" style="width: 88px; transform: translateX(0);"></div>
 
-                {{-- Event Tab --}}
-                <a href="{{ route('ngo.profile.eventEditDelete', $event->event_id) }}"
-                   class="nav-tab {{ request()->routeIs('ngo.profile.eventEditDelete') ? 'active' : '' }}"
-                   data-tab="event">
-                    <i class="fas fa-calendar-day"></i>
-                    <span>Event</span>
-                </a>
+    {{-- Event Tab --}}
+    <a href="{{ route('ngo.profile.eventEditDelete', $event->event_id) }}"
+       class="nav-tab {{ request()->routeIs('ngo.profile.eventEditDelete') ? 'active' : '' }}"
+       data-tab="event">
+        <i class="fas fa-calendar-day"></i>
+        <span>Event</span>
+    </a>
 
-                {{-- Edit Tab --}}
-                <a href="{{ route('ngo.events.event_edit', $event->event_id) }}"
-                   class="nav-tab {{ request()->routeIs('ngo.events.event_edit') ? 'active' : '' }}"
-                   data-tab="edit"
-                   onclick="event.stopPropagation();">
-                    <i class="fas fa-edit"></i>
-                    <span>Edit</span>
-                </a>
+    {{-- Edit Tab --}}
+    <a href="{{ route('ngo.events.event_edit', $event->event_id) }}"
+       class="nav-tab {{ request()->routeIs('ngo.events.event_edit') ? 'active' : '' }}"
+       data-tab="edit"
+       onclick="event.stopPropagation();">
+        <i class="fas fa-edit"></i>
+        <span>Edit</span>
+    </a>
 
-                {{-- Manage Tab --}}
-                <a href="{{ route('ngo.events.manage', $event->event_id) }}"
-                   class="nav-tab {{ request()->routeIs('ngo.events.manage') ? 'active' : '' }}"
-                   data-tab="manage">
-                    <i class="fas fa-tasks"></i>
-                    <span>Manage</span>
-                </a>
+    {{-- Manage Tab --}}
+    <a href="{{ route('ngo.events.manage', $event->event_id) }}"
+       class="nav-tab {{ request()->routeIs('ngo.events.manage') ? 'active' : '' }}"
+       data-tab="manage">
+        <i class="fas fa-tasks"></i>
+        <span>Manage</span>
+    </a>
 
-               
-            </nav>
+    {{-- Delete "tab" implemented as a form (no navigation) --}}
+    <form action="{{ route('ngo.events.destroy', $event->event_id) }}"
+          method="POST"
+          class="nav-tab delete-tab"
+          onsubmit="return confirm('Are you sure you want to delete this event? This action cannot be undone.');">
+        @csrf
+        @method('DELETE')
+
+        <button type="submit"
+                class="delete-tab-button"
+                onclick="event.stopPropagation();"
+                aria-label="Delete event">
+            <i class="fas fa-trash-alt"></i>
+            <span>Delete</span>
+        </button>
+    </form>
+</nav>
+
         </div>
     </div>
 </div>

@@ -339,56 +339,45 @@
                 <div class="sidebar-card organizer-card">
                     <div class="organizer-header">
                         @php
-                            use Illuminate\Support\Str;
+                            use Illuminate\Support\Facades\Storage;
 
-                            $ngo = optional($event->organizer);
-                            $filename = $ngo->profilePhoto ?? null;
-                            $profileImageUrl = asset('images/default-profile.png');
+                            $default = asset('images/default-profile.png');
+                            $organizer = optional($event->organizer);
 
-                            if ($filename) {
-                                $basename = basename($filename);
+                            // Try to get profile photo from organizer->ngoProfile or volunteerProfile
+                            $file =
+                                optional($organizer->ngoProfile)->profilePhoto ??
+                                (optional($organizer->volunteerProfile)->profilePhoto ?? null);
 
-                                $paths = [
-                                    public_path("images/profiles/{$filename}"),
-                                    public_path("images/profiles/{$basename}"),
-                                    public_path("images/{$filename}"),
-                                    public_path("storage/{$filename}"),
-                                    public_path("storage/profiles/{$basename}"),
-                                ];
+                            $profileImageUrl = $default;
 
-                                $assetTemplates = [
-                                    asset("images/profiles/{$filename}"),
-                                    asset("images/profiles/{$basename}"),
-                                    asset("images/{$filename}"),
-                                    asset("storage/{$filename}"),
-                                    asset("storage/profiles/{$basename}"),
-                                ];
+                            if ($file) {
+                                $basename = trim(basename($file));
 
-                                foreach ($paths as $i => $p) {
-                                    if (file_exists($p)) {
-                                        $profileImageUrl = $assetTemplates[$i];
-                                        break;
-                                    }
+                                // Case 1: public/images/profiles/<basename>
+                                if (file_exists(public_path("images/profiles/{$basename}"))) {
+                                    $profileImageUrl = asset("images/profiles/{$basename}");
                                 }
-
-                                if ($profileImageUrl === asset('images/default-profile.png')) {
-                                    if (
-                                        Str::startsWith($filename, 'profiles/') ||
-                                        Str::startsWith($filename, 'covers/') ||
-                                        Str::contains($filename, 'storage')
-                                    ) {
-                                        $profileImageUrl = asset('storage/' . ltrim($filename, '/'));
-                                    } else {
-                                        $profileImageUrl = asset('images/profiles/' . $basename);
-                                    }
+                                // Case 2: public/images/<basename>
+                                elseif (file_exists(public_path("images/{$basename}"))) {
+                                    $profileImageUrl = asset("images/{$basename}");
+                                }
+                                // Case 3: stored in storage/app/public
+                                elseif (Storage::disk('public')->exists($file)) {
+                                    $profileImageUrl = Storage::disk('public')->url($file);
+                                } elseif (Storage::disk('public')->exists("profiles/{$basename}")) {
+                                    $profileImageUrl = Storage::disk('public')->url("profiles/{$basename}");
                                 }
                             }
                         @endphp
 
                         <div class="org-avatar">
                             <img src="{{ $profileImageUrl }}" alt="Organizer Image" class="rounded-circle"
-                                style="width: 60px; height: 60px; object-fit: cover;">
+                                style="width:60px;height:60px;object-fit:cover;">
                         </div>
+
+
+
 
                         <div>
                             <div class="organizer-label">Organized By</div>

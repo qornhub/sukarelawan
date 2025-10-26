@@ -325,17 +325,49 @@
 
                 {{-- Organizer card --}}
                 <div class="sidebar-card organizer-card">
-                    <div class="organizer-header">
+                     <div class="organizer-header">
+                        @php
+                            use Illuminate\Support\Facades\Storage;
+
+                            $default = asset('images/default-profile.png');
+                            $organizer = optional($event->organizer);
+
+                            // Try to get profile photo from organizer->ngoProfile or volunteerProfile
+                            $file =
+                                optional($organizer->ngoProfile)->profilePhoto ??
+                                (optional($organizer->volunteerProfile)->profilePhoto ?? null);
+
+                            $profileImageUrl = $default;
+
+                            if ($file) {
+                                $basename = trim(basename($file));
+
+                                // Case 1: public/images/profiles/<basename>
+                                if (file_exists(public_path("images/profiles/{$basename}"))) {
+                                    $profileImageUrl = asset("images/profiles/{$basename}");
+                                }
+                                // Case 2: public/images/<basename>
+                                elseif (file_exists(public_path("images/{$basename}"))) {
+                                    $profileImageUrl = asset("images/{$basename}");
+                                }
+                                // Case 3: stored in storage/app/public
+                                elseif (Storage::disk('public')->exists($file)) {
+                                    $profileImageUrl = Storage::disk('public')->url($file);
+                                } elseif (Storage::disk('public')->exists("profiles/{$basename}")) {
+                                    $profileImageUrl = Storage::disk('public')->url("profiles/{$basename}");
+                                }
+                            }
+                        @endphp
+
                         <div class="org-avatar">
-                            <i class="fas fa-user"></i>
+                            <img src="{{ $profileImageUrl }}" alt="Organizer Image" class="rounded-circle"
+                                style="width:60px;height:60px;object-fit:cover;">
                         </div>
                         <div>
                             <div class="organizer-label">Organized By</div>
-                            <div class="organizer-name">{{ optional($event->organizer)->name ?? 'Organizer' }}
-                            </div>
+                            <div class="organizer-name">{{ optional($event->organizer)->name ?? 'Organizer' }}</div>
                         </div>
                     </div>
-
                     <div class="organizer-actions">
                         @php
                             $phone = optional($event->organizer)->phone ?? null;
