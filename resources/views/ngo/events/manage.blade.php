@@ -1,3 +1,16 @@
+ @php
+        use Carbon\Carbon;
+        $eventHasEnded = false;
+        if (!empty($event->eventEnd)) {
+            try {
+                $eventHasEnded = Carbon::parse($event->eventEnd)
+                    ->startOfDay()
+                    ->lessThanOrEqualTo(Carbon::now()->startOfDay());
+            } catch (\Exception $ex) {
+                $eventHasEnded = false;
+            }
+        }
+    @endphp
 <!doctype html>
 <html lang="en">
 
@@ -32,42 +45,103 @@
     <link rel="stylesheet" href="{{ asset('css/events/email.css') }}">
     <style>
         /* make the form behave like the anchor nav tabs */
-.nav-tabs .delete-tab {
-  margin: 0;
-  padding: 0;
-  display: inline-flex;      /* match anchor layout */
-  align-items: center;
-  height: 100%;
-  text-decoration: none;
-  border: none;
-  background: transparent;
-  
-  cursor: pointer;
+        .nav-tabs .delete-tab {
+            margin: 0;
+            padding: 0;
+            display: inline-flex;
+            /* match anchor layout */
+            align-items: center;
+            height: 100%;
+            text-decoration: none;
+            border: none;
+            background: transparent;
+
+            cursor: pointer;
+        }
+
+        /* remove default button styles and inherit the nav-tab look */
+        .delete-tab-button {
+            all: unset;
+            /* remove default button styles */
+            display: inline-flex;
+            align-items: center;
+            gap: .5rem;
+            padding: .6rem 1rem;
+            /* tune to match .nav-tab */
+            font: inherit;
+            color: inherit;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* optional: hover/focus visual parity with .nav-tab */
+        .delete-tab-button:hover,
+        .delete-tab-button:focus {
+            /* either reuse your .nav-tab hover styles, or replicate here */
+
+            text-decoration: none;
+            outline: none;
+        }
+
+             /* ----------------------------
+   Disabled state for nav tabs
+   ---------------------------- */
+
+        /* Generic disabled look & block interactions (applies to edit/delete/etc) */
+        .nav-tab.disabled,
+        .nav-tab[aria-disabled="true"] {
+            pointer-events: none;
+            /* block clicks on the parent */
+            cursor: default;
+            opacity: 0.55;
+            /* visually dim */
+            color: inherit;
+            /* keep text color consistent */
+        }
+
+        /* Also block clicks on any children and prevent focus */
+        .nav-tab.disabled *,
+        .nav-tab[aria-disabled="true"] * {
+            pointer-events: none;
+        }
+
+        /* Slightly mute the icon when disabled for parity */
+        .nav-tab.disabled i,
+        .nav-tab[aria-disabled="true"] i {
+            opacity: 0.65;
+        }
+
+        /* If you want keyboard focus to be prevented for inner elements */
+        .nav-tab.disabled [tabindex],
+        .nav-tab[aria-disabled="true"] [tabindex] {
+            outline: none;
+        }
+
+        /* generic disabled state */
+.is-disabled,
+.disabled,
+[aria-disabled="true"] {
+    pointer-events: none !important;
+    cursor: default !important;
+    opacity: 0.55 !important;
 }
 
-/* remove default button styles and inherit the nav-tab look */
-.delete-tab-button {
-  all: unset;                /* remove default button styles */
-  display: inline-flex;
-  align-items: center;
-  gap: .5rem;
-  padding: .6rem 1rem;       /* tune to match .nav-tab */
-  font: inherit;
-  color: inherit;
-  cursor: pointer;
-  width: 100%;
-  height: 100%;
+/* ensure inner controls don't accidentally remain interactive */
+.is-disabled * ,
+.disabled * ,
+[aria-disabled="true"] * {
+    pointer-events: none !important;
 }
 
-/* optional: hover/focus visual parity with .nav-tab */
-.delete-tab-button:hover,
-.delete-tab-button:focus {
-  /* either reuse your .nav-tab hover styles, or replicate here */
- 
-  text-decoration: none;
-  outline: none;
+/* optionally mute icons a little more */
+.is-disabled i,
+.disabled i,
+[aria-disabled="true"] i {
+    opacity: 0.65;
 }
-        </style>
+
+    </style>
 </head>
 
 <body>
@@ -80,59 +154,74 @@
 
         </div>
     </header>
-     <div class="event-header mt-3">
-    <div class="header-content">
-        <div class="nav-container">
-           <nav class="nav-tabs">
-    <div class="nav-indicator" style="width: 88px; transform: translateX(0);"></div>
+  
 
-    {{-- Event Tab --}}
-    <a href="{{ route('ngo.profile.eventEditDelete', $event->event_id) }}"
-       class="nav-tab {{ request()->routeIs('ngo.profile.eventEditDelete') ? 'active' : '' }}"
-       data-tab="event">
-        <i class="fas fa-calendar-day"></i>
-        <span>Event</span>
-    </a>
+    <div class="event-header mt-3">
+        <div class="header-content">
+            <div class="nav-container">
+                <nav class="nav-tabs">
+                    <div class="nav-indicator" style="width: 88px; transform: translateX(0);"></div>
 
-    {{-- Edit Tab --}}
-    <a href="{{ route('ngo.events.event_edit', $event->event_id) }}"
-       class="nav-tab {{ request()->routeIs('ngo.events.event_edit') ? 'active' : '' }}"
-       data-tab="edit"
-       onclick="event.stopPropagation();">
-        <i class="fas fa-edit"></i>
-        <span>Edit</span>
-    </a>
+                    {{-- Event Tab --}}
+                    <a href="{{ route('ngo.profile.eventEditDelete', $event->event_id) }}"
+                        class="nav-tab {{ request()->routeIs('ngo.profile.eventEditDelete') ? 'active' : '' }}"
+                        data-tab="event">
+                        <i class="fas fa-calendar-day"></i>
+                        <span>Event</span>
+                    </a>
 
-    {{-- Manage Tab --}}
-    <a href="{{ route('ngo.events.manage', $event->event_id) }}"
-       class="nav-tab {{ request()->routeIs('ngo.events.manage') ? 'active' : '' }}"
-       data-tab="manage">
-        <i class="fas fa-tasks"></i>
-        <span>Manage</span>
-    </a>
+                    @if ($eventHasEnded)
+                        <span class="nav-tab disabled" aria-disabled="true" title="Event ended — editing locked"
+                            tabindex="-1">
+                            <i class="fas fa-edit"></i>
+                            <span>Edit</span>
+                        </span>
+                    @else
+                        <a href="{{ route('ngo.events.event_edit', $event->event_id) }}"
+                            class="nav-tab {{ request()->routeIs('ngo.events.event_edit') ? 'active' : '' }}"
+                            data-tab="edit" onclick="event.stopPropagation();">
+                            <i class="fas fa-edit"></i>
+                            <span>Edit</span>
+                        </a>
+                    @endif
 
-    {{-- Delete "tab" implemented as a form (no navigation) --}}
-    <form action="{{ route('ngo.events.destroy', $event->event_id) }}"
-          method="POST"
-          class="nav-tab delete-tab"
-          onsubmit="return confirm('Are you sure you want to delete this event? This action cannot be undone.');">
-        @csrf
-        @method('DELETE')
+                    {{-- Manage Tab (always allowed to view) --}}
+                    <a href="{{ route('ngo.events.manage', $event->event_id) }}"
+                        class="nav-tab {{ request()->routeIs('ngo.events.manage') ? 'active' : '' }}"
+                        data-tab="manage">
+                        <i class="fas fa-tasks"></i>
+                        <span>Manage</span>
+                    </a>
 
-        <button type="submit"
-                class="delete-tab-button"
-                onclick="event.stopPropagation();"
-                aria-label="Delete event">
-            <i class="fas fa-trash-alt"></i>
-            <span>Delete</span>
-        </button>
-    </form>
-</nav>
+                    {{-- Delete form: disabled when event ended --}}
+                    {{-- Delete form: disabled when event ended --}}
+                    @if ($eventHasEnded)
+                        <div class="nav-tab delete-tab disabled" aria-disabled="true"
+                            title="Event ended — deletion locked">
+                            <button type="button" class="delete-tab-button" tabindex="-1" aria-hidden="true"
+                                onclick="event.stopPropagation();">
+                                <i class="fas fa-trash-alt"></i>
+                                <span>Delete</span>
+                            </button>
+                        </div>
+                    @else
+                        <form action="{{ route('ngo.events.destroy', $event->event_id) }}" method="POST"
+                            class="nav-tab delete-tab"
+                            onsubmit="return confirm('Are you sure you want to delete this event? This action cannot be undone.');">
+                            @csrf @method('DELETE')
+                            <button type="submit" class="delete-tab-button" onclick="event.stopPropagation();"
+                                aria-label="Delete event">
+                                <i class="fas fa-trash-alt"></i>
+                                <span>Delete</span>
+                            </button>
+                        </form>
+                    @endif
 
+
+                </nav>
+            </div>
         </div>
     </div>
-</div>
-
     <div class="page" role="main">
         <div class="grid">
             <!-- Sidebar -->
@@ -195,34 +284,31 @@
 
             <!-- Content -->
             <section class="content">
-                <div class="section-title">
-                    <div style="display:flex;align-items:center;gap:12px">
-                        <h3 style="margin:0">Participants Lists</h3>
 
-                    </div>
-
-                    <div>
-                        <form method="GET"
-                            action="{{ route('ngo.events.manage', ['event_id' => $event->event_id]) }}">
-                            <div class="search-container">
-                                <input type="text" name="search" class="search"
-                                    placeholder=" Search name, email, age..." value="{{ request('search') }}">
-                                <button type="submit" class="search-btn">Search</button>
-                                <a href="{{ route('ngo.events.manage', $event->event_id) }}"
-                                    class="reset-btn">Reset</a>
-                            </div>
-                        </form>
-
-
-                    </div>
-                </div>
 
                 <!-- Registered -->
                 <div id="section-registered" class="card participant-section" aria-live="polite">
-                    <h4 style="margin-top:0">
-                        Registered Participants:
-                        <span class="badge badge-registered">{{ $registered->count() }}</span>
-                    </h4>
+                    <div
+                        style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; margin-bottom: 20px;">
+                        <h4 style="margin:0;">
+                            Registered Participants:
+                            <span class="badge badge-registered">{{ $registered->count() }}</span>
+                        </h4>
+
+                        <form method="GET"
+                            action="{{ route('ngo.events.manage', ['event_id' => $event->event_id]) }}"
+                            style="display: flex; align-items: center; gap: 8px;">
+                            <input type="hidden" name="status" value="registered">
+                            <input type="text" name="search" class="search"
+                                placeholder="Search name, email, age..."
+                                value="{{ request('status') === 'registered' ? request('search') : '' }}"
+                                style="padding: 6px 10px; border: 1px solid #ccc; border-radius: 6px; width: 220px;">
+                            <button type="submit" class="search-btn" style="padding: 6px 12px;">Search</button>
+                            <a href="{{ route('ngo.events.manage', ['event_id' => $event->event_id, 'status' => 'registered']) }}"
+                                class="reset-btn" style="padding: 6px 12px; text-decoration:none;">Reset</a>
+                        </form>
+                    </div>
+
 
                     <div class="table-responsive">
                         <table class="table" id="table-registered" role="table"
@@ -290,10 +376,26 @@
 
                 <!-- Confirmed -->
                 <div id="section-confirmed" class="card participant-section" style="display:none">
-                    <h4 style="margin-top:0">
-                        Confirmed Participants:
-                        <span class="badge badge-confirmed">{{ $confirmed->count() }}</span>
-                    </h4>
+                    <div
+                        style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; margin-bottom: 20px;">
+                        <h4 style="margin:0;">
+                            Confirmed Participants:
+                            <span class="badge badge-confirmed">{{ $confirmed->count() }}</span>
+                        </h4>
+
+                        <form method="GET"
+                            action="{{ route('ngo.events.manage', ['event_id' => $event->event_id]) }}"
+                            style="display: flex; align-items: center; gap: 8px;">
+                            <input type="hidden" name="status" value="confirmed">
+                            <input type="text" name="search" class="search"
+                                placeholder="Search name, email, age..."
+                                value="{{ request('status') === 'confirmed' ? request('search') : '' }}"
+                                style="padding: 6px 10px; border: 1px solid #ccc; border-radius: 6px; width: 220px;">
+                            <button type="submit" class="search-btn" style="padding: 6px 12px;">Search</button>
+                            <a href="{{ route('ngo.events.manage', ['event_id' => $event->event_id, 'status' => 'confirmed']) }}"
+                                class="reset-btn" style="padding: 6px 12px; text-decoration:none;">Reset</a>
+                        </form>
+                    </div>
 
                     <div class="table-responsive">
                         <table class="table" id="table-confirmed" role="table"
@@ -352,10 +454,26 @@
 
                 <!-- Rejected -->
                 <div id="section-rejected" class="card participant-section" style="display:none">
-                    <h4 style="margin-top:0">
-                        Rejected Participants:
-                        <span class="badge badge-rejected">{{ $rejected->count() }}</span>
-                    </h4>
+                    <div
+                        style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; margin-bottom: 20px;">
+                        <h4 style="margin:0;">
+                            Rejected Participants:
+                            <span class="badge badge-rejected">{{ $rejected->count() }}</span>
+                        </h4>
+
+                        <form method="GET"
+                            action="{{ route('ngo.events.manage', ['event_id' => $event->event_id]) }}"
+                            style="display: flex; align-items: center; gap: 8px;">
+                            <input type="hidden" name="status" value="rejected">
+                            <input type="text" name="search" class="search"
+                                placeholder="Search name, email, age..."
+                                value="{{ request('status') === 'rejected' ? request('search') : '' }}"
+                                style="padding: 6px 10px; border: 1px solid #ccc; border-radius: 6px; width: 220px;">
+                            <button type="submit" class="search-btn" style="padding: 6px 12px;">Search</button>
+                            <a href="{{ route('ngo.events.manage', ['event_id' => $event->event_id, 'status' => 'rejected']) }}"
+                                class="reset-btn" style="padding: 6px 12px; text-decoration:none;">Reset</a>
+                        </form>
+                    </div>
 
                     <div class="table-responsive">
                         <table class="table" id="table-rejected" role="table" aria-label="Rejected participants">
@@ -408,42 +526,43 @@
                     </div>
                 </div>
 
-                <!-- Tasks Section -->
+            
 
+              
+<!-- Tasks Section -->
+@include('ngo.tasks.task_list', ['event' => $event, 'disabled' => $eventHasEnded])
 
-                <!-- Tasks Section -->
+<!-- Create Task Section -->
+@include('ngo.tasks.task_create', ['event' => $event, 'disabled' => $eventHasEnded])
 
-                @include('ngo.tasks.task_list', ['event' => $event])
+<!-- Edit Task -->
+@include('ngo.tasks.task_edit', ['event' => $event, 'disabled' => $eventHasEnded])
 
-                <!-- Create Task Section -->
-                @include('ngo.tasks.task_create', ['event' => $event])
-                <!--edit task-->
-                @include('ngo.tasks.task_edit', ['event' => $event])
-                <!-- Manage Tasks section (hidden by default) -->
+<!-- Manage Tasks section -->
+@include('ngo.tasks.task_manage', [
+    'event' => $event,
+    'tasks' => $tasks,
+    'confirmedParticipants' => $confirmedParticipants,
+    'assignedMap' => $assignedMap,
+    'disabled' => $eventHasEnded,
+])
 
-                {{-- in manage.blade (parent) --}}
-                @include('ngo.tasks.task_manage', [
-                    'event' => $event,
-                    'tasks' => $tasks,
-                    'confirmedParticipants' => $confirmedParticipants,
-                    'assignedMap' => $assignedMap,
-                ])
+@include('ngo.events.email', [
+    'event' => $event,
+    'registered' => $registered,
+    'confirmed' => $confirmed,
+    'rejected' => $rejected,
+    'confirmedParticipants' => $confirmedParticipants,
+    'disabled' => $eventHasEnded,
+])
 
-                @include('ngo.events.email', [
-                    'event' => $event,
-                    'registered' => $registered,
-                    'confirmed' => $confirmed,
-                    'rejected' => $rejected,
-                    'confirmedParticipants' => $confirmedParticipants, // optional, used by your email blade
-                ])
-
-
-                <!-- Attendance QR Section -->
-                @include('ngo.attendances.qr', ['event' => $event])
-                @include('ngo.attendances.list', [
-                    'event' => $event,
-                    'attendances' => $attendances ?? collect(),
-                ])
+<!-- QR & Attendance -->
+@include('ngo.attendances.qr', ['event' => $event, 'disabled' => $eventHasEnded])
+@include('ngo.attendances.list', [
+    'event' => $event,
+    'attendances' => $attendances ?? collect(),
+    'disabled' => $eventHasEnded,
+])
 
 
 

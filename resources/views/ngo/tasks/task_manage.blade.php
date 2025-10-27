@@ -3,13 +3,24 @@
     $tasks = $tasks ?? collect();
     $assignedMap = $assignedMap ?? [];
     $confirmedParticipants = $confirmedParticipants ?? collect();
+    // $disabled expected to be passed from parent (true when event ended)
+    $disabled = $disabled ?? false;
 @endphp
 
-<div class="card mt-4 participant-section" id="section-manage-tasks" style="display:none" >
-    
+<div class="card mt-4 participant-section {{ $disabled ? 'is-disabled' : '' }}"
+     id="section-manage-tasks"
+     style="display:none"
+     data-disabled="{{ $disabled ? '1' : '0' }}"
+     aria-disabled="{{ $disabled ? 'true' : 'false' }}">
 
     <div class="card-body">
         <h3 class="mb-3">Manage Tasks</h3>
+
+        @if($disabled)
+            <div class="alert alert-warning mb-3">
+                Task management is disabled — this event has ended.
+            </div>
+        @endif
 
         <div class="table-responsive">
             <table class="table table-striped align-middle">
@@ -33,11 +44,26 @@
                                     <span class="badge bg-primary me-1 assigned-badge"
                                         data-user-id="{{ (string) $a->user_id }}">
                                         {{ optional($a->user)->name ?? 'User ' . $a->user_id }}
-                                        <button type="button"
-                                            class="btn-close btn-close-white btn-sm ms-1 unassign-btn"
-                                            aria-label="Remove" data-task-id="{{ (string) $task->task_id }}"
-                                            data-user-id="{{ (string) $a->user_id }}">
-                                        </button>
+
+                                        {{-- Unassign button: disabled when $disabled --}}
+                                        @if($disabled)
+                                            <button type="button"
+                                                class="btn-close btn-close-white btn-sm ms-1 unassign-btn is-disabled"
+                                                aria-label="Remove"
+                                                data-task-id="{{ (string) $task->task_id }}"
+                                                data-user-id="{{ (string) $a->user_id }}"
+                                                aria-disabled="true"
+                                                tabindex="-1"
+                                                title="Unassign disabled — event ended">
+                                            </button>
+                                        @else
+                                            <button type="button"
+                                                class="btn-close btn-close-white btn-sm ms-1 unassign-btn"
+                                                aria-label="Remove"
+                                                data-task-id="{{ (string) $task->task_id }}"
+                                                data-user-id="{{ (string) $a->user_id }}">
+                                            </button>
+                                        @endif
                                     </span>
                                 @empty
                                     <span class="text-muted">—</span>
@@ -45,10 +71,23 @@
                             </td>
 
                             <td>
-                                <button type="button" class="btn btn-sm btn-outline-success assign-btn"
-                                    data-task-id="{{ (string) $task->task_id }}">
-                                    Assign To
-                                </button>
+                                {{-- Assign button: disabled when $disabled --}}
+                                @if($disabled)
+                                    <button type="button"
+                                            class="btn btn-sm btn-outline-success assign-btn is-disabled"
+                                            data-task-id="{{ (string) $task->task_id }}"
+                                            aria-disabled="true"
+                                            tabindex="-1"
+                                            title="Assigning disabled — event has ended">
+                                        Assign To
+                                    </button>
+                                @else
+                                    <button type="button"
+                                            class="btn btn-sm btn-outline-success assign-btn"
+                                            data-task-id="{{ (string) $task->task_id }}">
+                                        Assign To
+                                    </button>
+                                @endif
                             </td>
                         </tr>
                     @empty
@@ -63,24 +102,33 @@
 </div>
 
 {{-- Assign Modal (keep this OUTSIDE any .card so Bootstrap styles apply) --}}
-<div class="modal fade" id="assignModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="assignModal" tabindex="-1" aria-hidden="{{ $disabled ? 'true' : 'false' }}">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">
                     Assign Participants <small id="modal-task-title" class="text-muted"></small>
                 </h5>
+                {{-- Keep close available even when disabled so user can dismiss modal --}}
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
             <div class="modal-body">
+                @if($disabled)
+                    <div class="alert alert-warning">
+                        Assigning participants is disabled because the event has ended.
+                    </div>
+                @endif
+
                 <div class="mb-3">
-                    <input type="text" id="assign-search" class="form-control" placeholder="Search participants…">
+                    <input type="text" id="assign-search" class="form-control"
+                           placeholder="Search participants…" {{ $disabled ? 'disabled aria-disabled="true"' : '' }}>
                 </div>
 
                 <form id="assignForm">
                     <input type="hidden" name="task_id" id="assign-task-id">
                     <div class="list-group" id="participants-list" style="max-height:360px; overflow:auto;">
+
                         @forelse ($confirmedParticipants as $p)
                             @php
                                 // Ensure participantId is resolved
@@ -92,9 +140,16 @@
 
                             <label class="list-group-item d-flex align-items-start gap-2"
                                 data-user-id="{{ $participantId }}" data-assigned-tasks="{{ $assignedTasksCsv }}">
-                                <input type="checkbox" class="form-check-input mt-1 participant-checkbox"
-                                    value="{{ $participantId }}" data-user-id="{{ $participantId }}"
-                                    data-assigned-tasks="{{ $assignedTasksCsv }}" name="user_ids[]">
+
+                                {{-- Checkbox: disabled when $disabled --}}
+                                <input type="checkbox"
+                                    class="form-check-input mt-1 participant-checkbox"
+                                    value="{{ $participantId }}"
+                                    data-user-id="{{ $participantId }}"
+                                    data-assigned-tasks="{{ $assignedTasksCsv }}"
+                                    name="user_ids[]"
+                                    {{ $disabled ? 'disabled aria-disabled="true" tabindex="-1"' : '' }}>
+
                                 <div>
                                     <div class="fw-semibold">{{ $p->name ?? 'User ' . $participantId }}</div>
                                     <div class="text-muted small">{{ $p->email ?? '' }}</div>
@@ -109,13 +164,22 @@
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                <button type="submit" form="assignForm" class="btn btn-primary" id="assign-submit" disabled>
-                    Assign
-                </button>
+
+                {{-- Assign submit: disabled when $disabled --}}
+                @if($disabled)
+                    <button type="button" class="btn btn-primary" id="assign-submit" disabled aria-disabled="true" tabindex="-1">
+                        Assign
+                    </button>
+                @else
+                    <button type="submit" form="assignForm" class="btn btn-primary" id="assign-submit" disabled>
+                        Assign
+                    </button>
+                @endif
             </div>
         </div>
     </div>
 </div>
+
 
 
 @push('scripts')

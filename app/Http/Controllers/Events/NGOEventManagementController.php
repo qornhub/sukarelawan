@@ -15,6 +15,8 @@ use Illuminate\Support\Facades\Log;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use App\Notifications\EventStatusNotification;
+
 use App\Jobs\SendParticipantEmailJob;
 use Illuminate\Support\Facades\Validator;
 
@@ -37,10 +39,6 @@ class NGOEventManagementController extends Controller
 
         return false;
     }
-
-
-
-
 
 public function manage($event_id, Request $request)
 {
@@ -77,113 +75,126 @@ public function manage($event_id, Request $request)
         ->orderBy('updated_at', 'desc')
         ->get();
 
-    // Build confirmedParticipants as User models (only those with user_id)
-   
     $userIds = $confirmed->pluck('user_id')->filter()->unique()->values()->all();
     $confirmedParticipants = User::whereIn('id', $userIds)->orderBy('name')->get();
 
-    // --- Build assignedMap: user_id => 'task1,task2' (string CSV)
-    // Defensive: if no userIds, return empty array immediately to avoid unnecessary query
     $assignedMap = [];
     if (!empty($userIds)) {
         $assignedMap = TaskAssignment::whereIn('user_id', $userIds)
             ->get()
             ->groupBy('user_id')
-            ->map(function ($rows) {
-                // $rows is a collection of TaskAssignment rows for that user
-                return $rows->pluck('task_id')->implode(',');
-            })
+            ->map(fn ($rows) => $rows->pluck('task_id')->implode(','))
             ->toArray();
     }
 
-    // Load tasks including assignments->user to avoid N+1 queries
     $tasks = Task::with(['assignments.user'])
         ->where('event_id', $event->event_id)
         ->get();
 
-      $attendances = Attendance::with(['user.volunteerProfile'])
+    $attendances = Attendance::with(['user.volunteerProfile'])
         ->where('event_id', $event->event_id)
         ->get();
 
-    // Pass assignedMap to the view so Blade can render data-assigned-tasks
+    // ✅ NEW: Build attendedList for email blade
+    $attendedList = $attendances
+        ->filter(fn($a) => $a->user && $a->user->email)
+        ->values();
+
     return view('ngo.events.manage', compact(
-        'event', 'registered', 'confirmed', 'rejected', 'search', 'tasks', 'confirmedParticipants', 'assignedMap', 'attendances'
+        'event',
+        'registered',
+        'confirmed',
+        'rejected',
+        'search',
+        'tasks',
+        'confirmedParticipants',
+        'assignedMap',
+        'attendances',
+        'attendedList' // ✅ added here
     ));
 }
 
 
+
     public function approve($event_id, $registration_id, Request $request)
-    {
-        $event = Event::where('event_id', $event_id)->firstOrFail();
-        $registration = EventRegistration::where('registration_id', $registration_id)->firstOrFail();
+{
+    $event = Event::where('event_id', $event_id)->firstOrFail();
+    $registration = EventRegistration::where('registration_id', $registration_id)->firstOrFail();
 
-        if ($registration->event_id !== $event->event_id) {
-            return response()->json(['success' => false, 'error' => 'Registration does not belong to this event'], 400);
-        }
-
-        if (! $this->authorizeOwner($event)) {
-            return response()->json(['success' => false, 'error' => 'Unauthorized'], 403);
-        }
-
-        $registration->status = EventRegistration::STATUS_APPROVED;
-        
-        $registration->save();
-
-        return response()->json([
-            'success' => true,
-            'registration' => $registration,
-            
-
-            'volunteer' => [
-  'registration_id' => $registration->registration_id,
-  'user_id' => $registration->user_id,
-  'name' => $registration->name,
-  'email' => $registration->email,
-  'contact' => $registration->contactNumber,
-  'age' => $registration->age,
-  'gender' => $registration->gender,
-  'skill' => $registration->skill,
-  'registrationDate' => $registration->registrationDate ?? $registration->created_at?->toDateString(),
-],
-
-        ]);
+    if ($registration->event_id !== $event->event_id) {
+        return response()->json(['success' => false, 'error' => 'Registration does not belong to this event'], 400);
     }
 
-    public function reject($event_id, $registration_id, Request $request)
-    {
-        $event = Event::where('event_id', $event_id)->firstOrFail();
-        $registration = EventRegistration::where('registration_id', $registration_id)->firstOrFail();
+    if (! $this->authorizeOwner($event)) {
+        return response()->json(['success' => false, 'error' => 'Unauthorized'], 403);
+    }
 
-        if ($registration->event_id !== $event->event_id) {
-            return response()->json(['success' => false, 'error' => 'Registration does not belong to this event'], 400);
-        }
+    $registration->status = EventRegistration::STATUS_APPROVED;
+    $registration->save();
 
-        if (! $this->authorizeOwner($event)) {
-            return response()->json(['success' => false, 'error' => 'Unauthorized'], 403);
-        }
+    // ✅ Send notification to the volunteer
+    $user = $registration->user;
+    if ($user) {
+        $user->notify(new EventStatusNotification($event, 'approved'));
+    }
 
-        $registration->status = EventRegistration::STATUS_REJECTED;
-        
-        $registration->save();
-
-      return response()->json([
+    return response()->json([
         'success' => true,
         'registration' => $registration,
-        
         'volunteer' => [
-  'registration_id' => $registration->registration_id,
-  'user_id' => $registration->user_id,
-  'name' => $registration->name,
-  'email' => $registration->email,
-  'contact' => $registration->contactNumber,
-  'age' => $registration->age,
-  'gender' => $registration->gender,
-  'skill' => $registration->skill,
-  'registrationDate' => $registration->registrationDate ?? $registration->created_at?->toDateString(),
-],
-
+            'registration_id' => $registration->registration_id,
+            'user_id' => $registration->user_id,
+            'name' => $registration->name,
+            'email' => $registration->email,
+            'contact' => $registration->contactNumber,
+            'age' => $registration->age,
+            'gender' => $registration->gender,
+            'skill' => $registration->skill,
+            'registrationDate' => $registration->registrationDate ?? $registration->created_at?->toDateString(),
+        ],
     ]);
+}
+
+
+   public function reject($event_id, $registration_id, Request $request)
+{
+    $event = Event::where('event_id', $event_id)->firstOrFail();
+    $registration = EventRegistration::where('registration_id', $registration_id)->firstOrFail();
+
+    if ($registration->event_id !== $event->event_id) {
+        return response()->json(['success' => false, 'error' => 'Registration does not belong to this event'], 400);
     }
+
+    if (! $this->authorizeOwner($event)) {
+        return response()->json(['success' => false, 'error' => 'Unauthorized'], 403);
+    }
+
+    $registration->status = EventRegistration::STATUS_REJECTED;
+    $registration->save();
+
+    // ✅ Send notification to the volunteer
+    $user = $registration->user;
+    if ($user) {
+        $user->notify(new EventStatusNotification($event, 'rejected'));
+    }
+
+    return response()->json([
+        'success' => true,
+        'registration' => $registration,
+        'volunteer' => [
+            'registration_id' => $registration->registration_id,
+            'user_id' => $registration->user_id,
+            'name' => $registration->name,
+            'email' => $registration->email,
+            'contact' => $registration->contactNumber,
+            'age' => $registration->age,
+            'gender' => $registration->gender,
+            'skill' => $registration->skill,
+            'registrationDate' => $registration->registrationDate ?? $registration->created_at?->toDateString(),
+        ],
+    ]);
+}
+
 
 public function sendEmail($event_id, Request $request)
 {

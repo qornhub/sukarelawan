@@ -401,27 +401,7 @@
                                                     </div>
                                                 </div>
 
-                                                {{-- Owner inline actions (not part of the card link) --}}
-                                                @if ($isOwner)
-                                                    <div class="d-flex justify-content-start gap-2 mt-3">
-                                                        {{-- Note: keep these small so they don't overshadow the design --}}
-                                                        <a href="{{ $ownerEditRoute }}"
-                                                            class="btn btn-sm btn-outline-success"
-                                                            onclick="event.stopPropagation();">
-                                                            <i class="fas fa-pen me-1"></i> Edit
-                                                        </a>
-
-                                                        <form action="{{ $ownerDeleteRoute }}" method="POST"
-                                                            class="d-inline-block"
-                                                            onsubmit="event.stopPropagation(); return confirm('Delete this post?');">
-                                                            @csrf
-                                                            @method('DELETE')
-                                                            <button class="btn btn-sm btn-outline-danger">
-                                                                <i class="fas fa-trash me-1"></i> Delete
-                                                            </button>
-                                                        </form>
-                                                    </div>
-                                                @endif
+                                               
                                             </div>
                                         </div>
                                     </a>

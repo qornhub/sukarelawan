@@ -18,25 +18,38 @@ class EventController extends Controller
     // Show NGO's own events
     public function index()
     {
-         $now = Carbon::now();
+        $now = Carbon::now();
 
-    $events = Event::where('user_id', Auth::id())
-                   ->where('eventEnd', '>=', $now) // datetime comparison
-                   ->orderBy('eventStart', 'desc')
-                   ->get();
+        $events = Event::where('user_id', Auth::id())
+            ->where('eventEnd', '>=', $now) // datetime comparison
+            ->orderBy('eventStart', 'desc')
+            ->get();
 
-
-    
-    return view('ngo.events.index', compact('events'));
+        return view('ngo.events.index', compact('events'));
     }
 
-  
+    // Helper: determine if an event has ended (server-side guard)
+    protected function eventHasEnded(Event $event): bool
+    {
+        if (empty($event->eventEnd)) {
+            return false;
+        }
+
+        try {
+            // Compare using date granularity (startOfDay) so events that end today are considered ended.
+            $end = Carbon::parse($event->eventEnd)->startOfDay();
+            return Carbon::now()->startOfDay()->greaterThanOrEqualTo($end);
+        } catch (\Exception $ex) {
+            // If parsing fails, be permissive (do not block). Change to `true` to be strict.
+            return false;
+        }
+    }
 
     // Show create form
     public function create()
     {
         $categories = EventCategory::orderBy('eventCategoryName')->get();
-       $sdgs = Sdg::orderBy('sdg_number')->orderBy('sdgName')->get();
+        $sdgs = Sdg::orderBy('sdg_number')->orderBy('sdgName')->get();
         $skills = Skill::orderBy('skillName')->get();
 
         return view('ngo.events.create', compact('categories', 'sdgs', 'skills'));
@@ -157,6 +170,12 @@ class EventController extends Controller
     {
         $this->authorizeNGO($event);
 
+        // Block editing if event ended
+        if ($this->eventHasEnded($event)) {
+            return redirect()->route('ngo.profile.eventEditDelete', $event->event_id)
+                ->with('error', 'Event has ended — editing is disabled.');
+        }
+
         // categories for dropdown
         $categories = EventCategory::orderBy('eventCategoryName')->get();
 
@@ -167,7 +186,7 @@ class EventController extends Controller
         $skills = Skill::orderBy('skillName')->get();
 
         $selectedSdgs = $event->sdgs()->pluck('sdgs.sdg_id')->toArray();
-    $selectedSkills = $event->skills()->pluck('skills.skill_id')->toArray();
+        $selectedSkills = $event->skills()->pluck('skills.skill_id')->toArray();
 
         return view('ngo.events.event_edit', compact('event', 'categories', 'sdgs', 'skills', 'selectedSdgs', 'selectedSkills'));
     }
@@ -176,6 +195,12 @@ class EventController extends Controller
     public function update(Request $request, Event $event)
     {
         $this->authorizeNGO($event);
+
+        // Block updating if event ended
+        if ($this->eventHasEnded($event)) {
+            return redirect()->route('ngo.profile.eventEditDelete', $event->event_id)
+                ->with('error', 'Event has ended — updates are disabled.');
+        }
 
         // Normalize inputs (same as store)
         $input = [
@@ -283,6 +308,12 @@ class EventController extends Controller
     {
         $this->authorizeNGO($event);
 
+        // Block deletion if event ended
+        if ($this->eventHasEnded($event)) {
+            return redirect()->route('ngo.profile.eventEditDelete', $event->event_id)
+                ->with('error', 'Event has ended — deletion is disabled.');
+        }
+
         $defaultEventImage = 'default-event.jpg';
         if ($event->eventImage) {
             $basename = basename($event->eventImage);
@@ -299,8 +330,7 @@ class EventController extends Controller
         $event->delete();
 
         return redirect()->route('ngo.profile.show', Auth::id())
-    ->with('success', 'Event deleted successfully.');
-
+            ->with('success', 'Event deleted successfully.');
     }
 
     // Admin delete (no authorization check)
@@ -320,9 +350,8 @@ class EventController extends Controller
         $event->skills()->detach();
         $event->registrations()->delete();
 
-
         $event->delete();
-         return redirect()->route('admin.events.index')->with('success', 'Event removed by Admin.');
+        return redirect()->route('admin.events.index')->with('success', 'Event removed by Admin.');
     }
 
     // Private NGO check

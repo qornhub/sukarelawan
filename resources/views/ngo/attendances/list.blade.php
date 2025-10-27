@@ -1,7 +1,11 @@
-{{-- resources/views/ngo/attendances/list.blade.php --}}
+@php
+  // Defensive default: parent should pass $disabled (true when event ended)
+  $disabled = $disabled ?? false;
+@endphp
+
 @if (!empty($ajax) && $ajax)
   {{-- AJAX-only: table HTML --}}
-  <div class="table-responsive">
+  <div class="table-responsive" data-disabled="{{ $disabled ? '1' : '0' }}" aria-disabled="{{ $disabled ? 'true' : 'false' }}">
     <table class="table table-sm attendance-table align-middle mb-0">
       <thead>
         <tr>
@@ -30,11 +34,25 @@
               </div>
             </td>
             <td class="text-center">
-              <button type="button" class="btn btn-outline-danger btn-sm btn-delete-attendance"
-                      data-event-id="{{ $attendance->event_id }}"
-                      data-attendance-id="{{ $attendance->attendance_id }}">
-                Delete
-              </button>
+              @if($disabled)
+                <button type="button"
+                        class="btn btn-outline-danger btn-sm btn-delete-attendance is-disabled"
+                        data-event-id="{{ $attendance->event_id }}"
+                        data-attendance-id="{{ $attendance->attendance_id }}"
+                        disabled
+                        aria-disabled="true"
+                        tabindex="-1"
+                        title="Deleting disabled — event has ended">
+                  Delete
+                </button>
+              @else
+                <button type="button"
+                        class="btn btn-outline-danger btn-sm btn-delete-attendance"
+                        data-event-id="{{ $attendance->event_id }}"
+                        data-attendance-id="{{ $attendance->attendance_id }}">
+                  Delete
+                </button>
+              @endif
             </td>
           </tr>
         @empty
@@ -48,16 +66,27 @@
 
 @else
   {{-- Full card + guarded JS (initial page render) --}}
-  <div id="section-attendance" class="mt-4 card participant-section" style="display:none">
+  <div id="section-attendance"
+       class="mt-4 card participant-section {{ $disabled ? 'is-disabled' : '' }}"
+       style="display:none"
+       data-disabled="{{ $disabled ? '1' : '0' }}"
+       aria-disabled="{{ $disabled ? 'true' : 'false' }}">
     <div class="card-body p-3">
       <div class="d-flex align-items-center justify-content-between mb-1">
         <h3 class="attendance-title mb-0">Attendance</h3>
       </div>
 
+      @if($disabled)
+        <div class="alert alert-warning">
+          <strong>Attendance closed</strong><br>
+          This event has ended — attendance management is disabled.
+        </div>
+      @endif
+
       <div id="attendance-list-flash" class="attendance-flash-area" aria-live="polite" aria-atomic="true"></div>
       @include('layouts/messages')
 
-      <div id="attendance-table-container">
+      <div id="attendance-table-container" data-disabled="{{ $disabled ? '1' : '0' }}">
         {{-- initial table render (same markup as AJAX) --}}
         <div class="table-responsive">
           <table class="table table-sm attendance-table align-middle mb-0">
@@ -88,11 +117,25 @@
                     </div>
                   </td>
                   <td class="text-center">
-                    <button type="button" class="btn btn-outline-danger btn-sm btn-delete-attendance"
-                            data-event-id="{{ $attendance->event_id }}"
-                            data-attendance-id="{{ $attendance->attendance_id }}">
-                      Delete
-                    </button>
+                    @if($disabled)
+                      <button type="button"
+                              class="btn btn-outline-danger btn-sm btn-delete-attendance is-disabled"
+                              data-event-id="{{ $attendance->event_id }}"
+                              data-attendance-id="{{ $attendance->attendance_id }}"
+                              disabled
+                              aria-disabled="true"
+                              tabindex="-1"
+                              title="Deleting disabled — event has ended">
+                        Delete
+                      </button>
+                    @else
+                      <button type="button"
+                              class="btn btn-outline-danger btn-sm btn-delete-attendance"
+                              data-event-id="{{ $attendance->event_id }}"
+                              data-attendance-id="{{ $attendance->attendance_id }}">
+                        Delete
+                      </button>
+                    @endif
                   </td>
                 </tr>
               @empty

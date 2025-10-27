@@ -39,6 +39,7 @@ use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Auth\VolunteerProfileController;
 use App\Http\Controllers\Events\EventDiscoveryController;
 
+use App\Http\Controllers\VolunteerNotificationController;
 use App\Http\Controllers\Attendances\AttendanceController;
 use App\Http\Controllers\Auth\VolunteerRegisterController;
 use App\Http\Controllers\Blog\VolunteerBlogPostController;
@@ -132,6 +133,20 @@ Route::middleware(['auth', 'isVolunteer'])
     ->prefix('volunteer')
     ->name('volunteer.')
     ->group(function () {
+
+        // inside the volunteer middleware group
+Route::get('/notifications', [VolunteerNotificationController::class, 'index'])
+    ->name('notifications.index');
+
+Route::post('/notifications/{id}/mark-as-read', [VolunteerNotificationController::class, 'markAsRead'])
+    ->name('notifications.markAsRead');
+
+Route::post('/notifications/mark-all-read', [VolunteerNotificationController::class, 'markAllRead'])
+    ->name('notifications.markAllRead');
+
+Route::get('/notifications/unread-count', [VolunteerNotificationController::class, 'unreadCount'])
+    ->name('notifications.unreadCount');
+
         Route::get('/dashboard', fn () => view('volunteer.dashboard'))->name('dashboard');
         Route::get('/profile', [VolunteerProfileController::class, 'show'])->name('profile.profile');
         Route::get('/profile/edit', [VolunteerProfileController::class, 'edit'])->name('profile.edit');

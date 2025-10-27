@@ -214,6 +214,44 @@
     }
 }
 
+
+        .post-settings {
+            top: 20px;
+            position: relative;
+            /* keeps it in normal flow (Option A) */
+            margin-bottom: 38px;
+            /* your existing gap */
+            text-align: right;
+            /* RIGHT-align the inline button inside this block */
+        }
+
+        /* keep the button visuals */
+        .post-settings .btn-settings {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.96);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            padding: 8px 10px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+            color: #333;
+        }
+
+
+
+
+        /* responsive tweaks — on small screens keep icon closer to the card */
+        @media (max-width: 767.98px) {
+            .post-settings {
+                top: -20px;
+                /* less negative on narrow screens */
+                right: 12px;
+            }
+
+            .main-content-card {
+                padding-top: 20px;
+            }
+        }
+ 
 </style>
 </head>
 
@@ -333,38 +371,71 @@
     </div>
 </div>
 
+  @php
+    use Carbon\Carbon;
 
-    <div class="container">
+    // Try to get the event start. This handles both: $registration->event relation,
+    // or a raw datetime field like $registration->eventStart if you store it on registration.
+    $eventStartRaw = null;
+    if (isset($registration->event) && !empty($registration->event->eventStart)) {
+        $eventStartRaw = $registration->event->eventStart;
+    } elseif (!empty($registration->eventStart)) {
+        $eventStartRaw = $registration->eventStart;
+    }
 
+    // Parse safely — default to null on failure
+    $eventHasStarted = false;
+    if ($eventStartRaw) {
+        try {
+            $eventStart = Carbon::parse($eventStartRaw);
+            // Use app timezone or explicit timezone if you need
+            // $now = Carbon::now('Asia/Kuala_Lumpur');
+            $now = Carbon::now(); // assumes your app timezone is configured correctly
+            $eventHasStarted = $now->greaterThanOrEqualTo($eventStart);
+        } catch (\Exception $ex) {
+            // parsing error — keep $eventHasStarted = false (don't hide)
+        }
+    }
+@endphp
 
-        <div class="register-row text-end" style="margin-top: 18px; margin-bottom: 18px;">
-            <div class="d-flex justify-content-end gap-2 mt-3">
+@if (!$eventHasStarted)
 
-                <!-- Wrap buttons in equal-width container -->
-                <div class="d-flex gap-2" style="width: 300px;"> <!-- adjust width as needed -->
-                    <!-- Edit Registration -->
-                    <a href="{{ route('volunteer.event.register.edit', $registration->registration_id) }}"
-                        class="btn btn-warning flex-fill">
-                        <i class="fas fa-edit me-1"></i> Edit Registration
+<div class="container mb-5">
+    <div class="post-settings">
+        <div class="btn-group">
+            <button type="button" class="btn btn-settings btn-sm dropdown-toggle dropdown-toggle-no-caret"
+                data-bs-toggle="dropdown" aria-expanded="false" title="Post settings">
+                <i class="fa fa-cog"></i>
+            </button>
+
+            <ul class="dropdown-menu dropdown-menu-end">
+                {{-- Edit --}}
+                <li>
+                    <a class="dropdown-item"
+                       href="{{ route('volunteer.event.register.edit', $registration->registration_id) }}">
+                        <i class="fa fa-edit me-2"></i> Edit Registration
                     </a>
+                </li>
 
-                    <!-- Cancel Registration -->
+                {{-- Delete --}}
+                <li>
                     <form action="{{ route('volunteer.event.register.destroy', $registration->registration_id) }}"
-                        method="POST"
-                        onsubmit="return confirm('Are you sure you want to cancel this registration? This action cannot be undone.');"
-                        class="flex-fill">
+                          method="POST"
+                          onsubmit="return confirm('Are you sure you want to permanently delete this registration? This action cannot be undone.');"
+                          class="m-0 p-0">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="btn btn-danger w-100">
-                            <i class="fas fa-trash-alt me-1"></i> Cancel Registration
+                        <button type="submit" class="dropdown-item text-danger">
+                            <i class="fa fa-trash me-2"></i> Delete Registration
                         </button>
                     </form>
-                </div>
-
-
-            </div>
+                </li>
+            </ul>
         </div>
     </div>
+</div>
+@endif
+
 
     <main class="container page-body">
         <div class="row gx-4 gy-4">

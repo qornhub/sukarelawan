@@ -77,7 +77,8 @@
             top: 0.25rem;
             left: 0.25rem;
             z-index: 0;
-            pointer-events: none; /* <- important so it never blocks links */
+            pointer-events: none;
+            /* <- important so it never blocks links */
         }
 
         .back-button-container {
@@ -85,43 +86,81 @@
             display: flex;
             justify-content: flex-start;
         }
+
         /* make the form behave like the anchor nav tabs */
-.nav-tabs .delete-tab {
-  margin: 0;
-  padding: 0;
-  display: inline-flex;      /* match anchor layout */
-  align-items: center;
-  height: 100%;
-  text-decoration: none;
-  border: none;
-  background: transparent;
- 
-  cursor: pointer;
-}
+        .nav-tabs .delete-tab {
+            margin: 0;
+            padding: 0;
+            display: inline-flex;
+            /* match anchor layout */
+            align-items: center;
+            height: 100%;
+            text-decoration: none;
+            border: none;
+            background: transparent;
 
-/* remove default button styles and inherit the nav-tab look */
-.delete-tab-button {
-  all: unset;                /* remove default button styles */
-  display: inline-flex;
-  align-items: center;
-  gap: .5rem;
-  padding: .6rem 1rem;       /* tune to match .nav-tab */
-  font: inherit;
-  color: inherit;
-  cursor: pointer;
-  width: 100%;
-  height: 100%;
-}
+            cursor: pointer;
+        }
 
-/* optional: hover/focus visual parity with .nav-tab */
-.delete-tab-button:hover,
-.delete-tab-button:focus {
-  /* either reuse your .nav-tab hover styles, or replicate here */
- 
-  text-decoration: none;
-  outline: none;
-}
+        /* remove default button styles and inherit the nav-tab look */
+        .delete-tab-button {
+            all: unset;
+            /* remove default button styles */
+            display: inline-flex;
+            align-items: center;
+            gap: .5rem;
+            padding: .6rem 1rem;
+            /* tune to match .nav-tab */
+            font: inherit;
+            color: inherit;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+        }
 
+        /* optional: hover/focus visual parity with .nav-tab */
+        .delete-tab-button:hover,
+        .delete-tab-button:focus {
+            /* either reuse your .nav-tab hover styles, or replicate here */
+
+            text-decoration: none;
+            outline: none;
+        }
+
+
+        /* ----------------------------
+   Disabled state for nav tabs
+   ---------------------------- */
+
+        /* Generic disabled look & block interactions (applies to edit/delete/etc) */
+        .nav-tab.disabled,
+        .nav-tab[aria-disabled="true"] {
+            pointer-events: none;
+            /* block clicks on the parent */
+            cursor: default;
+            opacity: 0.55;
+            /* visually dim */
+            color: inherit;
+            /* keep text color consistent */
+        }
+
+        /* Also block clicks on any children and prevent focus */
+        .nav-tab.disabled *,
+        .nav-tab[aria-disabled="true"] * {
+            pointer-events: none;
+        }
+
+        /* Slightly mute the icon when disabled for parity */
+        .nav-tab.disabled i,
+        .nav-tab[aria-disabled="true"] i {
+            opacity: 0.65;
+        }
+
+        /* If you want keyboard focus to be prevented for inner elements */
+        .nav-tab.disabled [tabindex],
+        .nav-tab[aria-disabled="true"] [tabindex] {
+            outline: none;
+        }
     </style>
 </head>
 
@@ -161,61 +200,90 @@
     </header>
 
 
-   <div class="event-header mt-3">
-    <div class="header-content">
-        <div class="nav-container">
-           <nav class="nav-tabs">
-    <div class="nav-indicator" style="width: 88px; transform: translateX(0);"></div>
+    @php
+        use Carbon\Carbon;
+        $eventHasEnded = false;
+        if (!empty($event->eventEnd)) {
+            try {
+                $eventHasEnded = Carbon::parse($event->eventEnd)
+                    ->startOfDay()
+                    ->lessThanOrEqualTo(Carbon::now()->startOfDay());
+            } catch (\Exception $ex) {
+                $eventHasEnded = false;
+            }
+        }
+    @endphp
 
-    {{-- Event Tab --}}
-    <a href="{{ route('ngo.profile.eventEditDelete', $event->event_id) }}"
-       class="nav-tab {{ request()->routeIs('ngo.profile.eventEditDelete') ? 'active' : '' }}"
-       data-tab="event">
-        <i class="fas fa-calendar-day"></i>
-        <span>Event</span>
-    </a>
+    <div class="event-header mt-3">
+        <div class="header-content">
+            <div class="nav-container">
+                <nav class="nav-tabs">
+                    <div class="nav-indicator" style="width: 88px; transform: translateX(0);"></div>
 
-    {{-- Edit Tab --}}
-    <a href="{{ route('ngo.events.event_edit', $event->event_id) }}"
-       class="nav-tab {{ request()->routeIs('ngo.events.event_edit') ? 'active' : '' }}"
-       data-tab="edit"
-       onclick="event.stopPropagation();">
-        <i class="fas fa-edit"></i>
-        <span>Edit</span>
-    </a>
+                    {{-- Event Tab --}}
+                    <a href="{{ route('ngo.profile.eventEditDelete', $event->event_id) }}"
+                        class="nav-tab {{ request()->routeIs('ngo.profile.eventEditDelete') ? 'active' : '' }}"
+                        data-tab="event">
+                        <i class="fas fa-calendar-day"></i>
+                        <span>Event</span>
+                    </a>
 
-    {{-- Manage Tab --}}
-    <a href="{{ route('ngo.events.manage', $event->event_id) }}"
-       class="nav-tab {{ request()->routeIs('ngo.events.manage') ? 'active' : '' }}"
-       data-tab="manage">
-        <i class="fas fa-tasks"></i>
-        <span>Manage</span>
-    </a>
+                    @if ($eventHasEnded)
+                        <span class="nav-tab disabled" aria-disabled="true" title="Event ended — editing locked"
+                            tabindex="-1">
+                            <i class="fas fa-edit"></i>
+                            <span>Edit</span>
+                        </span>
+                    @else
+                        <a href="{{ route('ngo.events.event_edit', $event->event_id) }}"
+                            class="nav-tab {{ request()->routeIs('ngo.events.event_edit') ? 'active' : '' }}"
+                            data-tab="edit" onclick="event.stopPropagation();">
+                            <i class="fas fa-edit"></i>
+                            <span>Edit</span>
+                        </a>
+                    @endif
 
-    {{-- Delete "tab" implemented as a form (no navigation) --}}
-    <form action="{{ route('ngo.events.destroy', $event->event_id) }}"
-          method="POST"
-          class="nav-tab delete-tab"
-          onsubmit="return confirm('Are you sure you want to delete this event? This action cannot be undone.');">
-        @csrf
-        @method('DELETE')
+                    {{-- Manage Tab (always allowed to view) --}}
+                    <a href="{{ route('ngo.events.manage', $event->event_id) }}"
+                        class="nav-tab {{ request()->routeIs('ngo.events.manage') ? 'active' : '' }}"
+                        data-tab="manage">
+                        <i class="fas fa-tasks"></i>
+                        <span>Manage</span>
+                    </a>
 
-        <button type="submit"
-                class="delete-tab-button"
-                onclick="event.stopPropagation();"
-                aria-label="Delete event">
-            <i class="fas fa-trash-alt"></i>
-            <span>Delete</span>
-        </button>
-    </form>
-</nav>
+                    {{-- Delete form: disabled when event ended --}}
+                    {{-- Delete form: disabled when event ended --}}
+                    @if ($eventHasEnded)
+                        <div class="nav-tab delete-tab disabled" aria-disabled="true"
+                            title="Event ended — deletion locked">
+                            <button type="button" class="delete-tab-button" tabindex="-1" aria-hidden="true"
+                                onclick="event.stopPropagation();">
+                                <i class="fas fa-trash-alt"></i>
+                                <span>Delete</span>
+                            </button>
+                        </div>
+                    @else
+                        <form action="{{ route('ngo.events.destroy', $event->event_id) }}" method="POST"
+                            class="nav-tab delete-tab"
+                            onsubmit="return confirm('Are you sure you want to delete this event? This action cannot be undone.');">
+                            @csrf @method('DELETE')
+                            <button type="submit" class="delete-tab-button" onclick="event.stopPropagation();"
+                                aria-label="Delete event">
+                                <i class="fas fa-trash-alt"></i>
+                                <span>Delete</span>
+                            </button>
+                        </form>
+                    @endif
 
+
+                </nav>
+            </div>
         </div>
     </div>
-</div>
 
 
-   
+
+
 
 
 
@@ -276,38 +344,37 @@
                 </section>
 
                 {{-- Participants --}}
+                {{-- Participants --}}
                 <section class="content-card">
                     <h4 class="section-heading">
                         <i class="fas fa-users icon"></i>
                         Participants
+                        <div class="participant-count">
+                            {{ $registrations->where('status', 'approved')->count() }}
+                            Participant{{ $registrations->where('status', 'approved')->count() !== 1 ? 's' : '' }}
+                        </div>
                     </h4>
 
-
                     <div class="participants">
-                        @if ($registrations->count())
+                        @if ($registrations->where('status', 'approved')->count())
                             <div class="participants-avatars">
-
                                 @foreach ($registrations->take(6) as $reg)
-                                    @php
-                                        $user = $reg->user ?? null;
-                                        $filename = optional($user->volunteerProfile)->profilePhoto ?? null;
-                                        $avatarUrl = $filename
-                                            ? asset('images/profiles/' . $filename)
-                                            : asset('images/default-profile.png');
-                                        $title = optional($user)->name ?? ($reg->name ?? 'Volunteer');
-                                    @endphp
+                                    @if ($reg->status === 'approved')
+                                        @php
+                                            $user = $reg->user;
+                                            $filename = optional($user->volunteerProfile)->profilePhoto;
+                                            $avatarUrl = $filename
+                                                ? asset('images/profiles/' . $filename)
+                                                : asset('images/default-profile.png');
+                                            $title = $user->name ?? 'Volunteer';
+                                        @endphp
 
-                                    @if ($user)
                                         <a href="{{ route('volunteer.profile.show', $user->id) }}">
                                             <img src="{{ $avatarUrl }}" alt="participant" class="avatar"
                                                 title="{{ $title }}">
                                         </a>
-                                    @else
-                                        <img src="{{ $avatarUrl }}" alt="participant" class="avatar"
-                                            title="{{ $title }}">
                                     @endif
                                 @endforeach
-
                             </div>
                         @else
                             <div class="empty-state">
@@ -318,7 +385,7 @@
                     </div>
                 </section>
 
-                                <section class="content-card">
+                <section class="content-card">
 
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h4 class="section-heading mb-0">
@@ -495,7 +562,7 @@
 
                 {{-- Organizer card --}}
                 <div class="sidebar-card organizer-card">
-                     <div class="organizer-header">
+                    <div class="organizer-header">
                         @php
                             use Illuminate\Support\Facades\Storage;
 

@@ -8,12 +8,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use App\Http\Controllers\Controller;
+use Carbon\Carbon;
 
 class EventRegistrationController extends Controller
 {
-
-    
-
     // helper example (implement based on your app)
     protected function currentUserCanManageEvent(Event $event): bool
     {
@@ -23,12 +21,50 @@ class EventRegistrationController extends Controller
     }
 
     /**
+     * Determine if the event for a given registration has started.
+     * Accepts either EventRegistration (with relation) or Event model.
+     */
+    protected function eventHasStartedForRegistration($registrationOrEvent): bool
+    {
+        // Accept either EventRegistration or Event
+        $eventStartRaw = null;
+
+        if ($registrationOrEvent instanceof EventRegistration) {
+            // Prefer related event->eventStart if available
+            if (isset($registrationOrEvent->event) && !empty($registrationOrEvent->event->eventStart)) {
+                $eventStartRaw = $registrationOrEvent->event->eventStart;
+            } elseif (!empty($registrationOrEvent->eventStart)) {
+                // fallback if snapshot stored on registration
+                $eventStartRaw = $registrationOrEvent->eventStart;
+            }
+        } elseif ($registrationOrEvent instanceof Event) {
+            $eventStartRaw = $registrationOrEvent->eventStart ?? null;
+        }
+
+        if (!$eventStartRaw) return false;
+
+        try {
+            $eventStart = Carbon::parse($eventStartRaw);
+            return Carbon::now()->greaterThanOrEqualTo($eventStart);
+        } catch (\Exception $ex) {
+            // if parse fails, be permissive (do not block). Change to true to be strict.
+            return false;
+        }
+    }
+
+    /**
      * Show registration form for a given event
      */
     public function create(Event $event)
     {
+        // block registrations if event already started
+        if ($this->eventHasStartedForRegistration($event)) {
+            return redirect()->route('volunteer.events.show', $event->event_id)
+                ->with('error', 'This event has already started. Registration is closed.');
+        }
+
         $user = Auth::user();
-        $volunteerProfile = $user->volunteerProfile; // relationship
+        $volunteerProfile = $user->volunteerProfile ?? null; // relationship (may be null)
 
         return view('volunteer.event_registrations.registrations_create', compact('event', 'user', 'volunteerProfile'));
     }
@@ -38,7 +74,12 @@ class EventRegistrationController extends Controller
      */
     public function store(Request $request, Event $event)
     {
-        
+        // block registrations if event already started
+        if ($this->eventHasStartedForRegistration($event)) {
+            return redirect()->route('volunteer.events.show', $event->event_id)
+                ->with('error', 'This event has already started. Registration is closed.');
+        }
+
         $request->validate([
             // user info (snapshot)
             'name' => 'required|string|max:255',
@@ -74,7 +115,7 @@ class EventRegistrationController extends Controller
 
         EventRegistration::create([
             'registration_id' => (string) Str::uuid(),
-            
+
             'event_id'=> $event->event_id,
             'user_id' => Auth::id(),
             'registrationDate' => now(),
@@ -112,6 +153,12 @@ class EventRegistrationController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
+        // Block editing if event has started
+        if ($this->eventHasStartedForRegistration($registration)) {
+            return redirect()->route('volunteer.events.show', $registration->event_id)
+                ->with('error', 'Event has already started — registration cannot be edited.');
+        }
+
         return view('volunteer.event_registrations.registrations_edit', compact('registration'));
     }
 
@@ -122,6 +169,12 @@ class EventRegistrationController extends Controller
     {
         if ($registration->user_id !== Auth::id()) {
             abort(403, 'Unauthorized action.');
+        }
+
+        // Block updating if event has started
+        if ($this->eventHasStartedForRegistration($registration)) {
+            return redirect()->route('volunteer.events.show', $registration->event_id)
+                ->with('error', 'Event has already started — registration cannot be updated.');
         }
 
         $request->validate([
@@ -171,6 +224,12 @@ class EventRegistrationController extends Controller
     {
         if ($registration->user_id !== Auth::id()) {
             abort(403, 'Unauthorized action.');
+        }
+
+        // Block deletion if event has started
+        if ($this->eventHasStartedForRegistration($registration)) {
+            return redirect()->route('volunteer.events.show', $registration->event_id)
+                ->with('error', 'Event has already started — registration cannot be deleted.');
         }
 
         $eventId = $registration->event_id;
