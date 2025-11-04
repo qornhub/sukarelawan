@@ -5,10 +5,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Volunteer Events Discovery</title>
+    <title>Admin Events Discovery</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{{ asset('css/events/index.css') }}">
+    <style>
+        /* --- Event footer: attendance progress --- */
+        .event-footer {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            justify-content: flex-start;
+            width: 100%;
+        }
+
+        .event-footer .event-organizer {
+            flex: 0 0 auto;
+            white-space: nowrap;
+        }
+
+        .event-attendance {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: auto;
+            flex: 0 0 auto;
+        }
+
+        .event-attendance .attendance-text {
+            white-space: nowrap;
+            font-size: 0.95rem;
+        }
+
+        .attendance-progress {
+            flex: 0 0 auto;
+            width: 100px;
+            max-width: 40vw;
+            min-width: 80px;
+            height: 8px;
+            margin-left: 8px;
+            background: #e9e9e9;
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .attendance-bar {
+            height: 100%;
+            transition: width 350ms ease;
+            background: var(--primary-color, #004aad);
+            border-radius: 999px;
+        }
+
+        @media (max-width: 600px) {
+            .attendance-progress {
+                width: 120px;
+                max-width: 45vw;
+            }
+        }
+
+        /* View More button */
+        .view-more-btn {
+            background: var(--primary-color, #004aad);
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.2s ease;
+        }
+
+        .view-more-btn:hover:not(:disabled) {
+            background: var(--primary-hover, #003780);
+        }
+
+        .view-more-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+    </style>
 </head>
 
 <body>
@@ -91,76 +166,22 @@
                 </form>
 
                 <!-- Events Grid (outside form to avoid nested forms; but still will read query string) -->
-                <div class="events-grid">
-                    @foreach ($events as $event)
-                        @if (\Carbon\Carbon::parse($event->eventStart)->gte(\Carbon\Carbon::today()))
-                            <div class="event-card">
-                                <div class="image-container">
-                                    <img src="{{ asset('images/events/' . ($event->eventImage ?? 'default-event.jpg')) }}"
-                                        alt="{{ $event->eventTitle }}" class="event-image">
-                                    <span
-                                        class="category-tag">{{ $event->category->eventCategoryName ?? 'Uncategorized' }}</span>
-                                </div>
-
-                                <div class="event-details">
-                                    <div class="event-meta">
-                                        <div class="event-date">
-                                            <i class="far fa-calendar-alt"></i>
-                                            <span>{{ \Carbon\Carbon::parse($event->eventStart)->format('l, j F Y g:i A') }}</span>
-                                        </div>
-                                        <div class="event-points">{{ $event->eventPoints ?? 0 }} Points</div>
-                                    </div>
-
-                                    <h3 class="event-title">{{ $event->eventTitle }}</h3>
-
-                                    <div class="event-location">
-                                        <i class="fas fa-map-marker-alt"></i>
-                                        <span>{{ $event->venueName ?? ($event->city ?? ($event->eventLocation ?? 'N/A')) }}</span>
-                                    </div>
-
-                                    <p class="event-description">{{ $event->eventSummary }}</p>
-
-                                    {{-- DETAILS button → goes to admin event show --}}
-                                    <a href="{{ route('admin.events.show', $event->event_id) }}" class="join-btn">
-                                        <i class="fas fa-info-circle"></i> Details
-                                    </a>
-
-                                    <div class="event-footer">
-                                        <div class="event-organizer">
-                                            <i class="fas fa-user-circle"></i> By
-                                            {{ $event->organizer->name ?? 'Organizer' }}
-                                        </div>
-                                        <div class="event-attendance">
-                                            @php
-                                                // ✅ Only approved registrations
-                                                $approved = $event->registrations->where('status', 'approved')->count();
-                                                $max = $event->eventMaximum ?? 0;
-                                                $percent = $max > 0 ? round(($approved / $max) * 100) : 0;
-                                            @endphp
-
-                                            <i class="fas fa-users"></i>
-                                            <span>{{ $approved }}/{{ $max ?: '∞' }}</span>
-
-                                            <div class="attendance-progress">
-                                                <div class="attendance-bar" style="width: {{ $percent }}%"></div>
-                                            </div>
-                                        </div>
-
-                                    </div>
-                                </div>
-                            </div>
-                        @endif
-                    @endforeach
+                <div id="event-list" class="events-grid">
+                    @include('partials.events.event_cards_admin', ['events' => $events])
                 </div>
 
-                <!-- Pagination -->
-                <div class="mt-4">
-                    {{ $events->withQueryString()->links() }}
-                </div>
+                {{-- Hide default pagination (kept for SEO or fallback) --}}
+                <div class="d-none">{{ $events->links() }}</div>
 
-                <!-- View More Button -->
-                <div class="view-more">
-                    <button class="view-more-btn">View More Events</button>
+                {{-- View more button keeps the nextPageUrl from paginator --}}
+                <div class="view-more text-center my-4">
+                    @if ($events->hasMorePages())
+                        <button class="view-more-btn" data-next-page="{{ $events->nextPageUrl() }}">
+                            View More Events
+                        </button>
+                    @else
+                        <button class="view-more-btn" disabled>No More Events</button>
+                    @endif
                 </div>
             </div>
         </div>

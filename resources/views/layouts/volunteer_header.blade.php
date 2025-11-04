@@ -116,7 +116,10 @@
 
 
             <a href="#" class="volunteer-dropdown-item"><i class="fas fa-cog"></i> Account Settings</a>
-            <a href="#" class="volunteer-dropdown-item"><i class="fas fa-bell"></i> Notifications</a>
+           <a href="{{ route('volunteer.notifications.index') }}"
+                        class="volunteer-dropdown-item position-relative volunteer-notifications-link">
+                        <i class="fas fa-bell"></i> Notifications
+                    </a>
             <form method="POST" action="{{ route('logout.volunteer') }}">
                 @csrf
                 <button type="submit" class="volunteer-dropdown-item">

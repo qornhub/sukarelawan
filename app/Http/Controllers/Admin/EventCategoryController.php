@@ -11,7 +11,7 @@ class EventCategoryController extends Controller
 {
     public function index()
     {
-        $categories = EventCategory::all();
+        $categories = EventCategory::orderBy('eventCategoryName')->get();
         return view('admin.eventCategory.eventCategory-list', compact('categories'));
     }
 
@@ -24,11 +24,13 @@ class EventCategoryController extends Controller
     {
         $request->validate([
             'eventCategoryName' => 'required|string|max:255|unique:event_categories,eventCategoryName',
+            'basePoints'        => 'nullable|integer|min:0',
         ]);
 
         EventCategory::create([
-            'eventCategory_id'   => (string) Str::uuid(),
-            'eventCategoryName'  => $request->eventCategoryName,
+            'eventCategory_id'  => (string) Str::uuid(),
+            'eventCategoryName' => $request->eventCategoryName,
+            'basePoints'        => $request->input('basePoints', 10), // default to 10 if not provided
         ]);
 
         return redirect()->route('admin.eventCategory.eventCategory-list')
@@ -47,10 +49,13 @@ class EventCategoryController extends Controller
 
         $request->validate([
             'eventCategoryName' => 'required|string|max:255|unique:event_categories,eventCategoryName,' . $category->eventCategory_id . ',eventCategory_id',
+            'basePoints'        => 'required|integer|min:0',
         ]);
 
-        $category->eventCategoryName = $request->eventCategoryName;
-        $category->save();
+        $category->update([
+            'eventCategoryName' => $request->eventCategoryName,
+            'basePoints'        => $request->basePoints,
+        ]);
 
         return redirect()->route('admin.eventCategory.eventCategory-list')
             ->with('success', 'Event category updated successfully.');

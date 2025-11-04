@@ -180,72 +180,100 @@ document.addEventListener('DOMContentLoaded', function() {
         }, duration);
     }
 
-    // helper to insert new row into main task list
-    function insertTaskRow(task) {
-        const tbody = document.querySelector('#section-tasks table.task-table tbody') 
-                   || document.querySelector('#section-tasks table tbody');
-        if (!tbody) return;
+    // helper to remove placeholder rows from a tbody
+function removePlaceholderRowsFrom(tbody) {
+    if (!tbody) return;
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+    rows.forEach(tr => {
+        // remove explicit .empty-row class
+        if (tr.classList.contains('empty-row')) {
+            tr.remove();
+            return;
+        }
+        // or remove rows that show "No tasks found." placeholder text
+        const txt = (tr.textContent || '').trim();
+        if (/No tasks found\./i.test(txt)) {
+            tr.remove();
+            return;
+        }
+    });
+}
 
-        const row = document.createElement('tr');
-        row.setAttribute('data-task-id', task.task_id);
+// helper to insert new row into main task list (prepending)
+function insertTaskRow(task) {
+    const tbody = document.querySelector('#section-tasks table.task-table tbody')
+               || document.querySelector('#section-tasks table tbody');
+    if (!tbody) return;
 
-        const titleTd = document.createElement('td');
-        titleTd.className = 'task-title-cell';
-        titleTd.textContent = task.title || '';
+    // remove "No tasks found" placeholders before inserting
+    removePlaceholderRowsFrom(tbody);
 
-        const descTd = document.createElement('td');
-        descTd.className = 'task-desc';
-        descTd.textContent = task.description ? (task.description.length > 200 ? task.description.slice(0,200) + '...' : task.description) : '';
+    const row = document.createElement('tr');
+    row.setAttribute('data-task-id', task.task_id);
 
-        const eventTd = document.createElement('td');
-        eventTd.className = 'text-nowrap';
-        eventTd.innerHTML = '<span class="badge-event">' + (task.event?.eventTitle || '') + '</span>';
+    const titleTd = document.createElement('td');
+    titleTd.className = 'task-title-cell';
+    titleTd.textContent = task.title || '';
 
-        const actionsTd = document.createElement('td');
-        actionsTd.className = 'text-center';
-        actionsTd.innerHTML = `
-            <div class="task-actions">
-              <a href="${buildEditUrl(task)}" class="btn btn-outline-secondary btn-sm">Edit</a>
-              <form action="${buildDeleteUrl(task)}" method="POST" class="d-inline" onsubmit="return confirm('Delete this task?');">
-                <input type="hidden" name="_token" value="${document.querySelector('meta[name=csrf-token]').content}">
-                <input type="hidden" name="_method" value="DELETE">
-                <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
-              </form>
-            </div>
-        `;
+    const descTd = document.createElement('td');
+    descTd.className = 'task-desc';
+    descTd.textContent = task.description ? (task.description.length > 200 ? task.description.slice(0,200) + '...' : task.description) : '';
 
-        row.appendChild(titleTd);
-        row.appendChild(descTd);
-        row.appendChild(eventTd);
-        row.appendChild(actionsTd);
+    const eventTd = document.createElement('td');
+    eventTd.className = 'text-nowrap';
+    eventTd.innerHTML = '<span class="badge-event">' + (task.event?.eventTitle || '') + '</span>';
 
-        if (tbody.firstChild) tbody.insertBefore(row, tbody.firstChild);
-        else tbody.appendChild(row);
-    }
+    const actionsTd = document.createElement('td');
+    actionsTd.className = 'text-center';
+    actionsTd.innerHTML = `
+        <div class="task-actions">
+          <a href="${buildEditUrl(task)}" class="btn btn-outline-secondary btn-sm">Edit</a>
+          <form action="${buildDeleteUrl(task)}" method="POST" class="d-inline" onsubmit="return confirm('Delete this task?');">
+            <input type="hidden" name="_token" value="${document.querySelector('meta[name=csrf-token]').content}">
+            <input type="hidden" name="_method" value="DELETE">
+            <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
+          </form>
+        </div>
+    `;
 
-    // 🔥 NEW: helper to insert new row into Manage Tasks table
-    function insertManageTaskRow(task) {
-        const tbody = document.querySelector('#section-manage-tasks table tbody');
-        if (!tbody) return;
+    row.appendChild(titleTd);
+    row.appendChild(descTd);
+    row.appendChild(eventTd);
+    row.appendChild(actionsTd);
 
-        const row = document.createElement('tr');
-        row.setAttribute('data-task-id', task.task_id);
-        row.setAttribute('data-assigned', '');
+    // prepend new row
+    if (tbody.firstChild) tbody.insertBefore(row, tbody.firstChild);
+    else tbody.appendChild(row);
+}
 
-        row.innerHTML = `
-            <td class="task-title">${task.title || ''}</td>
-            <td>${task.description || ''}</td>
-            <td class="assigned-users"><span class="text-muted">—</span></td>
-            <td>
-                <button type="button" class="btn btn-sm btn-outline-success assign-btn"
-                    data-task-id="${task.task_id}">
-                    Assign To
-                </button>
-            </td>
-        `;
+// helper to insert new row into Manage Tasks table (appending)
+function insertManageTaskRow(task) {
+    const tbody = document.querySelector('#section-manage-tasks table tbody');
+    if (!tbody) return;
 
-        tbody.appendChild(row);
-    }
+    // remove "No tasks found" placeholders before inserting
+    removePlaceholderRowsFrom(tbody);
+
+    const row = document.createElement('tr');
+    row.setAttribute('data-task-id', task.task_id);
+    row.setAttribute('data-assigned', '');
+
+    row.innerHTML = `
+        <td class="task-title">${task.title || ''}</td>
+        <td>${task.description || ''}</td>
+        <td class="assigned-users"><span class="text-muted">—</span></td>
+        <td>
+            <button type="button" class="btn btn-sm btn-outline-success assign-btn"
+                data-task-id="${task.task_id}">
+                Assign To
+            </button>
+        </td>
+    `;
+
+    // append to manage table
+    tbody.appendChild(row);
+}
+
 
     // helpers to build URLs
     function buildEditUrl(task) {

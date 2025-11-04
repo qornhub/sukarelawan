@@ -17,8 +17,6 @@
 
 <div id="event-comments" class="mt-4">
 
-
-
     <!-- Comment Form -->
     @auth
         <div class="mb-4">
@@ -93,10 +91,15 @@
 
                 // Decide whether to hide this comment initially: show first $perPage comments (index 0..perPage-1)
                 $hideInitially = $loop->index >= $perPage ? true : false;
+
+                // sentiment (expected: Positive, Negative, Toxic)
+                $sent = $comment->sentiment ?? null;
+                $sentLabel = $sent ? ucfirst($sent) : null;
+                $sentClass = $sent ? strtolower($sent) : '';
             @endphp
 
             <div id="comment-{{ $comment->eventComment_id }}"
-                class="comment-card mb-3 {{ $hideInitially ? 'hidden-comment' : '' }}"
+                class="comment-card mb-3 {{ $hideInitially ? 'hidden-comment' : '' }} {{ $sent ? 'sentiment-'.e($sentClass) : '' }}"
                 @if ($hideInitially) style="display: none;" @endif>
                 <div class="d-flex">
                     <div class="me-3">
@@ -109,9 +112,12 @@
                     <div class="flex-grow-1">
                         <div class="d-flex justify-content-between align-items-start">
                             <div class="comment-meta">
-                                <h6 class="mb-0">{{ $displayName }}</h6>
-                                <small class="text-muted"><i
-                                        class="far fa-clock me-1"></i>{{ $comment->created_at->diffForHumans() }}</small>
+                                <h6 class="mb-0 d-flex align-items-center">
+                                    {{ $displayName }}
+
+                                   
+                                </h6>
+                                <small class="text-muted"><i class="far fa-clock me-1"></i>{{ $comment->created_at->diffForHumans() }}</small>
                             </div>
 
                             @if ($canManage)
@@ -121,7 +127,6 @@
                                         onclick="toggleCommentMenu('{{ $comment->eventComment_id }}', event)">
                                         <i class="fas fa-ellipsis-v"></i>
                                     </button>
-
 
                                     <div id="commentMenu{{ $comment->eventComment_id }}"
                                         class="comment-menu-dropdown bg-white border rounded shadow-sm"
@@ -152,6 +157,7 @@
                         <div id="comment-content-{{ $comment->eventComment_id }}" class="comment-body-bubble">
                             {!! nl2br(e($comment->content)) !!}
                         </div>
+                        
 
                         {{-- edit form (owner only, hidden by default) --}}
                         @if ($isOwner)
@@ -169,8 +175,15 @@
                                 </div>
                             </form>
                         @endif
-
+                         
+ {{-- Sentiment badge (Positive / Negative / Toxic) --}}
+                                    @if ($sentLabel)
+                                        <span class="sentiment-badge ms-2 {{ e($sentClass) }}" aria-hidden="true">
+                                            {{ $sentLabel }}
+                                        </span>
+                                    @endif
                     </div>
+                     
                 </div>
             </div>
         @empty
@@ -198,9 +211,11 @@
     @endif
 </div>
 
+
+
 @push('scripts')
     <script>
-        /* menu helpers */
+        /* menu helpers (your existing functions left intact) */
         document.addEventListener('click', function(e) {
             if (!e.target.closest('.position-relative')) closeAllMenus();
         });
@@ -216,7 +231,6 @@
             document.querySelectorAll('.comment-menu-dropdown').forEach(m => m.style.display = 'none');
         }
 
-        /* Toggle edit: show/hide edit form and content (no AJAX) */
         function toggleEdit(commentId) {
             const editForm = document.getElementById('comment-edit-' + commentId);
             const contentDiv = document.getElementById('comment-content-' + commentId);
@@ -250,15 +264,11 @@
             closeAllMenus();
         }
 
-        /* Confirm delete (regular form submit) */
         function confirmDeleteEventComment(form) {
             return confirm('Are you sure you want to delete this comment?');
         }
 
-        /* Client-side "Load more" reveal logic (no AJAX)
-           - Reveals next batch of hidden comments already present in DOM.
-           - If none are left but a next-page URL exists (server has more), it navigates to that URL.
-        */
+        /* Load more reveal (kept same) */
         (function() {
             const holder = document.getElementById('comments-load-more');
             if (!holder) return;

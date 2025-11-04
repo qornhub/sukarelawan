@@ -8,6 +8,8 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Event;
 use App\Models\EventComment;
+use App\Services\SentimentAnalyzer; // <--- add this
+use Illuminate\Support\Facades\Log;
 
 class EventCommentController extends Controller
 {
@@ -29,6 +31,26 @@ class EventCommentController extends Controller
             'user_id'         => Auth::id(),
             'content'         => $request->input('content'),
         ]);
+
+        // Run sentiment analysis (synchronous — fine for testing)
+        try {
+            $analyzer = new SentimentAnalyzer();
+            $result = $analyzer->analyze($comment->content);
+
+            // Normalize label to Positive/Negative/Toxic exactly
+            $label = isset($result['label']) ? ucfirst(strtolower($result['label'])) : null;
+            if (! in_array($label, ['Positive', 'Negative', 'Toxic'])) {
+                // fallback if model returned unexpected label
+                $label = 'Negative';
+            }
+
+            $comment->sentiment = $label;
+            $comment->sentiment_confidence = isset($result['confidence']) ? floatval($result['confidence']) : null;
+            $comment->save();
+        } catch (\Exception $e) {
+            Log::error('Event comment sentiment analysis failed: ' . $e->getMessage());
+            // don't block user — comment already saved
+        }
 
         return redirect()->to(url()->previous() . '#event-comments')->with('success', 'Comment posted.');
     }
@@ -54,6 +76,23 @@ class EventCommentController extends Controller
 
         $comment->content = $request->input('content');
         $comment->save();
+
+        // Re-run sentiment analysis after edit
+        try {
+            $analyzer = new SentimentAnalyzer();
+            $result = $analyzer->analyze($comment->content);
+
+            $label = isset($result['label']) ? ucfirst(strtolower($result['label'])) : null;
+            if (! in_array($label, ['Positive', 'Negative', 'Toxic'])) {
+                $label = 'Negative';
+            }
+
+            $comment->sentiment = $label;
+            $comment->sentiment_confidence = isset($result['confidence']) ? floatval($result['confidence']) : null;
+            $comment->save();
+        } catch (\Exception $e) {
+            Log::error('Event comment sentiment analysis (update) failed: ' . $e->getMessage());
+        }
 
         return redirect()->to(url()->previous() . '#comment-' . $comment->eventComment_id)
             ->with('success', 'Comment updated.');

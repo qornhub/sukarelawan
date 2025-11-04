@@ -1,0 +1,101 @@
+/* Sentiment comment styles — no :root, no gradients */
+
+/* Comment card base */
+.comment-card{
+  border: 1px solid rgba(0,0,0,0.06);
+  border-radius: 8px;
+  padding: 0.75rem;
+  background: #ffffff;
+  transition: transform .14s ease, box-shadow .14s ease;
+}
+
+/* subtle hover lift */
+.comment-card:hover{
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+}
+
+/* colored left border per sentiment */
+.comment-card.sentiment-positive{ border-left: 5px solid #198754; } /* green */
+.comment-card.sentiment-negative{ border-left: 5px solid #fd7e14; } /* orange */
+.comment-card.sentiment-toxic   { border-left: 5px solid #dc3545; } /* red */
+
+/* solid tinted background for comment bubble (no gradient) */
+.comment-card.sentiment-positive .comment-body-bubble{
+  background: rgba(25,135,84,0.06);
+  border-radius: 6px;
+  padding: 0.6rem;
+}
+.comment-card.sentiment-negative .comment-body-bubble{
+  background: rgba(253,126,20,0.06);
+  border-radius: 6px;
+  padding: 0.6rem;
+}
+.comment-card.sentiment-toxic .comment-body-bubble{
+  background: rgba(220,53,69,0.06);
+  border-radius: 6px;
+  padding: 0.6rem;
+}
+
+/* Sentiment badge (small pill next to name) */
+.sentiment-badge{
+  display: inline-block;
+  font-size: 0.675rem;
+  padding: 0.18rem 0.5rem;
+  border-radius: 999px;
+  font-weight: 600;
+  line-height: 1;
+  vertical-align: middle;
+  text-transform: none;
+  color: #ffffff; /* badge text color */
+}
+
+/* badge colors (classes: .positive .negative .toxic) */
+.sentiment-badge.positive{
+  background: #198754;
+}
+.sentiment-badge.negative{
+  background: #fd7e14;
+}
+.sentiment-badge.toxic{
+  background: #dc3545;
+}
+
+/* small accent for newly revealed comments */
+.comment-new {
+  animation: commentFadeIn 420ms ease;
+}
+@keyframes commentFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* avatar tweaks */
+.avatar-circle{
+  width: 44px;
+  height: 44px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 1px solid rgba(0,0,0,0.06);
+}
+
+/* comment input & publish button alignment */
+.comment-input{
+  flex: 1 1 auto;
+  min-height: 44px;
+  border-radius: 8px;
+}
+.comment-publish-btn{
+  border-radius: 8px;
+  padding: 0.45rem 0.9rem;
+  background: #198754; /* green publish button */
+  color: #fff;
+  border: none;
+}
+.comment-publish-btn:hover{ opacity: 0.95; cursor: pointer; }
+
+/* ensure badge text remains readable in low-contrast scenarios */
+.sentiment-badge.positive, .sentiment-badge.negative, .sentiment-badge.toxic {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

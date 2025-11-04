@@ -16,6 +16,12 @@ class BlogComment extends Model
         'blogPost_id',
         'user_id',
         'content',
+        'sentiment', 
+        'sentiment_confidence',
+    ];
+
+     protected $casts = [
+        'sentiment_confidence' => 'float',
     ];
 
     public function user()

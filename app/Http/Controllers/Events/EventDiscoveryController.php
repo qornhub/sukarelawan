@@ -14,123 +14,99 @@ use Illuminate\Support\Facades\Auth;
 
 class EventDiscoveryController extends Controller
 {
-   
-    public function index(Request $request)
-    {
-        $search     = $request->input('search');
-        $categoryId = $request->input('category');
-        $location   = $request->input('location');
-        $dateRange  = $request->input('date_range');
-        $when       = $request->input('when'); // upcoming | past | all
+public function index(Request $request)
+{
+    $search     = $request->input('search');
+    $categoryId = $request->input('category');
+    $location   = $request->input('location');
+    $dateRange  = $request->input('date_range');
 
-        // Categories from DB
-        $categories = EventCategory::orderBy('eventCategoryName')->get();
+    // Categories from DB
+    $categories = EventCategory::orderBy('eventCategoryName')->get();
 
-        // Fixed list of Malaysia states & federal territories for location filter
-        $locations = [
-            'Perlis','Kedah','Penang','Perak','Kelantan','Terengganu',
-            'Pahang','Selangor','Negeri Sembilan','Melaka','Johor',
-            'Sabah','Sarawak','Kuala Lumpur','Putrajaya','Labuan'
-        ];
+    // Fixed list of Malaysia states & federal territories for location filter
+    $locations = [
+        'Perlis','Kedah','Penang','Perak','Kelantan','Terengganu',
+        'Pahang','Selangor','Negeri Sembilan','Melaka','Johor',
+        'Sabah','Sarawak','Kuala Lumpur','Putrajaya','Labuan'
+    ];
 
-      
+    // Build query
+    $query = Event::with(['category', 'organizer', 'registrations']);
 
-        // base query (inside index)
-$query = Event::with([
-    'category',
-    // organizer + its profile relations
-    'organizer',
-    'organizer.ngoProfile',
-    'organizer.volunteerProfile',
-    'sdgs',
-    'skills',
-    // registrations -> user -> volunteerProfile (so registration avatars use profile data)
-    'registrations.user',
-    'registrations.user.volunteerProfile',
-    
-]);
+    // --- Only future events (move this into query so pagination counts only valid events) ---
+    $query->whereDate('eventStart', '>=', Carbon::today()->toDateString());
 
+    // Search filter
+    if ($search) {
+        $query->where(function ($q) use ($search) {
+            $q->where('eventTitle', 'LIKE', "%{$search}%")
+              ->orWhere('eventSummary', 'LIKE', "%{$search}%")
+              ->orWhere('eventDescription', 'LIKE', "%{$search}%");
+        });
+    }
 
-        // Search (title / summary / description)
-        if ($search) {
-            $query->where(function ($q) use ($search) {
-                $q->where('eventTitle', 'LIKE', "%{$search}%")
-                  ->orWhere('eventSummary', 'LIKE', "%{$search}%")
-                  ->orWhere('eventDescription', 'LIKE', "%{$search}%");
-            });
-        }
+    // Category filter
+    if ($categoryId) {
+        $query->where('category_id', $categoryId);
+    }
 
-        // Category filter (expects event.category_id storing eventCategory_id)
-        if ($categoryId) {
-            $query->where('category_id', $categoryId);
-        }
+    // Location filter
+    if ($location) {
+        $query->where('state', $location);
+    }
 
-        // Location filter (assumes events table has 'state' column)
-        if ($location) {
-            $query->where('state', $location);
-        }
+    // Date range filter
+    if ($dateRange) {
+        $now = Carbon::now();
 
-        // Date range quick filters
-        if ($dateRange) {
-            $now = Carbon::now();
-
-            if ($dateRange === 'this_week') {
-                $start = (clone $now)->startOfWeek();
-                $end   = (clone $now)->endOfWeek();
-            } elseif ($dateRange === 'next_week') {
-                $start = (clone $now)->addWeek()->startOfWeek();
-                $end   = (clone $now)->addWeek()->endOfWeek();
-            } elseif ($dateRange === 'this_month') {
-                $start = (clone $now)->startOfMonth();
-                $end   = (clone $now)->endOfMonth();
-            } else {
-                $start = null;
-                $end = null;
-            }
-
-            if ($start && $end) {
-                $query->whereBetween('eventStart', [$start->toDateTimeString(), $end->toDateTimeString()]);
-            }
-        }
-
-        // 'when' filter: upcoming / past
-        if ($when) {
-            $today = Carbon::today()->toDateString();
-            if ($when === 'upcoming') {
-                $query->whereDate('eventStart', '>=', $today);
-            } elseif ($when === 'past') {
-                $query->whereDate('eventEnd', '<', $today);
-            }
-            // 'all' => no extra filter
-        }
-
-        // Optionally allow sorting by popularity (registrations count) or date
-        $sort = $request->input('sort', 'date'); // date | popular
-        if ($sort === 'popular') {
-            // join count using withCount for ordering
-            $query->withCount('registrations')
-                  ->orderByDesc('registrations_count')
-                  ->orderBy('eventStart', 'asc');
+        if ($dateRange === 'this_week') {
+            $start = (clone $now)->startOfWeek();
+            $end   = (clone $now)->endOfWeek();
+        } elseif ($dateRange === 'next_week') {
+            $start = (clone $now)->addWeek()->startOfWeek();
+            $end   = (clone $now)->addWeek()->endOfWeek();
+        } elseif ($dateRange === 'this_month') {
+            $start = (clone $now)->startOfMonth();
+            $end   = (clone $now)->endOfMonth();
         } else {
-            $query->orderBy('eventStart', 'asc');
+            $start = null;
+            $end = null;
         }
 
-        // Pagination (preserve querystring)
-        $events = $query->paginate(10)->withQueryString();
+        if ($start && $end) {
+            $query->whereBetween('eventStart', [$start->toDateTimeString(), $end->toDateTimeString()]);
+        }
+    }
 
-        // Pass variables to view
-        return view('volunteer.index', [
-            'events'     => $events,
-            'categories' => $categories,
-            'locations'  => $locations,
-            'search'     => $search,
-            'categoryId' => $categoryId,
-            'location'   => $location,
-            'date_range' => $dateRange,
-            'when'       => $when,
-            'sort'       => $sort,
+    // Order by nearest first (optional)
+    $query->orderBy('eventStart', 'asc');
+
+    // paginate and keep the current query string so nextPageUrl preserves filters
+    $events = $query->paginate(6)->appends($request->except('page'));
+
+    // If AJAX request, return JSON with rendered HTML of just the event cards
+    if ($request->ajax()) {
+        $html = view('partials.events.event_cards_volunteer', ['events' => $events])->render();
+
+        return response()->json([
+            'html' => $html,
+            'next_page' => $events->hasMorePages() ? $events->nextPageUrl() : null,
         ]);
     }
+
+    // Normal full-page render
+    return view('volunteer.index', [
+        'events'     => $events,
+        'categories' => $categories,
+        'locations'  => $locations,
+        'search'     => $search,
+        'categoryId' => $categoryId,
+        'location'   => $location,
+        'date_range' => $dateRange,
+    ]);
+}
+
 
     
    public function show($event_id)

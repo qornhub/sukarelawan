@@ -177,14 +177,21 @@
             <form action="{{ route('admin.eventCategory.update', $category->eventCategory_id) }}" method="POST">
                 @csrf
                 @method('PUT')
+
                 <div class="form-group">
                     <label for="eventCategoryName" class="form-label">Category Name</label>
                     <input type="text" name="eventCategoryName" id="eventCategoryName" class="form-control" value="{{ old('eventCategoryName', $category->eventCategoryName) }}" required>
                 </div>
-                <button type="submit" class="btn btn-success">
+
+                <div class="form-group mt-3">
+                    <label for="basePoints" class="form-label">Base Points</label>
+                    <input type="number" name="basePoints" id="basePoints" class="form-control" value="{{ old('basePoints', $category->basePoints) }}" min="0" required>
+                </div>
+
+                <button type="submit" class="btn btn-success mt-3">
                     <i class="fas fa-save me-2"></i>Update
                 </button>
-                <a href="{{ route('admin.eventCategory.eventCategory-list') }}" class="btn btn-secondary">
+                <a href="{{ route('admin.eventCategory.eventCategory-list') }}" class="btn btn-secondary mt-3">
                     <i class="fas fa-times me-2"></i>Cancel
                 </a>
             </form>
@@ -193,4 +200,5 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>

@@ -21,6 +21,8 @@
     --border-radius: 10px;
     --rounded-sm: 8px;
 }
+
+
 .title111{
             
             
@@ -150,6 +152,9 @@
     font-size: 0.95rem;
     line-height: 1.5;
     white-space: pre-line;
+    margin-top: 0 !important;
+  
+    
 }
 
 /* Three dots menu */
@@ -330,4 +335,73 @@
 /* Make sure the dropdowns are visible */
 .position-relative {
     overflow: visible;
+}
+
+/* -----------------------------
+   Sentiment styles (positive / negative / toxic)
+   Matches blade: .comment-card.sentiment-<type> and .sentiment-badge.<type>
+   ----------------------------- */
+
+
+.comments-list .comment-card.sentiment-toxic {
+  border-left: 5px solid #dc3545; /* red */
+}
+
+
+
+.comments-list .sentiment-row {
+  display: block;
+  margin-top: 0.5rem;       /* space between content/edit form and badge */
+}
+
+/* alignment helpers - left by default; make right-aligned on small screens if you prefer */
+.comments-list .sentiment-row { text-align: right; }
+/* Sentiment badge styling (small pill next to name) */
+.comments-list .sentiment-badge {
+  display: inline-block;
+  font-size: 0.675rem;
+  padding: 0.18rem 0.5rem;
+  border-radius: 999px;
+  font-weight: 600;
+  line-height: 1;
+  vertical-align: middle;
+  text-transform: none;
+  margin-left: 0.5rem; /* keeps spacing consistent with ms-2 */
+  box-shadow: none;
+}
+
+/* Badge colors (classes used in blade: .positive .negative .toxic) */
+.comments-list .sentiment-badge.positive {
+  background: #198754;
+  color: #ffffff;
+}
+.comments-list .sentiment-badge.negative {
+  background: #fd7e14;
+  color: #ffffff;
+}
+.comments-list .sentiment-badge.toxic {
+  background: #dc3545;
+  color: #ffffff;
+}
+
+/* Slight animation when comment is revealed (keeps your existing .comment-new behavior consistent) */
+.comments-list .comment-new {
+  animation: commentFadeIn 360ms ease both;
+}
+@keyframes commentFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Small specificity boosters in case Bootstrap utilities try to override */
+.comments-list .comment-card.sentiment-positive { border-left-width: 5px; }
+.comments-list .comment-card.sentiment-negative { border-left-width: 5px; }
+.comments-list .comment-card.sentiment-toxic    { border-left-width: 5px; }
+
+/* make the pill slightly smaller on mobile */
+@media (max-width: 576px) {
+  .comments-list .sentiment-badge {
+    font-size: 0.70rem;
+    padding: 0.15rem 0.4rem;
+  }
 }

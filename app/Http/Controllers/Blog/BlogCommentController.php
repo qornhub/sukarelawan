@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers\Blog;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Auth;
 use App\Models\BlogPost;
 use App\Models\BlogComment;
+use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use App\Services\SentimentAnalyzer;
+use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 
 class BlogCommentController extends Controller
 {
@@ -24,14 +26,27 @@ class BlogCommentController extends Controller
 
         $post = BlogPost::where('blogPost_id', $postId)->firstOrFail();
 
-        $comment = BlogComment::create([
-            'blogComment_id' => (string) Str::uuid(),
-            'blogPost_id'    => $post->blogPost_id,
-            'user_id'        => Auth::id(),
-            'content'        => $request->input('content'),
-        ]);
+       $comment = BlogComment::create([
+        'blogComment_id' => (string) Str::uuid(),
+        'blogPost_id'    => $post->blogPost_id,
+        'user_id'        => Auth::id(),
+        'content'        => $request->input('content'),
+    ]);
 
-        return redirect()->to(url()->previous() . '#comments')->with('success', 'Comment posted.');
+    // Analyze sentiment (synchronous). For small testing it's fine.
+    try {
+        $analyzer = new SentimentAnalyzer();
+        $result = $analyzer->analyze($comment->content);
+
+        $comment->sentiment = $result['label'] ?? 'Negative';
+        $comment->sentiment_confidence = $result['confidence'] ?? 0.0;
+        $comment->save();
+    } catch (\Exception $e) {
+        // optional: log, but do not block user
+        Log::error('Sentiment analysis failed: '.$e->getMessage());
+    }
+
+    return redirect()->to(url()->previous() . '#comments')->with('success', 'Comment posted.');
     }
 
     // Show edit form (optional — we render inline edit in partial; still useful)
@@ -68,6 +83,19 @@ class BlogCommentController extends Controller
 
         $comment->content = $request->input('content');
         $comment->save();
+
+        // Re-run sentiment analysis after update (same pattern as store)
+        try {
+            $analyzer = new SentimentAnalyzer();
+            $result = $analyzer->analyze($comment->content);
+
+            $comment->sentiment = $result['label'] ?? 'Negative';
+            $comment->sentiment_confidence = $result['confidence'] ?? 0.0;
+            $comment->save();
+        } catch (\Exception $e) {
+            Log::error('Sentiment analysis failed on update: '.$e->getMessage());
+            // don't block the user for analysis errors
+        }
 
         return redirect()->to(url()->previous() . '#comment-' . $comment->blogComment_id)
             ->with('success', 'Comment updated.');

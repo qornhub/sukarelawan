@@ -76,4 +76,6 @@ public function skills()
     return $this->hasMany(EventComment::class, 'event_id', 'event_id');
 }
 
+
+
 }

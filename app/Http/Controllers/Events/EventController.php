@@ -2,16 +2,17 @@
 
 namespace App\Http\Controllers\Events;
 
-use App\Http\Controllers\Controller;
 use App\Models\Sdg;
 use App\Models\Event;
 use App\Models\Skill;
-use App\Models\EventCategory;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Models\EventCategory;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Carbon;
 
 class EventController extends Controller
 {
@@ -45,6 +46,68 @@ class EventController extends Controller
         }
     }
 
+    /**
+     * AJAX endpoint: calculate event points based on category, start/end and maximum.
+     * Uses the controller's private calculateEventPoints() method (single source of truth).
+     */
+    public function calcPoints(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'category_id'  => 'required', // validate existence more flexibly below
+            'eventStart'   => 'required|date',
+            // Allow equal start/end to match store/update validation and client-side check.
+            'eventEnd'     => 'required|date|after_or_equal:eventStart',
+            'eventMaximum' => 'nullable|integer|min:0',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'calculated' => false,
+                'points'     => 0,
+                'errors'     => $validator->errors()->messages(),
+            ], 422);
+        }
+
+        try {
+            $catId = $request->input('category_id');
+
+            // Robust category lookup:
+            // - first try primary key id()
+            // - then try eventCategory_id (if your table uses that column)
+            $category = EventCategory::find($catId);
+            if (! $category) {
+                $category = EventCategory::where('eventCategory_id', $catId)->first();
+            }
+
+            // Use admin-configured basePoints (DB default is already 10 if not set)
+            $categoryBase = $category ? (int) $category->basePoints : 10;
+
+            // Reuse your private calculation method — exact same logic
+            $points = $this->calculateEventPoints(
+                $categoryBase,
+                $request->input('eventStart'),
+                $request->input('eventEnd'),
+                $request->input('eventMaximum')
+            );
+
+            return response()->json([
+                'calculated' => true,
+                'points'     => (int) $points,
+            ]);
+        } catch (\Throwable $e) {
+            // Log full context to ease debugging
+            Log::error('calcPoints error: ' . $e->getMessage(), [
+                'payload' => $request->all(),
+                'trace'   => $e->getTraceAsString(),
+            ]);
+            return response()->json([
+                'calculated' => false,
+                'points'     => 0,
+                'message'    => 'Unable to calculate points.',
+            ], 500);
+        }
+    }
+
     // Show create form
     public function create()
     {
@@ -55,7 +118,7 @@ class EventController extends Controller
         return view('ngo.events.create', compact('categories', 'sdgs', 'skills'));
     }
 
-    // Store event
+    // --- store() (replace the existing store method) ---
     public function store(Request $request)
     {
         // Normalize request inputs
@@ -77,10 +140,10 @@ class EventController extends Controller
             'requirements'     => $request->input('requirements') ?? $request->input('requirements_text') ?? null,
         ];
 
-        // Validation rules
+        // Validation rules - eventPoints is now optional (auto-generated if not provided)
         $rules = [
             'eventTitle'       => 'required|string|max:255',
-            'eventPoints'      => 'required|integer|min:0',
+            'eventPoints'      => 'nullable|integer|min:0',
             'eventStart'       => 'required|date',
             'eventEnd'         => 'required|date|after_or_equal:eventStart',
             'eventSummary'     => 'nullable|string|max:500',
@@ -128,13 +191,28 @@ class EventController extends Controller
         // Generate event_id
         $eventId = (string) Str::uuid();
 
+        // --- AUTO-GENERATE POINTS ---
+        // robust lookup (covers eventCategory_id or id)
+        $category = EventCategory::find($input['category_id']);
+        if (! $category) {
+            $category = EventCategory::where('eventCategory_id', $input['category_id'])->first();
+        }
+        $categoryBase = $category ? (int) $category->basePoints : 10;
+
+        $calculatedPoints = $this->calculateEventPoints(
+            $categoryBase,
+            $input['eventStart'],
+            $input['eventEnd'],
+            $input['eventMaximum']
+        );
+
         // Prepare payload
         $payload = [
             'event_id'        => $eventId,
             'user_id'         => Auth::id(),
             'category_id'     => $input['category_id'],
             'eventTitle'      => $input['eventTitle'],
-            'eventPoints'     => (int) $input['eventPoints'],
+            'eventPoints'     => (int) $calculatedPoints,
             'eventStart'      => $input['eventStart'],
             'eventEnd'        => $input['eventEnd'],
             'eventSummary'    => $input['eventSummary'],
@@ -162,7 +240,7 @@ class EventController extends Controller
             $event->skills()->attach($request->input('skills', []));
         }
 
-        return redirect()->route('ngo.events.index')->with('success', 'Event created successfully.');
+        return redirect()->route('ngo.events.index')->with('success', 'Event created successfully. Points: ' . $calculatedPoints);
     }
 
     // Show edit form
@@ -191,7 +269,7 @@ class EventController extends Controller
         return view('ngo.events.event_edit', compact('event', 'categories', 'sdgs', 'skills', 'selectedSdgs', 'selectedSkills'));
     }
 
-    // Update event
+    // --- update() (replace the existing update method) ---
     public function update(Request $request, Event $event)
     {
         $this->authorizeNGO($event);
@@ -221,10 +299,10 @@ class EventController extends Controller
             'requirements'     => $request->input('requirements') ?? $request->input('requirements_text') ?? null,
         ];
 
-        // Validation rules (category_id optional)
+        // Validation rules (eventPoints optional, we'll recalculate below)
         $rules = [
             'eventTitle'       => 'required|string|max:255',
-            'eventPoints'      => 'required|integer|min:0',
+            'eventPoints'      => 'nullable|integer|min:0',
             'eventStart'       => 'required|date',
             'eventEnd'         => 'required|date|after_or_equal:eventStart',
             'eventSummary'     => 'nullable|string|max:500',
@@ -277,10 +355,25 @@ class EventController extends Controller
             $event->eventImage = $imageFileName;
         }
 
+        // --- AUTO-CALCULATE points for update as well ---
+        $categoryIdToUse = $input['category_id'] ?? $event->category_id;
+        $category = EventCategory::find($categoryIdToUse);
+        if (! $category) {
+            $category = EventCategory::where('eventCategory_id', $categoryIdToUse)->first();
+        }
+        $categoryBase = $category ? (int) $category->basePoints : 10;
+
+        $calculatedPoints = $this->calculateEventPoints(
+            $categoryBase,
+            $input['eventStart'],
+            $input['eventEnd'],
+            $input['eventMaximum']
+        );
+
         // Update model fields
-        $event->category_id      = $input['category_id'];
+        $event->category_id      = $categoryIdToUse;
         $event->eventTitle       = $input['eventTitle'];
-        $event->eventPoints      = (int) $input['eventPoints'];
+        $event->eventPoints      = (int) $calculatedPoints;
         $event->eventStart       = $input['eventStart'];
         $event->eventEnd         = $input['eventEnd'];
         $event->eventSummary     = $input['eventSummary'];
@@ -300,8 +393,123 @@ class EventController extends Controller
         $event->sdgs()->sync($request->input('sdgs', []));
         $event->skills()->sync($request->input('skills', []));
 
-        return redirect()->route('ngo.events.index')->with('success', 'Event updated successfully.');
+        return redirect()->route('ngo.events.index')->with('success', 'Event updated successfully. Points: ' . $calculatedPoints);
     }
+
+  private function calculateEventPoints($categoryBasePoints, $eventStart, $eventEnd, $eventMaximum)
+{
+    $base = (int) ($categoryBasePoints ?? 10);
+    $eventMaximum = (int) ($eventMaximum ?? 0);
+
+    try {
+        // App timezone
+        $tz = config('app.timezone') ?? 'UTC';
+
+        // Normalize common input formats:
+        // - "2025-11-01 18:06:00"
+        // - "2025-11-01T18:06" (from datetime-local)
+        // - "2025-11-01T18:06:00"
+        $normalize = function ($s) {
+            if ($s === null) return null;
+            $s = trim($s);
+            // If contains 'T' and no seconds, convert to space and add :00
+            if (strpos($s, 'T') !== false) {
+                // examples: 2025-11-01T18:06  or 2025-11-01T18:06:00
+                $s = str_replace('T', ' ', $s);
+                // ensure seconds exist
+                if (! preg_match('/:\d{2}:\d{2}$/', $s)) {
+                    $s = preg_replace('/(:\d{2})$/', '$1:00', $s);
+                }
+            }
+            // If input has only date and time without seconds but with space (e.g. "Y-m-d H:i"), add seconds
+            if (preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/', $s)) {
+                $s .= ':00';
+            }
+            return $s;
+        };
+
+        $sRaw = $normalize($eventStart);
+        $eRaw = $normalize($eventEnd);
+
+        $start = null; $end = null;
+
+        // Try createFromFormat first (most deterministic)
+        if ($sRaw) {
+            try {
+                $start = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $sRaw, $tz);
+            } catch (\Throwable $ex) {
+                // fallback to parse
+                try { $start = \Carbon\Carbon::parse($sRaw, $tz); } catch (\Throwable $ie) { $start = null; }
+            }
+        }
+
+        if ($eRaw) {
+            try {
+                $end = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $eRaw, $tz);
+            } catch (\Throwable $ex) {
+                try { $end = \Carbon\Carbon::parse($eRaw, $tz); } catch (\Throwable $ie) { $end = null; }
+            }
+        }
+
+        // If either failed, try generic parse (best-effort)
+        if (! $start) {
+            $start = Carbon::parse($eventStart, $tz);
+        }
+        if (! $end) {
+            $end = Carbon::parse($eventEnd, $tz);
+        }
+
+        // If still missing, return base and log
+        if (! $start || ! $end) {
+            Log::warning('calculateEventPoints: could not parse start/end', [
+                'raw_start' => $eventStart, 'raw_end' => $eventEnd, 'normalized_start' => $sRaw, 'normalized_end' => $eRaw
+            ]);
+            return $base;
+        }
+
+        // Ensure start <= end (swap if necessary)
+        if ($end->lt($start)) {
+            [$start, $end] = [$end, $start];
+        }
+
+        // Compute duration in minutes and convert to hours (ceil partial hours)
+        $minutes = $start->diffInMinutes($end); // start -> end
+        $durationHours = max(1, (int) ceil($minutes / 60));
+
+        // Scaling factors (tweakable)
+        $durationFactor = min($durationHours / 1, 80);   // every 2 hours ~ 1 unit, capped
+        $attendeeFactor = min($eventMaximum / 5, 80);   // every 10 attendees ~ 1 unit, capped
+
+        // Coefficients
+        $durationCoef = 1.5;
+        $attendeeCoef = 1.2;
+
+        $points = $base
+                + (int) round($durationFactor * $durationCoef)
+                + (int) round($attendeeFactor * $attendeeCoef);
+
+        // Debug log (optional — remove in production if noisy)
+        Log::debug('calculateEventPoints debug', [
+            'base' => $base,
+            'start' => $start->toDateTimeString(),
+            'end' => $end->toDateTimeString(),
+            'minutes' => $minutes,
+            'durationHours' => $durationHours,
+            'durationFactor' => $durationFactor,
+            'attendeeFactor' => $attendeeFactor,
+            'points' => $points,
+            'eventMaximum' => $eventMaximum,
+        ]);
+
+        return max($points, $base);
+    } catch (\Exception $e) {
+        Log::error('calculateEventPoints error: '.$e->getMessage(), [
+            'start' => $eventStart, 'end' => $eventEnd, 'max' => $eventMaximum
+        ]);
+        return $base;
+    }
+}
+
 
     // Delete own event
     public function destroy(Event $event)

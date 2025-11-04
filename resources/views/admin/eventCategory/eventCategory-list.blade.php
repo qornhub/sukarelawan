@@ -228,6 +228,7 @@
                     <div class="category-card">
                         <div class="category-content">
                             <h3 class="category-name">{{ $category->eventCategoryName }}</h3>
+                            <p class="category-points"><strong>Base Points:</strong> {{ $category->basePoints }}</p>
                             <p class="category-date">Created: {{ $category->created_at ? $category->created_at->format('Y-m-d') : '-' }}</p>
                             <div class="category-actions">
                                 <a href="{{ route('admin.eventCategory.edit', $category->eventCategory_id) }}" class="btn-action btn-edit">
@@ -250,4 +251,5 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>

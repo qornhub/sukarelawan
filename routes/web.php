@@ -220,6 +220,7 @@ Route::middleware(['auth', 'isNGO'])
         Route::get('/events/{event}/edit', [EventController::class, 'edit'])->name('events.event_edit');
         Route::put('/events/{event}', [EventController::class, 'update'])->name('events.update');
         Route::delete('/events/{event}', [EventController::class, 'destroy'])->name('events.destroy');
+        Route::post('/events/calc-points', [EventController::class, 'calcPoints'])->name('events.calcPoints');
 
         // Event discovery for NGO
         Route::get('/events', [NgoEventDiscoveryController::class, 'index'])->name('events.index');

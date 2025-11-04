@@ -67,10 +67,15 @@
 
                 // Decide whether to hide this comment initially: show first $perPage comments (index 0..perPage-1)
                 $hideInitially = ($loop->index >= $perPage) ? true : false;
+
+                // sentiment values expected: Positive, Negative, Toxic
+                $sent = $comment->sentiment ?? null;
+                $sentLabel = $sent ? ucfirst($sent) : null;
+                $sentClass = $sent ? strtolower($sent) : '';
             @endphp
 
             <div id="comment-{{ $comment->blogComment_id }}"
-                 class="comment-card mb-3 {{ $hideInitially ? 'hidden-comment' : '' }}"
+                 class="comment-card mb-3 {{ $hideInitially ? 'hidden-comment' : '' }} {{ $sent ? 'sentiment-'.e($sentClass) : '' }}"
                  @if($hideInitially) style="display: none;" @endif
             >
                 <div class="d-flex">
@@ -84,8 +89,12 @@
                     <div class="flex-grow-1">
                         <div class="d-flex justify-content-between align-items-start">
                             <div class="comment-meta">
-                                <h6 class="mb-0">{{ $displayName }}</h6>
-                                <small class="text-muted"><i class="far fa-clock me-1"></i>{{ $comment->created_at->diffForHumans() }}</small>
+                                <h6 class="mb-0 d-flex align-items-center">
+                                    {{ $displayName }}
+                                </h6>
+                                <small class="text-muted">
+                                    <i class="far fa-clock me-1"></i>{{ $comment->created_at->diffForHumans() }}
+                                </small>
                             </div>
 
                             @if($canManage)
@@ -93,7 +102,6 @@
                                     <button class="comment-menu-btn" type="button" onclick="toggleCommentMenu('{{ $comment->blogComment_id }}', event)">
                                         <i class="fas fa-ellipsis-v"></i>
                                     </button>
-                                    
 
                                     <div id="commentMenu{{ $comment->blogComment_id }}" class="comment-menu-dropdown" style="display:none; position:absolute; right:0; top:100%; min-width:140px;">
                                         @if($isOwner)
@@ -113,7 +121,7 @@
                             @endif
                         </div>
 
-                        <!-- comment content (has id so JS toggle can hide/show it) -->
+                        <!-- comment content -->
                         <div id="comment-content-{{ $comment->blogComment_id }}" class="comment-body-bubble">
                             {!! nl2br(e($comment->content)) !!}
                         </div>
@@ -135,6 +143,13 @@
                                 </div>
                             </form>
                         @endif
+@if($sentLabel)
+    <div class="sentiment-row mt-2">
+        <span class="sentiment-badge {{ e($sentClass) }}" role="status" aria-label="Sentiment: {{ $sentLabel }}">
+            {{ $sentLabel }}
+        </span>
+    </div>
+@endif
 
                     </div>
                 </div>
@@ -148,12 +163,13 @@
         @endforelse
     </div>
 
-    <!-- Load more button holder (client-side reveal). If paginator has more pages, we keep next-page URL as fallback -->
     @php
-        $nextPageUrl = ($comments->hasMorePages() ?? false) ? request()->fullUrlWithQuery(['comments_page' => ($comments->currentPage() ?? 1) + 1]) : '';
+        $nextPageUrl = ($comments->hasMorePages() ?? false)
+            ? request()->fullUrlWithQuery(['comments_page' => ($comments->currentPage() ?? 1) + 1])
+            : '';
     @endphp
 
-    @if( (isset($comments) && ($comments->count() > $perPage)) || (!empty($nextPageUrl)) )
+    @if(($comments->count() > $perPage) || (!empty($nextPageUrl)))
         <div id="comments-load-more"
              data-batch="{{ $perPage }}"
              data-next-url="{{ $nextPageUrl }}"
@@ -163,9 +179,10 @@
     @endif
 </div>
 
+
+
 @push('scripts')
 <script>
-/* menu helpers */
 document.addEventListener('click', function (e) {
     if (!e.target.closest('.position-relative')) closeAllMenus();
 });
@@ -178,17 +195,16 @@ function toggleCommentMenu(commentId, e) {
 function closeAllMenus() {
     document.querySelectorAll('.comment-menu-dropdown').forEach(m => m.style.display = 'none');
 }
-
-/* Toggle edit: show/hide edit form and content (no AJAX) */
 function toggleEdit(commentId) {
     const editForm = document.getElementById('comment-edit-' + commentId);
     const contentDiv = document.getElementById('comment-content-' + commentId);
     if (!editForm) return;
-
-    // Close other open edit forms
-    document.querySelectorAll('.edit-comment-form').forEach(f => { if (f.id !== 'comment-edit-' + commentId) { f.style.display = 'none'; } });
-    document.querySelectorAll('[id^="comment-content-"]').forEach(d => { if (d.id !== 'comment-content-' + commentId) { d.style.display = 'block'; } });
-
+    document.querySelectorAll('.edit-comment-form').forEach(f => {
+        if (f.id !== 'comment-edit-' + commentId) f.style.display = 'none';
+    });
+    document.querySelectorAll('[id^="comment-content-"]').forEach(d => {
+        if (d.id !== 'comment-content-' + commentId) d.style.display = 'block';
+    });
     const isOpen = editForm.style.display === 'block';
     if (isOpen) {
         editForm.style.display = 'none';
@@ -201,65 +217,42 @@ function toggleEdit(commentId) {
     }
     closeAllMenus();
 }
-
-/* Confirm delete (regular form submit) */
 function confirmDeleteComment(form) {
     return confirm('Are you sure you want to delete this comment?');
 }
-
-/* Client-side "Load more" reveal logic (no AJAX)
-   - Reveals next batch of hidden comments already present in DOM.
-   - If none are left but a next-page URL exists (server has more), it navigates to that URL.
-*/
 (function(){
     const holder = document.getElementById('comments-load-more');
     if (!holder) return;
     const batch = parseInt(holder.dataset.batch || 3, 10);
     const nextUrl = holder.dataset.nextUrl || '';
     const loadBtn = document.getElementById('loadMoreBtn');
-
     function revealNextBatch() {
         const container = document.querySelector('#comments .comments-list');
         if (!container) return;
-
-        // select only hidden comments inside the comments-list
         const hidden = Array.from(container.querySelectorAll('.hidden-comment'));
         if (hidden.length === 0) {
-            // nothing hidden on this page, fallback to server next page if available
             if (nextUrl) {
                 window.location.href = nextUrl;
-            } else {
-                // nothing left to show
-                if (loadBtn) loadBtn.style.display = 'none';
+            } else if (loadBtn) {
+                loadBtn.style.display = 'none';
             }
             return;
         }
-
-        // reveal up to `batch` items
         const toReveal = hidden.slice(0, batch);
         toReveal.forEach(node => {
             node.classList.remove('hidden-comment');
-            node.style.display = ''; // let CSS determine display
-            node.classList.add('comment-new'); // optional animation class if you have it
+            node.style.display = '';
+            node.classList.add('comment-new');
         });
-
-        // if no more hidden items and no nextUrl, hide button
         const stillHidden = container.querySelectorAll('.hidden-comment').length;
-        if (stillHidden === 0) {
-            // check if server has more pages; if so use fallback navigation
-            if (!nextUrl) {
-                if (loadBtn) loadBtn.style.display = 'none';
-            }
-            // else leave button visible so user can click to fetch next page (fallback)
+        if (stillHidden === 0 && !nextUrl) {
+            if (loadBtn) loadBtn.style.display = 'none';
         }
     }
-
-    if (loadBtn) {
-        loadBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            revealNextBatch();
-        });
-    }
+    if (loadBtn) loadBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        revealNextBatch();
+    });
 })();
 </script>
 @endpush

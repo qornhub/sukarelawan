@@ -16,6 +16,12 @@ class EventComment extends Model
         'event_id',
         'user_id',
         'content',
+        'sentiment',               
+        'sentiment_confidence',    
+    ];
+
+    protected $casts = [
+        'sentiment_confidence' => 'float',
     ];
 
     // Relationships

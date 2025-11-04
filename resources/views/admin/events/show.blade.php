@@ -35,6 +35,47 @@
         @media (max-width: 767.98px) {
             .post-settings { margin-bottom: 12px; text-align: center; }
         }
+        /* Sentiment badge only — for event comments (scoped to #event-comments) */
+
+/* wrapper (if you place the badge below the content) */
+#event-comments .sentiment-row {
+  display: block;
+  margin-top: 0.5rem;   /* space between content/edit form and badge */
+  text-align: right;     /* change to right if you prefer right-aligned */
+}
+
+/* badge (pill) */
+#event-comments .sentiment-badge {
+  display: inline-block;
+  font-size: 0.75rem;
+  padding: 0.18rem 0.5rem;
+  border-radius: 999px;
+  font-weight: 600;
+  line-height: 1;
+  vertical-align: middle;
+  color: #ffffff;       /* white text on colored pills */
+  box-shadow: none;
+}
+
+/* colors */
+#event-comments .sentiment-badge.positive { background: #198754; } /* green */
+#event-comments .sentiment-badge.negative { background: #fd7e14; } /* orange */
+#event-comments .sentiment-badge.toxic    { background: #dc3545; } /* red */
+
+/* small mobile tweak */
+@media (max-width: 576px) {
+  #event-comments .sentiment-badge {
+    font-size: 0.70rem;
+    padding: 0.14rem 0.4rem;
+  }
+}
+
+/* specificity booster (in case other CSS overrides) */
+#event-comments .comments-list .sentiment-badge {
+  /* noop: keeps selector strong; uncomment !important only if absolutely needed */
+  /* color: #fff !important; */
+}
+
     </style>
 </head>
 

@@ -14,6 +14,7 @@ class EventCategory extends Model
     protected $fillable = [
         'eventCategory_id',
         'eventCategoryName',
+        'basePoints',
     ];
 
     

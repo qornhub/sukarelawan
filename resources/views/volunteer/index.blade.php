@@ -8,6 +8,88 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{{ asset('css/events/index.css') }}">
+    <style>
+        /* --- Attendance Progress & View More Enhancements --- */
+        .event-footer {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            justify-content: flex-start;
+            width: 100%;
+        }
+
+        /* Organizer name stays on left */
+        .event-footer .event-organizer {
+            flex: 0 0 auto;
+            white-space: nowrap;
+        }
+
+        /* Attendance section stays on right */
+        .event-attendance {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: auto;
+            /* ensures right alignment */
+            flex: 0 0 auto;
+        }
+
+        /* Attendance text (e.g., 5/20) */
+        .event-attendance .attendance-text {
+            white-space: nowrap;
+            font-size: 0.95rem;
+            color: #555;
+        }
+
+        /* Outer progress bar container */
+        .attendance-progress {
+            flex: 0 0 auto;
+            width: 100px;
+            max-width: 40vw;
+            min-width: 80px;
+            height: 8px;
+            background: #e9e9e9;
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        /* Inner fill bar */
+        .attendance-bar {
+            height: 100%;
+            transition: width 350ms ease;
+            background: var(--primary-color, #004aad);
+            border-radius: 999px;
+        }
+
+        /* Responsive tweak for small screens */
+        @media (max-width: 600px) {
+            .attendance-progress {
+                width: 120px;
+                max-width: 45vw;
+            }
+        }
+
+        /* --- View More Button (non-destructive overwrite) --- */
+        .view-more-btn {
+            background: var(--primary-color, #004aad);
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s ease;
+        }
+
+        .view-more-btn:hover:not(:disabled) {
+            background: var(--primary-hover, #003780);
+        }
+
+        .view-more-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+    </style>
 </head>
 
 <body>
@@ -58,10 +140,10 @@
                             <label class="filter-label">Date Range</label>
                             <select name="date_range" class="filter-select" onchange="this.form.submit()">
                                 <option value="">Any Date</option>
-                                <option value="this_week"
-                                    {{ request('date_range') == 'this_week' ? 'selected' : '' }}>This Week</option>
-                                <option value="next_week"
-                                    {{ request('date_range') == 'next_week' ? 'selected' : '' }}>Next Week</option>
+                                <option value="this_week" {{ request('date_range') == 'this_week' ? 'selected' : '' }}>
+                                    This Week</option>
+                                <option value="next_week" {{ request('date_range') == 'next_week' ? 'selected' : '' }}>
+                                    Next Week</option>
                                 <option value="this_month"
                                     {{ request('date_range') == 'this_month' ? 'selected' : '' }}>This Month</option>
                             </select>
@@ -75,76 +157,22 @@
                 </div>
             </form>
 
-            <!-- Events Grid (outside form to avoid nested forms; but still will read query string) -->
-            <div class="events-grid">
-                @foreach ($events as $event)
-                   @if (\Carbon\Carbon::parse($event->eventStart)->gte(\Carbon\Carbon::today()))
-                        <div class="event-card">
-                            <div class="image-container">
-                                <img src="{{ asset('images/events/' . ($event->eventImage ?? 'default-event.jpg')) }}"
-                                    alt="{{ $event->eventTitle }}" class="event-image">
-                                <span
-                                    class="category-tag">{{ $event->category->eventCategoryName ?? 'Uncategorized' }}</span>
-                            </div>
-
-                            <div class="event-details">
-                                <div class="event-meta">
-                                    <div class="event-date">
-                                        <i class="far fa-calendar-alt"></i>
-                                        <span>{{ \Carbon\Carbon::parse($event->eventStart)->format('l, j F Y g:i A') }}</span>
-                                    </div>
-                                    <div class="event-points">{{ $event->eventPoints ?? 0 }} Points</div>
-                                </div>
-
-                                <h3 class="event-title">{{ $event->eventTitle }}</h3>
-
-                                <div class="event-location">
-                                    <i class="fas fa-map-marker-alt"></i>
-                                    <span>{{ $event->venueName ?? ($event->city ?? ($event->eventLocation ?? 'N/A')) }}</span>
-                                </div>
-
-                                <p class="event-description">{{ $event->eventSummary }}</p>
-
-                                <a href="{{ route('volunteer.events.show', $event->event_id) }}" class="join-btn">
-                                    <i class="fas fa-info-circle"></i> Details
-                                </a>
-
-                                <div class="event-footer">
-                                    <div class="event-organizer">
-                                        <i class="fas fa-user-circle"></i> By
-                                        {{ $event->organizer->name ?? 'Organizer' }}
-                                    </div>
-                                    <div class="event-attendance">
-                                        @php
-                                            // ✅ Only approved registrations
-                                            $approved = $event->registrations->where('status', 'approved')->count();
-                                            $max = $event->eventMaximum ?? 0;
-                                            $percent = $max > 0 ? round(($approved / $max) * 100) : 0;
-                                        @endphp
-
-                                        <i class="fas fa-users"></i>
-                                        <span>{{ $approved }}/{{ $max ?: '∞' }}</span>
-
-                                        <div class="attendance-progress">
-                                            <div class="attendance-bar" style="width: {{ $percent }}%"></div>
-                                        </div>
-                                    </div>
-
-                                </div>
-                            </div>
-                        </div>
-                    @endif
-                @endforeach
+            <div id="event-list" class="events-grid">
+                @include('partials.events.event_cards_volunteer', ['events' => $events])
             </div>
 
-            <!-- Pagination -->
-            <div class="mt-4">
-                {{ $events->withQueryString()->links() }}
-            </div>
+            {{-- Hide default pagination (kept for SEO or fallback) --}}
+            <div class="d-none">{{ $events->links() }}</div>
 
-            <!-- View More Button -->
-            <div class="view-more">
-                <button class="view-more-btn">View More Events</button>
+            {{-- View more button keeps the nextPageUrl from paginator --}}
+            <div class="view-more text-center my-4">
+                @if ($events->hasMorePages())
+                    <button class="view-more-btn" data-next-page="{{ $events->nextPageUrl() }}">
+                        View More Events
+                    </button>
+                @else
+                    <button class="view-more-btn" disabled>No More Events</button>
+                @endif
             </div>
         </div>
     </div>
