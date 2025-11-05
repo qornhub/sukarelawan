@@ -47,7 +47,7 @@ class TaskAssignmentController extends Controller
             ]
         );
 
-        return redirect()->back()->with('success', 'Task assigned successfully.');
+        return redirect()->back()->with('success', 'Task assignedddddd successfully.');
     }
 
     /**
@@ -65,7 +65,7 @@ class TaskAssignmentController extends Controller
 
         $assignment->delete();
 
-        return redirect()->back()->with('success', 'Assignment removed.');
+        return redirect()->back()->with('success', 'Assignmenttttttt removed.');
     }
 
     /**

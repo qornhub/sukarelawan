@@ -25,3 +25,8 @@ Broadcast::channel('ngo-event.{eventId}', function ($user, $eventId) {
     // Better example (adapt to your app):
     // return $user && $user->isNGO();
 });
+
+Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
+    // ensure only the correct user can listen on their private channel
+    return (int) $user->id === (int) $id;
+});

@@ -1,14 +1,6 @@
 {{-- resources/views/partials/events/comments.blade.php --}}
 @php
-    // Expected:
-    // - $event (Event model)
-    // - $comments (paginator or collection) — comments for this event
-    // Optional include overrides:
-    // - 'profileRelation' (string) e.g. 'volunteerProfile' or 'ngoProfile' — used to find profile on user
-    // - 'profileRoute' (string) route name for profile show (if supplied)
-    // - 'profileStoragePath' (string) path prefix for profile images e.g. 'images/profiles/'
-    //
-    // Determine batch size (per page). Use paginator value if available, otherwise default to 3.
+    
     $perPage = method_exists($comments, 'perPage') ? $comments->perPage() : 3;
     $profileRelation = $profileRelation ?? null;
     $profileRouteOverride = $profileRoute ?? null;
@@ -99,7 +91,7 @@
             @endphp
 
             <div id="comment-{{ $comment->eventComment_id }}"
-                class="comment-card mb-3 {{ $hideInitially ? 'hidden-comment' : '' }} {{ $sent ? 'sentiment-'.e($sentClass) : '' }}"
+                class="comment-card mb-3 {{ $hideInitially ? 'hidden-comment' : '' }} {{ $sent ? 'sentiment-' . e($sentClass) : '' }}"
                 @if ($hideInitially) style="display: none;" @endif>
                 <div class="d-flex">
                     <div class="me-3">
@@ -115,9 +107,10 @@
                                 <h6 class="mb-0 d-flex align-items-center">
                                     {{ $displayName }}
 
-                                   
+
                                 </h6>
-                                <small class="text-muted"><i class="far fa-clock me-1"></i>{{ $comment->created_at->diffForHumans() }}</small>
+                                <small class="text-muted"><i
+                                        class="far fa-clock me-1"></i>{{ $comment->created_at->diffForHumans() }}</small>
                             </div>
 
                             @if ($canManage)
@@ -140,7 +133,7 @@
                                         @if ($isAdmin || $isOwner)
                                             <form
                                                 action="{{ route('events.comments.destroy', [$event->event_id, $comment->eventComment_id]) }}"
-                                                method="POST" onsubmit="return confirmDeleteEventComment(this);"
+                                                method="POST" 
                                                 style="margin:0;">
                                                 @csrf
                                                 @method('DELETE')
@@ -157,7 +150,7 @@
                         <div id="comment-content-{{ $comment->eventComment_id }}" class="comment-body-bubble">
                             {!! nl2br(e($comment->content)) !!}
                         </div>
-                        
+
 
                         {{-- edit form (owner only, hidden by default) --}}
                         @if ($isOwner)
@@ -175,15 +168,20 @@
                                 </div>
                             </form>
                         @endif
-                         
- {{-- Sentiment badge (Positive / Negative / Toxic) --}}
-                                    @if ($sentLabel)
-                                        <span class="sentiment-badge ms-2 {{ e($sentClass) }}" aria-hidden="true">
-                                            {{ $sentLabel }}
-                                        </span>
-                                    @endif
+
+                        {{-- Sentiment badge (Positive / Negative / Toxic) --}}
+
+
+                        @if ($sentLabel)
+                            <div class="sentiment-row mt-2">
+                                <span class="sentiment-badge {{ e($sentClass) }}" role="status"
+                                    aria-label="Sentiment: {{ $sentLabel }}">
+                                    {{ $sentLabel }}
+                                </span>
+                            </div>
+                        @endif
                     </div>
-                     
+
                 </div>
             </div>
         @empty
@@ -317,5 +315,121 @@
                 });
             }
         })();
+
+
+        (function() {
+  const containerSel = '#event-comments';
+  const flashId = 'event-comments-flash';
+
+  function extractFragment(htmlText) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(htmlText, 'text/html');
+    const node = doc.querySelector(containerSel);
+    return node ? node.innerHTML : null;
+  }
+
+  async function handleFormSubmit(form) {
+    // prevent default already done by caller
+    const methodInput = form.querySelector('input[name="_method"]');
+    const method = (methodInput ? methodInput.value.toUpperCase() : (form.method || 'POST')).toUpperCase();
+
+    if (method === 'DELETE') {
+      // reuse existing confirm if present
+      if (typeof confirmDeleteEventComment === 'function') {
+        if (!confirmDeleteEventComment(form)) return;
+      } else {
+        if (!confirm('Are you sure you want to delete this comment?')) return;
+      }
+    }
+
+    const formData = new FormData(form);
+    const metaToken = document.querySelector('meta[name="csrf-token"]')?.content;
+    if (!formData.get('_token') && metaToken) {
+      formData.append('_token', metaToken);
+    }
+
+    const headers = {
+      'X-Requested-With': 'XMLHttpRequest'
+      // do not set Content-Type when using FormData
+    };
+    if (metaToken) headers['X-CSRF-TOKEN'] = metaToken;
+
+    // disable submit button (UX)
+    const submitBtn = form.querySelector('[type="submit"]');
+    let originalBtnHtml = null;
+    if (submitBtn) {
+      originalBtnHtml = submitBtn.innerHTML;
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+    }
+
+    try {
+      const response = await fetch(form.action, {
+        method: method === 'GET' ? 'GET' : 'POST',
+        headers,
+        body: formData
+      });
+
+      if (response.ok) {
+        // server usually returns final HTML after redirect; extract the fragment and replace
+        const text = await response.text();
+        const fragment = extractFragment(text);
+        if (fragment !== null) {
+          const container = document.querySelector(containerSel);
+          if (container) container.innerHTML = fragment;
+          // no client-side success flash: server-rendered flash will appear inside replaced fragment
+        } else {
+          // fallback: replace entire container with raw response
+          const container = document.querySelector(containerSel);
+          if (container) container.innerHTML = text;
+        }
+      } else if (response.status === 422) {
+        // validation errors JSON
+        let payload;
+        try { payload = await response.json(); } catch (e) { payload = null; }
+        if (payload && payload.errors) {
+          const msgs = Object.values(payload.errors).flat().map(m => `<li>${m}</li>`).join('');
+          const flashDiv = document.getElementById(flashId);
+          if (flashDiv) {
+            flashDiv.innerHTML = `<div class="alert alert-danger alert-sm mb-0"><ul class="mb-0">${msgs}</ul></div>`;
+          }
+        } else {
+          const text = await response.text();
+          const flashDiv = document.getElementById(flashId);
+          if (flashDiv) flashDiv.innerHTML = `<div class="alert alert-danger alert-sm mb-0">${text}</div>`;
+        }
+      } else {
+        // generic error: try to extract fragment, if not show a brief message
+        const text = await response.text();
+        const fragment = extractFragment(text);
+        if (fragment) {
+          const container = document.querySelector(containerSel);
+          if (container) container.innerHTML = fragment;
+        } else {
+          const flashDiv = document.getElementById(flashId);
+          if (flashDiv) flashDiv.innerHTML = `<div class="alert alert-danger alert-sm mb-0">An error occurred. Please refresh the page.</div>`;
+        }
+      }
+    } catch (err) {
+      console.error('Comment AJAX error', err);
+      const flashDiv = document.getElementById(flashId);
+      if (flashDiv) flashDiv.innerHTML = `<div class="alert alert-danger alert-sm mb-0">Network error. Please try again.</div>`;
+    } finally {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalBtnHtml;
+      }
+    }
+  }
+
+  // delegated submit listener
+  document.addEventListener('submit', function(e) {
+    const form = e.target;
+    if (!form || !form.closest(containerSel)) return; // not a form inside comments
+    e.preventDefault();
+    handleFormSubmit(form);
+  });
+
+})();
     </script>
 @endpush

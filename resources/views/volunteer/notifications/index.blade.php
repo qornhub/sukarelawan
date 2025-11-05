@@ -7,250 +7,11 @@
   <title>Notifications — Volunteer</title>
 
   <meta name="csrf-token" content="{{ csrf_token() }}">
+  <meta name="user-id" content="{{ auth()->id() ?? '' }}">
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-
-  <style>
-    :root {
-      --primary-color: #4361ee;
-      --primary-light: #4895ef;
-      --secondary-color: #3f37c9;
-      --success-color: #4cc9f0;
-      --danger-color: #f72585;
-      --warning-color: #f8961e;
-      --light-bg: #f8f9fa;
-      --card-bg: #ffffff;
-      --border-color: #e9ecef;
-      --text-primary: #2b2d42;
-      --text-secondary: #6c757d;
-      --text-muted: #adb5bd;
-      --unread-bg: #f0f7ff;
-      --shadow-sm: 0 2px 8px rgba(0,0,0,0.04);
-      --shadow-md: 0 4px 20px rgba(0,0,0,0.08);
-      --radius-lg: 12px;
-      --radius-md: 8px;
-      --transition: all 0.2s ease;
-    }
-
-    body {
-      background: linear-gradient(135deg, var(--light-bg) 0%, #f1f4f9 100%);
-      color: var(--text-primary);
-      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-      min-height: 100vh;
-    }
-
-    .notification-app {
-      max-width: 800px;
-      margin: 0 auto;
-    }
-
-    .header-section {
-      background: var(--card-bg);
-      backdrop-filter: blur(10px);
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-sm);
-      padding: 1.5rem;
-      margin-bottom: 1.5rem;
-      border: 1px solid var(--border-color);
-    }
-
-    .notification-card {
-      background: var(--card-bg);
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-sm);
-      border: 1px solid var(--border-color);
-      overflow: hidden;
-    }
-
-    .notification-item {
-      padding: 1.25rem 1.5rem;
-      border-bottom: 1px solid var(--border-color);
-      transition: var(--transition);
-      position: relative;
-    }
-
-    .notification-item:last-child {
-      border-bottom: none;
-    }
-
-    .notification-item:hover {
-      background: #fafbfe;
-      transform: translateY(-1px);
-    }
-
-    .notification-unread {
-      background: var(--unread-bg);
-      border-left: 4px solid var(--primary-color);
-    }
-
-    .notification-unread:hover {
-      background: #e8f2ff;
-    }
-
-    .notification-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-right: 1rem;
-      flex-shrink: 0;
-    }
-
-    .icon-approved {
-      background: linear-gradient(135deg, #4cc9f0, #4361ee);
-      color: white;
-    }
-
-    .icon-rejected {
-      background: linear-gradient(135deg, #f72585, #b5179e);
-      color: white;
-    }
-
-    .icon-attended {
-      background: linear-gradient(135deg, #f8961e, #f3722c);
-      color: white;
-    }
-
-    .icon-default {
-      background: linear-gradient(135deg, #7209b7, #3a0ca3);
-      color: white;
-    }
-
-    .status-badge {
-      font-size: 0.75rem;
-      font-weight: 600;
-      padding: 0.25rem 0.75rem;
-      border-radius: 20px;
-      text-transform: capitalize;
-    }
-
-    .badge-approved {
-      background: rgba(76, 201, 240, 0.1);
-      color: #4cc9f0;
-      border: 1px solid rgba(76, 201, 240, 0.2);
-    }
-
-    .badge-rejected {
-      background: rgba(247, 37, 133, 0.1);
-      color: #f72585;
-      border: 1px solid rgba(247, 37, 133, 0.2);
-    }
-
-    .badge-attended {
-      background: rgba(248, 150, 30, 0.1);
-      color: #f8961e;
-      border: 1px solid rgba(248, 150, 30, 0.2);
-    }
-
-    .badge-default {
-      background: rgba(67, 97, 238, 0.1);
-      color: #4361ee;
-      border: 1px solid rgba(67, 97, 238, 0.2);
-    }
-
-    .btn-mark-read {
-      font-size: 0.8rem;
-      font-weight: 500;
-      padding: 0.4rem 0.8rem;
-      border-radius: 6px;
-      transition: var(--transition);
-    }
-
-    .btn-mark-all {
-      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-      border: none;
-      color: white;
-      font-weight: 500;
-      padding: 0.5rem 1.25rem;
-      border-radius: var(--radius-md);
-      transition: var(--transition);
-    }
-
-    .btn-mark-all:hover {
-      transform: translateY(-1px);
-      box-shadow: var(--shadow-md);
-    }
-
-    .empty-state {
-      padding: 3rem 2rem;
-      text-align: center;
-      color: var(--text-secondary);
-    }
-
-    .empty-state-icon {
-      font-size: 4rem;
-      margin-bottom: 1rem;
-      opacity: 0.5;
-    }
-
-    .notification-message {
-      line-height: 1.5;
-      color: var(--text-primary);
-    }
-
-    .notification-time {
-      font-size: 0.85rem;
-      color: var(--text-muted);
-    }
-
-    .unread-indicator {
-      width: 8px;
-      height: 8px;
-      background: var(--primary-color);
-      border-radius: 50%;
-      display: inline-block;
-      margin-right: 0.5rem;
-    }
-
-    .flash-message {
-      border-radius: var(--radius-md);
-      border: none;
-      box-shadow: var(--shadow-sm);
-      padding: 0.75rem 1rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .pagination-container {
-      background: var(--light-bg);
-      padding: 1rem;
-    }
-
-    .page-link {
-      border: none;
-      color: var(--text-secondary);
-      padding: 0.5rem 0.75rem;
-      margin: 0 0.25rem;
-      border-radius: var(--radius-md);
-      transition: var(--transition);
-    }
-
-    .page-link:hover {
-      background: var(--primary-color);
-      color: white;
-    }
-
-    .page-item.active .page-link {
-      background: var(--primary-color);
-      border: none;
-    }
-
-    @media (max-width: 768px) {
-      .notification-item {
-        padding: 1rem;
-      }
-      
-      .header-section {
-        padding: 1rem;
-      }
-      
-      .notification-message {
-        font-size: 0.95rem;
-      }
-    }
-  </style>
+  <link rel="stylesheet" href="{{ asset('css/notification.css') }}">
 </head>
 
 <body>
@@ -259,16 +20,16 @@
   <main class="py-4">
     <div class="container">
       <div class="notification-app">
-        
+
         <!-- Header Section -->
-        <div class="header-section">
+        <div class="header-section mb-3">
           <div class="row align-items-center">
             <div class="col">
               <h1 class="h3 mb-1 fw-bold">Notifications</h1>
               <p class="text-muted mb-0">Stay updated with your volunteer activities</p>
             </div>
             <div class="col-auto">
-              <button id="btn-mark-all" class="btn btn-mark-all">
+              <button id="btn-mark-all" class="btn btn-mark-all btn-outline-primary">
                 <i class="fas fa-check-double me-2"></i>Mark all as read
               </button>
             </div>
@@ -279,84 +40,133 @@
         <div id="notif-flash-area"></div>
 
         <!-- Notifications Card -->
-        <div class="notification-card">
-          <div id="notifications-list">
+        <div class="notification-card card">
+          <div class="card-body" id="notifications-list">
             @forelse($notifications as $note)
               @php
+                // Normalize the data array
                 $data = (array) $note->data;
                 $isUnread = $note->read_at ? false : true;
-                $status = $data['status'] ?? null;
-                $eventName = $data['event_name'] ?? $data['eventTitle'] ?? null;
 
-                // Determine icon and badge class based on status
+                // Common fields
+                $action = $data['action'] ?? null; // 'assigned'|'unassigned'
+                $taskTitle = $data['task_title'] ?? $data['taskName'] ?? $data['title'] ?? null;
+                $taskId = $data['task_id'] ?? null;
+                // event info (try several common keys)
+                $eventId = $data['event_id'] ?? $data['eventId'] ?? $data['event'] ?? null;
+                $eventName = $data['event_name'] ?? $data['eventTitle'] ?? $data['eventName'] ?? null;
+                $by = $data['by'] ?? $data['actor'] ?? null;
+                $givenMessage = $data['message'] ?? null;
+                $status = $data['status'] ?? null;
+
+                // Default icon/badge/message
+                $icon = 'fas fa-bell';
                 $iconClass = 'icon-default';
                 $badgeClass = 'badge-default';
-                
-                if ($status === 'approved') {
-                  $iconClass = 'icon-approved';
-                  $badgeClass = 'badge-approved';
-                } elseif ($status === 'rejected') {
-                  $iconClass = 'icon-rejected';
-                  $badgeClass = 'badge-rejected';
-                } elseif ($status === 'attended') {
-                  $iconClass = 'icon-attended';
-                  $badgeClass = 'badge-attended';
+                $messageToShow = $givenMessage ?? '';
+
+                // Task assignment/unassignment priority
+                if ($action === 'assigned') {
+                    $icon = 'fas fa-user-plus';
+                    $iconClass = 'icon-assigned';
+                    $badgeClass = 'badge-assigned';
+                    if (!$messageToShow) {
+                        // prefer showing event name (clickable) if available, otherwise task title
+                        $targetName = $eventName ?: $taskTitle ?: 'a task';
+                        $messageToShow = "You were assigned to '{$targetName}'";
+                        if ($by) $messageToShow .= " (by {$by})";
+                    }
+                } elseif ($action === 'unassigned') {
+                    $icon = 'fas fa-user-minus';
+                    $iconClass = 'icon-unassigned';
+                    $badgeClass = 'badge-unassigned';
+                    if (!$messageToShow) {
+                        $targetName = $eventName ?: $taskTitle ?: 'a task';
+                        $messageToShow = "You were unassigned from '{$targetName}'";
+                        if ($by) $messageToShow .= " (by {$by})";
+                    }
+                } else {
+                    // fallback to existing event status logic
+                    if ($givenMessage) {
+                      $messageToShow = $givenMessage;
+                    } else {
+                      if ($status === 'approved') {
+                          $icon = 'fas fa-check-circle';
+                          $iconClass = 'icon-approved';
+                          $badgeClass = 'badge-approved';
+                          $messageToShow = "You have been approved to join '" . ($eventName ?? 'Unknown Event') . "'";
+                      } elseif ($status === 'rejected') {
+                          $icon = 'fas fa-times-circle';
+                          $iconClass = 'icon-rejected';
+                          $badgeClass = 'badge-rejected';
+                          $messageToShow = "Your registration for '" . ($eventName ?? 'Unknown Event') . "' was rejected";
+                      } elseif ($status === 'attended') {
+                          $icon = 'fas fa-user-check';
+                          $iconClass = 'icon-attended';
+                          $badgeClass = 'badge-attended';
+                          $messageToShow = "Your attendance for '" . ($eventName ?? 'Unknown Event') . "' has been recorded";
+                      } else {
+                          $messageToShow = $givenMessage ?? "Update for '" . ($eventName ?? 'Unknown Event') . "'";
+                      }
+                    }
                 }
 
-                // Determine icon
-                $icon = 'fas fa-bell';
-                if ($status === 'approved') $icon = 'fas fa-check-circle';
-                if ($status === 'rejected') $icon = 'fas fa-times-circle';
-                if ($status === 'attended') $icon = 'fas fa-user-check';
+                // Build safe HTML for message and make event name clickable (if eventId present)
+                $messageHtml = e($messageToShow);
 
-                // Message logic
-                if (!empty($data['message'])) {
-                  $messageToShow = $data['message'];
-                } else {
-                  if ($status === 'approved') {
-                    $messageToShow = "You have been approved to join '" . ($eventName ?? 'Unknown Event') . "'";
-                  } elseif ($status === 'rejected') {
-                    $messageToShow = "Your registration for '" . ($eventName ?? 'Unknown Event') . "' was rejected";
-                  } elseif ($status === 'attended') {
-                    $messageToShow = "Your attendance for '" . ($eventName ?? 'Unknown Event') . "' has been recorded";
-                  } else {
-                    $messageToShow = $data['message'] ?? "Update for '" . ($eventName ?? 'Unknown Event') . "'";
-                  }
+                if ($eventId && $eventName) {
+                    // create link to volunteer event manage route (server-side)
+                    $link = '<a href="' . e(route('volunteer.profile.registrationEditDelete', ['event_id' => $eventId])) . '" class="text-decoration-underline">' . e($eventName) . '</a>';
+                    // replace plain event name in message with link (first occurrence)
+                    $pos = mb_stripos($messageHtml, e($eventName));
+                    if ($pos !== false) {
+                        $before = mb_substr($messageHtml, 0, $pos);
+                        $after = mb_substr($messageHtml, $pos + mb_strlen(e($eventName)));
+                        $messageHtml = $before . $link . $after;
+                    } else {
+                        // if the event name wasn't present verbatim, append the link at the end
+                        $messageHtml .= ' — ' . $link;
+                    }
+                } elseif ($eventId && !$eventName) {
+                    // If event id exists but not name, append link labeled "View event"
+                    $link = '<a href="' . e(route('volunteer.profile.registrationEditDelete', ['event_id' => $eventId])) . '" class="text-decoration-underline">View event</a>';
+                    $messageHtml .= ' — ' . $link;
                 }
               @endphp
 
-              <div class="notification-item {{ $isUnread ? 'notification-unread' : '' }}" data-id="{{ $note->id }}">
+              <div class="notification-item {{ $isUnread ? 'notification-unread' : '' }} mb-2 p-2" data-id="{{ $note->id }}">
                 <div class="d-flex align-items-start">
-                  <div class="notification-icon {{ $iconClass }}">
+                  <div class="notification-icon me-3 {{ $iconClass }}" style="min-width:36px;">
                     <i class="{{ $icon }}"></i>
                   </div>
-                  
+
                   <div class="flex-grow-1 me-3">
                     <div class="d-flex align-items-center mb-2">
                       @if($isUnread)
-                        <span class="unread-indicator"></span>
+                        <span class="unread-indicator me-2" title="Unread"></span>
                       @endif
-                      
-                      @if(!empty($status))
+
+                      @if(!empty($status) || !empty($action))
                         <span class="status-badge {{ $badgeClass }} me-2">
-                          {{ $status }}
+                          {{ $action ?? $status }}
                         </span>
                       @endif
-                      
+
                       <div class="notification-message flex-grow-1">
-                        {!! e($messageToShow) !!}
+                        {{-- allow limited html for the event link (we already escaped other text) --}}
+                        {!! $messageHtml !!}
                       </div>
                     </div>
-                    
-                    <div class="notification-time">
+
+                    <div class="notification-time text-muted small">
                       <i class="far fa-clock me-1"></i>
                       {{ $note->created_at->diffForHumans() }}
                     </div>
                   </div>
 
-                  <div class="flex-shrink-0">
+                  <div class="flex-shrink-0 text-end">
                     @if($isUnread)
-                      <button class="btn btn-mark-read btn-outline-primary" data-id="{{ $note->id }}">
+                      <button class="btn btn-mark-read btn-sm btn-outline-primary" data-id="{{ $note->id }}">
                         <i class="fas fa-check me-1"></i>Mark read
                       </button>
                     @else
@@ -369,9 +179,9 @@
               </div>
 
             @empty
-              <div class="empty-state">
-                <div class="empty-state-icon">
-                  <i class="far fa-bell"></i>
+              <div class="empty-state text-center py-5">
+                <div class="empty-state-icon mb-3">
+                  <i class="far fa-bell fa-2x text-muted"></i>
                 </div>
                 <h4 class="h5 text-muted mb-2">No notifications yet</h4>
                 <p class="text-muted mb-0">When you get notifications, they'll appear here</p>
@@ -380,7 +190,7 @@
           </div>
 
           @if($notifications->hasPages())
-            <div class="pagination-container">
+            <div class="pagination-container card-footer">
               <div class="d-flex justify-content-center">
                 {{ $notifications->links() }}
               </div>
@@ -391,36 +201,40 @@
     </div>
   </main>
 
+  {{-- Pusher / Echo --}}
   <script src="https://js.pusher.com/8.2/pusher.min.js"></script>
   <script src="{{ asset('js/echo.js') }}"></script>
 
   <script>
   (function() {
+    'use strict';
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    const currentUserId = document.querySelector('meta[name="user-id"]').getAttribute('content') || null;
 
-    // Flash message helper
+    // ----- Flash helper with dedupe set (avoid duplicate messages) -----
+    const recentFlashSet = new Set();
     function flash(text, type = 'success', timeout = 3000) {
+      const normalized = (text || '').trim();
+      if (!normalized) return;
+      // dedupe identical messages for a short window (5s)
+      if (recentFlashSet.has(normalized)) return;
+      recentFlashSet.add(normalized);
+      setTimeout(() => recentFlashSet.delete(normalized), 5000);
+
       const area = document.getElementById('notif-flash-area');
       if (!area) return;
-      
+
       const alertClass = type === 'success' ? 'alert alert-success flash-message' : 'alert alert-danger flash-message';
-      const normalized = (text || '').trim();
-
-      // Dedupe
-      const existing = Array.from(area.querySelectorAll('.alert'))
-        .find(a => a.textContent.trim() === normalized);
-      if (existing) return;
-
       const el = document.createElement('div');
-      el.className = alertClass;
+      el.className = alertClass + ' d-flex align-items-center';
       el.innerHTML = `
-        <div class="d-flex align-items-center">
-          <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-triangle'} me-2"></i>
-          <span>${normalized}</span>
-          <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
-        </div>
+        <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-triangle'} me-2"></i>
+        <div class="flex-grow-1">${escapeHtml(normalized)}</div>
+        <button type="button" class="btn-close ms-3" aria-label="Close"></button>
       `;
       area.prepend(el);
+
+      el.querySelector('.btn-close').addEventListener('click', () => el.remove());
 
       setTimeout(() => {
         if (el.parentNode) {
@@ -430,7 +244,11 @@
       }, timeout);
     }
 
-    // Badge management functions
+    function escapeHtml(s) {
+      return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+    }
+
+    // ----- Badge helpers -----
     function getBadgeEls() {
       const arr = [];
       const p = document.getElementById('notification-count');
@@ -440,7 +258,6 @@
       document.querySelectorAll('.notif-badge').forEach(e => arr.push(e));
       return arr;
     }
-
     function setBadges(n) {
       const val = Math.max(0, parseInt(n || 0) || 0);
       getBadgeEls().forEach(el => {
@@ -448,7 +265,6 @@
         el.style.display = val > 0 ? 'inline-block' : 'none';
       });
     }
-
     function decrementBadges(delta = 1) {
       getBadgeEls().forEach(el => {
         const cur = Math.max(0, parseInt(el.textContent || '0') || 0);
@@ -458,7 +274,7 @@
       });
     }
 
-    // Ensure badges exist
+    // ensure a small badge on header/profile exists
     (function ensureBadgesExist() {
       if (!document.getElementById('notification-count')) {
         const profileImg = document.querySelector('.volunteer-profile-img');
@@ -468,14 +284,14 @@
           const span = document.createElement('span');
           span.id = 'notification-count';
           span.className = 'notif-badge';
-          span.style.cssText = 'position:absolute;top:-6px;right:-6px;pointer-events:none;background:var(--danger-color);color:white;border-radius:50%;width:18px;height:18px;font-size:0.7rem;display:flex;align-items:center;justify-content:center;';
+          span.style.cssText = 'position:absolute;top:-6px;right:-6px;pointer-events:none;background:#dc3545;color:white;border-radius:50%;width:18px;height:18px;font-size:0.7rem;display:flex;align-items:center;justify-content:center;';
           span.textContent = '0';
           parent.appendChild(span);
         }
       }
     })();
 
-    // Initialize unread count
+    // ----- Initialize unread count -----
     async function initUnreadCount() {
       try {
         const resp = await fetch("{{ route('volunteer.notifications.unreadCount') }}", {
@@ -491,9 +307,12 @@
       }
     }
 
-    // Mark single as read
+    // ----- Mark single as read -----
+    let markingSingle = new Set(); // prevent double-click / duplicate requests
     async function markAsRead(id, elButton) {
       if (!id) return;
+      if (markingSingle.has(id)) return;
+      markingSingle.add(id);
       try {
         if (elButton) {
           elButton.disabled = true;
@@ -514,28 +333,39 @@
 
         if (!resp.ok) throw new Error('Server error: ' + resp.status);
 
+        // Update UI only once
         const row = document.querySelector(`.notification-item[data-id="${id}"]`);
-        if (row) {
+        if (row && row.classList.contains('notification-unread')) {
           row.classList.remove('notification-unread');
           const unreadIndicator = row.querySelector('.unread-indicator');
           if (unreadIndicator) unreadIndicator.remove();
-          
+
           const btnContainer = row.querySelector('.flex-shrink-0');
           if (btnContainer) {
             btnContainer.innerHTML = '<span class="text-muted small"><i class="fas fa-check-circle text-success me-1"></i>Read</span>';
           }
+          decrementBadges(1);
         }
 
-        decrementBadges(1);
+        // Flash once (deduped)
         flash('Notification marked as read', 'success');
       } catch (err) {
         console.error('markAsRead error', err);
         flash('Failed to mark notification as read', 'error');
+      } finally {
+        markingSingle.delete(id);
+        if (elButton) {
+          elButton.disabled = false;
+          elButton.innerHTML = '<i class="fas fa-check me-1"></i>Mark read';
+        }
       }
     }
 
-    // Mark all read
+    // ----- Mark all as read -----
+    let markingAll = false;
     async function markAllRead() {
+      if (markingAll) return;
+      markingAll = true;
       try {
         const btn = document.getElementById('btn-mark-all');
         if (btn) {
@@ -554,14 +384,16 @@
           },
           body: JSON.stringify({})
         });
-        
+
         if (!resp.ok) throw new Error('Server returned ' + resp.status);
 
-        document.querySelectorAll('.notification-item.notification-unread').forEach(row => {
+        // Update DOM (only unread ones)
+        const unreadRows = document.querySelectorAll('.notification-item.notification-unread');
+        unreadRows.forEach(row => {
           row.classList.remove('notification-unread');
           const unreadIndicator = row.querySelector('.unread-indicator');
           if (unreadIndicator) unreadIndicator.remove();
-          
+
           const btnContainer = row.querySelector('.flex-shrink-0');
           if (btnContainer) {
             btnContainer.innerHTML = '<span class="text-muted small"><i class="fas fa-check-circle text-success me-1"></i>Read</span>';
@@ -574,6 +406,7 @@
         console.error('markAllRead error', err);
         flash('Failed to mark all notifications as read', 'error');
       } finally {
+        markingAll = false;
         const btn = document.getElementById('btn-mark-all');
         if (btn) {
           btn.disabled = false;
@@ -582,7 +415,7 @@
       }
     }
 
-    // Event delegation for click handlers
+    // ----- Event delegation -----
     document.addEventListener('click', function(e) {
       const btn = e.target.closest('.btn-mark-read');
       if (btn) {
@@ -590,7 +423,7 @@
         markAsRead(id, btn);
         return;
       }
-      
+
       const allBtn = e.target.closest('#btn-mark-all');
       if (allBtn) {
         markAllRead();
@@ -598,14 +431,112 @@
       }
     });
 
-    // Echo realtime notifications
+    // ----- Create DOM node for incoming notification (broadcast) -----
+    function createNotificationNode(id, payload, unread = true) {
+      // don't add if already exists (avoid duplicates)
+      if (document.querySelector(`.notification-item[data-id="${id}"]`)) return null;
+
+      const container = document.createElement('div');
+      container.className = 'notification-item ' + (unread ? 'notification-unread' : '') + ' mb-2 p-2';
+      container.dataset.id = id || ('notif-' + Date.now());
+
+      const iconClass = (payload.action === 'assigned') ? 'fas fa-user-plus' :
+                        (payload.action === 'unassigned') ? 'fas fa-user-minus' :
+                        (payload.status === 'approved' ? 'fas fa-check-circle' :
+                          (payload.status === 'rejected' ? 'fas fa-times-circle' :
+                            (payload.status === 'attended' ? 'fas fa-user-check' : 'fas fa-bell')));
+
+      const badgeText = payload.action ? payload.action : (payload.status || '');
+      const eventId = payload.event_id ?? payload.eventId ?? null;
+      const eventName = payload.event_name ?? payload.eventTitle ?? payload.eventName ?? null;
+
+      let msg = payload.message || '';
+      if (!msg) {
+        if (payload.action === 'assigned') {
+          const target = eventName || payload.task_title || 'a task';
+          msg = `You were assigned to '${target}'` + (payload.by ? ` (by ${payload.by})` : '');
+        } else if (payload.action === 'unassigned') {
+          const target = eventName || payload.task_title || 'a task';
+          msg = `You were unassigned from '${target}'` + (payload.by ? ` (by ${payload.by})` : '');
+        } else if (payload.status) {
+          msg = payload.message || `Update: ${payload.status}`;
+        } else {
+          msg = 'New notification';
+        }
+      }
+
+      // Build message HTML and include clickable event link if available
+      let messageHtml = escapeHtml(msg);
+
+      if (eventId && eventName) {
+        // Build link URL directly to the volunteer manage route pattern
+        const linkUrl = '/volunteer/events/' + encodeURIComponent(eventId) + '/manage';
+        const escapedEventName = escapeHtml(eventName);
+        const link = `<a href="${escapeHtml(linkUrl)}" class="text-decoration-underline">${escapedEventName}</a>`;
+
+        // attempt to replace first occurrence of escaped eventName in the escaped message
+        const idx = messageHtml.indexOf(escapedEventName);
+        if (idx !== -1) {
+          messageHtml = messageHtml.slice(0, idx) + link + messageHtml.slice(idx + escapedEventName.length);
+        } else {
+          messageHtml += ' — ' + link;
+        }
+      } else if (eventId && !eventName) {
+        const linkUrl = '/volunteer/events/' + encodeURIComponent(eventId) + '/manage';
+        const link = `<a href="${escapeHtml(linkUrl)}" class="text-decoration-underline">View event</a>`;
+        messageHtml += ' — ' + link;
+      }
+
+      container.innerHTML = `
+        <div class="d-flex align-items-start">
+          <div class="notification-icon me-3"><i class="${iconClass}"></i></div>
+          <div class="flex-grow-1 me-3">
+            <div class="d-flex align-items-center mb-2">
+              ${unread ? '<span class="unread-indicator me-2"></span>' : ''}
+              ${badgeText ? `<span class="status-badge me-2">${escapeHtml(badgeText)}</span>` : ''}
+              <div class="notification-message flex-grow-1">${messageHtml}</div>
+            </div>
+            <div class="notification-time text-muted small"><i class="far fa-clock me-1"></i>just now</div>
+          </div>
+          <div class="flex-shrink-0 text-end">
+            ${unread ? `<button class="btn btn-mark-read btn-sm btn-outline-primary" data-id="${escapeHtml(id || '')}">
+                <i class="fas fa-check me-1"></i>Mark read
+              </button>` :
+              `<span class="text-muted small"><i class="fas fa-check-circle text-success me-1"></i>Read</span>`}
+          </div>
+        </div>
+      `;
+      return container;
+    }
+
+    // ----- Echo: realtime notifications (avoid duplicate flashes) -----
     @if(auth()->check())
-      if (window.Echo && window.Echo.private) {
+      if (window.Echo && window.Echo.private && currentUserId) {
         window.Echo.private(`App.Models.User.{{ auth()->id() }}`)
           .notification(function(notification) {
             try {
-              // Handle realtime notification display
-              bumpBadges(1);
+              const id = notification.id || ('notif-' + Date.now());
+              // if item already exists, skip adding and skip flash
+              if (document.querySelector(`.notification-item[data-id="${id}"]`)) {
+                return;
+              }
+              const list = document.getElementById('notifications-list');
+              if (list) {
+                const node = createNotificationNode(id, notification, true);
+                if (node) list.prepend(node);
+              }
+
+              // increment badges
+              const currentBadge = document.getElementById('notification-count');
+              if (currentBadge) {
+                const cur = parseInt(currentBadge.textContent || '0', 10) || 0;
+                currentBadge.textContent = cur + 1;
+                currentBadge.style.display = 'inline-block';
+              }
+
+              // show a single deduped flash for this notification
+              const msg = notification.message || (notification.action ? `${notification.action}: ${notification.task_title || notification.event_name || ''}` : 'New notification');
+              flash(msg, 'success', 3500);
             } catch (err) {
               console.error('Realtime notification handling failed', err);
             }
@@ -613,7 +544,7 @@
       }
     @endif
 
-    // Initialize
+    // Initialize once
     initUnreadCount();
   })();
   </script>
