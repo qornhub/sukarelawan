@@ -66,8 +66,23 @@
                     </div>
                 </section>
 
+                {{-- Requirements (moved under Mission Description; same structure) --}}
+                <section class="content-card mt-3">
+                    <h4 class="section-heading">
+                        <i class="fas fa-list-check icon"></i>
+                        Requirements
+                    </h4>
+                    <div class="text-content">
+                        @if ($event->requirements && trim($event->requirements) !== '')
+                            {!! nl2br(e($event->requirements)) !!}
+                        @else
+                            <span class="text-muted">No requirements specified</span>
+                        @endif
+                    </div>
+                </section>
+
                 {{-- Mission Impact --}}
-                <section class="content-card">
+                <section class="content-card mt-3">
                     <h4 class="section-heading">
                         <i class="fas fa-heart icon"></i>
                         Mission Impact
@@ -78,7 +93,7 @@
                 </section>
 
                 {{-- SDG Addressed --}}
-                <section class="content-card">
+                <section class="content-card mt-3">
                     <h4 class="section-heading">
                         <i class="fas fa-globe icon"></i>
                         SDG Addressed
@@ -107,7 +122,7 @@
                 </section>
 
                 {{-- Participants --}}
-                <section class="content-card">
+                <section class="content-card mt-3">
                     <h4 class="section-heading">
                         <i class="fas fa-users icon"></i>
                         Participants
@@ -147,8 +162,8 @@
                     </div>
                 </section>
 
-                 {{-- commetn --}}
-                <section class="content-card">
+                 {{-- comments --}}
+                <section class="content-card mt-3">
 
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h4 class="section-heading mb-0">
@@ -274,20 +289,21 @@
                             </div>
                         </div>
 
-                        {{-- Skills --}}
+                        {{-- Skills (stacked vertically, right-aligned) --}}
                         <div class="detail-item">
                             <div class="detail-label">
                                 <i class="fas fa-tools me-1"></i>Skills
                             </div>
                             <div class="detail-value">
                                 @if ($skills->count())
-                                    <div class="d-flex flex-wrap gap-2">
+                                    <div class="d-flex flex-column align-items-end gap-2">
                                         @foreach ($skills as $skill)
-                                            {{-- skill table column is skillName --}}
-                                            <span class="badge bg-light text-dark border">
-                                                <i class="fas fa-check-circle text-success me-1"></i>
-                                                {{ $skill->skillName ?? ($skill->name ?? 'Skill') }}
-                                            </span>
+                                            <div class="w-100 text-end">
+                                                <span class="badge bg-light text-dark border d-inline-block">
+                                                    <i class="fas fa-check-circle text-success me-1"></i>
+                                                    {{ $skill->skillName ?? ($skill->name ?? 'Skill') }}
+                                                </span>
+                                            </div>
                                         @endforeach
                                     </div>
                                 @else
@@ -296,20 +312,7 @@
                             </div>
                         </div>
 
-                        {{-- Requirements --}}
-                        <div class="detail-item">
-                            <div class="detail-label">
-                                <i class="fas fa-list-check me-1"></i>Requirements
-                            </div>
-                            <div class="detail-value">
-                                @if ($event->requirements && trim($event->requirements) !== '')
-                                    {!! nl2br(e($event->requirements)) !!}
-                                @else
-                                    <span class="text-muted">No requirements specified</span>
-                                @endif
-                            </div>
-                        </div>
-
+                        {{-- Reward --}}
                         <div class="detail-item">
                             <div class="detail-label">
                                 <i class="fas fa-star me-1"></i>Reward

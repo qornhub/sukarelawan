@@ -9,6 +9,80 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{{ asset('css/badges/badges.css') }}">
+
+    <style>
+
+        /* Ensure text is readable on highlighted rows */
+.rank-highlight,
+.list-group-item.rank-highlight {
+    background-color: var(--primary-purple);
+    color: #fff;
+}
+
+/* Make anchors (names) white and remove default link color in highlighted rows */
+.rank-highlight a,
+.rank-highlight a:visited,
+.rank-highlight a:hover,
+.rank-highlight a:focus {
+    color: #fff !important;
+    text-decoration: none;
+}
+
+/* Make small / muted text readable on purple */
+.rank-highlight .small,
+.rank-highlight .text-muted,
+.rank-highlight .me-2,
+.rank-highlight .list-group-numbered>li::marker {
+    color: rgba(255,255,255,0.92) !important;
+}
+
+/* Style badges inside highlighted rows so they remain visible (lighter translucent pill) */
+.rank-highlight .badge {
+    background-color: rgba(255,255,255,0.14) !important;
+    color: #fff !important;
+    border: 1px solid rgba(255,255,255,0.18);
+}
+
+/* Slight visual lift for avatar on highlighted row */
+.rank-highlight img {
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    border: 2px solid rgba(255,255,255,0.06);
+}
+
+/* Podium-specific: ensure podium highlighted names are white (for top-3) */
+.podium-highlight a,
+.podium-highlight a:visited,
+.podium-highlight a:focus,
+.podium-highlight a:hover {
+    color: #fff !important;
+}
+
+/* If you used the .podium-current-link class above, style it too */
+.podium-current-link {
+    color: #fff !important;
+}
+
+/* Optional: adjust list marker when using ordered list and highlight */
+.list-group-numbered>li.rank-highlight::marker {
+    color: #fff;
+}
+
+/* Fix username visibility for top-1 user */
+.podium-current-1 a {
+    color: #1a1a1a !important; /* dark color, readable on white background */
+}
+
+/* Fix for top-2 (silver background / grey border) */
+.podium-current-2 a {
+    color: #1a1a1a !important;
+}
+
+/* Fix for top-3 (bronze) */
+.podium-current-3 a {
+    color: #1a1a1a !important;
+}
+
+    </style>
 </head>
 
 <body>
@@ -47,11 +121,12 @@
                                     <img src="{{ $u->avatar_url }}" alt="{{ $u->name }}"
                                         style="width:110px;height:110px;border-radius:50%;object-fit:cover;border:5px solid #c0c0c0;">
                                 </a>
-                                <div class="mt-2" @if ($isCurrent) class="podium-highlight" @endif>
+                                <div class="mt-2 podium-slot @if ($isCurrent) podium-current-2 @endif">
+
                                     <a href="{{ route('volunteer.profile.show', $u->id) }}"
                                         style="@if ($isCurrent) color:#fff; @endif;text-decoration:none;font-weight:600;">{{ $u->name }}</a>
                                 </div>
-                                <div class="small text-muted">{{ $u->total_points }} pts</div>
+                                <div class="badge bg-purple rounded-pill">{{ $u->total_points }} pts</div>
                             </div>
                         @endif
 
@@ -71,11 +146,13 @@
                                         style="position:absolute;left:50%;transform:translateX(-50%);top:-30px;font-size:28px;">
                                         👑</div>
                                 </div>
-                                <div class="mt-2" @if ($isCurrent) class="podium-highlight" @endif>
+                                
+                                    <div class="mt-2 podium-slot @if ($isCurrent) podium-current-1 @endif">
+
                                     <a href="{{ route('volunteer.profile.show', $u->id) }}"
                                         style="@if ($isCurrent) color:#fff; @endif;text-decoration:none;font-weight:700;">{{ $u->name }}</a>
                                 </div>
-                                <div class="small text-muted">{{ $u->total_points }} pts</div>
+                                <div class="badge bg-purple rounded-pill">{{ $u->total_points }} pts</div>
                             </div>
                         @endif
 
@@ -90,11 +167,12 @@
                                     <img src="{{ $u->avatar_url }}" alt="{{ $u->name }}"
                                         style="width:110px;height:110px;border-radius:50%;object-fit:cover;border:5px solid #cd7f32;">
                                 </a>
-                                <div class="mt-2" @if ($isCurrent) class="podium-highlight" @endif>
+                                <div class="mt-2 podium-slot @if ($isCurrent) podium-current-3 @endif">
+
                                     <a href="{{ route('volunteer.profile.show', $u->id) }}"
                                         style="@if ($isCurrent) color:#fff; @endif;text-decoration:none;font-weight:600;">{{ $u->name }}</a>
                                 </div>
-                                <div class="small text-muted">{{ $u->total_points }} pts</div>
+                                <div class="badge bg-purple rounded-pill">{{ $u->total_points }} pts</div>
                             </div>
                         @endif
                     </div>
@@ -132,7 +210,7 @@
             <div class="col-md-4">
                 <div class="card events-card mb-4">
                     <div class="card-body">
-                        <h5 class="card-title">Join More Events to Earn Points</h5>
+                        <h5 class="card-title mb-3">Join More Events to Earn Points</h5>
                         <a href="{{ route('volunteer.index.public') }}" class="btn btn-primary">Join Now</a>
                     </div>
                 </div>

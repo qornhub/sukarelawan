@@ -161,6 +161,18 @@
   text-decoration: none;
   outline: none;
 }
+
+
+/* show invalid outline for the button used to select image */
+.btn.is-invalid {
+    border-color: #dc3545 !important;
+    box-shadow: 0 0 0 .2rem rgba(220,53,69,.15) !important;
+}
+
+/* keep our client-side errors visible and separate from server errors */
+.invalid-feedback.client-error { display: block; }
+
+
     </style>
 </head>
 
@@ -577,5 +589,169 @@ document.querySelectorAll('.sdg-item').forEach(function(item){
 
 
     </script>
+
+    <script>
+(function () {
+    const form = document.querySelector('form[action="{{ route('ngo.events.update', $event) }}"]');
+    if (!form) return;
+
+    // Blade exposes whether event already has an image
+    const hasExistingImage = {{ $event->eventImage ? 'true' : 'false' }};
+
+    // fields: mark event_maximum required on edit; reward_points still required
+    const fields = [
+        { sel: '#event_title', name: 'Event title', required: true },
+        { sel: '#category_id', name: 'Category', required: true },
+        { sel: '#start_date', name: 'Start date/time', required: true },
+        { sel: '#end_date', name: 'End date/time', required: true },
+        { sel: '#event_description', name: 'Description', required: true },
+        { sel: '#venue_name', name: 'Venue', required: true },
+        { sel: '#city', name: 'City', required: true },
+        { sel: '#state', name: 'State', required: true },
+        { sel: '#country', name: 'Country', required: true },
+        // NOW required on edit:
+        { sel: '#event_maximum', name: 'Maximum participants', numeric: true, min: 1, required: true },
+        { sel: '#reward_points', name: 'Reward points', numeric: true, min: 0, required: true },
+    ];
+
+    const fileInput = document.getElementById('event_image');
+    const fileUIbtn = document.getElementById('selectImageBtn');
+    const fileContainer = fileUIbtn ? fileUIbtn.closest('.d-flex') : null;
+
+    function clearClientErrors() {
+        document.querySelectorAll('.invalid-feedback.client-error').forEach(n => n.remove());
+        document.querySelectorAll('.is-invalid.client-added').forEach(el => {
+            el.classList.remove('is-invalid', 'client-added');
+        });
+    }
+
+    function showClientError(el, message, options = {}) {
+        if (!el) return;
+        el.classList.add('is-invalid', 'client-added');
+        const fb = document.createElement('div');
+        fb.className = 'invalid-feedback client-error';
+        fb.textContent = message;
+        const anchor = options.afterEl || el;
+        if (anchor.nextSibling) anchor.parentNode.insertBefore(fb, anchor.nextSibling);
+        else anchor.parentNode.appendChild(fb);
+    }
+
+    function validateFormClientSide() {
+        clearClientErrors();
+        const errors = [];
+
+        fields.forEach(field => {
+            const el = document.querySelector(field.sel);
+            if (!el) return;
+            const value = (el.value || '').toString().trim();
+            const isReq = field.required === true || el.hasAttribute('required');
+
+            if (isReq && value === '') {
+                errors.push({ el, msg: `${field.name} is required.` });
+                return;
+            }
+
+            if (field.numeric && value !== '') {
+                const num = Number(value);
+                if (isNaN(num) || (field.min !== undefined && num < field.min)) {
+                    errors.push({ el, msg: `${field.name} must be a number${field.min !== undefined ? ' ≥ ' + field.min : ''}.` });
+                }
+            }
+        });
+
+        // start/end logic
+        const sEl = document.querySelector('#start_date');
+        const eEl = document.querySelector('#end_date');
+        if (sEl && eEl && sEl.value && eEl.value) {
+            const s = new Date(sEl.value);
+            const e = new Date(eEl.value);
+            if (isNaN(s) || isNaN(e) || e < s) {
+                errors.push({ el: (eEl || sEl), msg: 'End date/time must be the same as or later than start date/time.' });
+            }
+        }
+
+        // FILE validation: required only if there is no existing image OR user selected a new file.
+        // If event already has an image, the user may keep it; if not, they must upload.
+        const hasNewFile = fileInput && fileInput.files && fileInput.files.length > 0;
+        if (!hasExistingImage && !hasNewFile) {
+            // No existing image on record AND user didn't pick a new file -> error
+            const targetEl = fileUIbtn || fileInput;
+            errors.push({ el: targetEl, msg: 'Please select an event image.' });
+        } else if (hasNewFile) {
+            // Validate the selected file (type & size)
+            const file = fileInput.files[0];
+            const allowed = ['image/jpeg','image/png','image/jpg','image/webp'];
+            if (allowed.indexOf(file.type) === -1) {
+                errors.push({ el: (fileUIbtn || fileInput), msg: 'Image must be JPG/PNG/WebP.' });
+            } else if (file.size > 5 * 1024 * 1024) {
+                errors.push({ el: (fileUIbtn || fileInput), msg: 'Image must be ≤ 5 MB.' });
+            }
+        }
+
+        // attach visual errors
+        errors.forEach(err => {
+            if (err.el === fileUIbtn && fileContainer) {
+                showClientError(fileUIbtn, err.msg, { afterEl: fileContainer });
+            } else {
+                showClientError(err.el, err.msg);
+            }
+        });
+
+        return errors.length === 0;
+    }
+
+    form.addEventListener('submit', function (ev) {
+        if (!validateFormClientSide()) {
+            ev.preventDefault();
+            const first = document.querySelector('.invalid-feedback.client-error');
+            if (first) {
+                first.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                const prev = first.previousElementSibling;
+                if (prev && typeof prev.focus === 'function') prev.focus();
+            }
+            return false;
+        }
+    }, { passive: false });
+
+    // Clear errors on change/input
+    const inputs = form.querySelectorAll('input, select, textarea, button');
+    inputs.forEach(i => {
+        i.addEventListener('input', () => {
+            if (i.classList.contains('client-added')) i.classList.remove('is-invalid', 'client-added');
+            const next = i.nextElementSibling;
+            if (next && next.classList && next.classList.contains('client-error')) next.remove();
+        });
+        i.addEventListener('change', () => {
+            if (i.classList.contains('client-added')) i.classList.remove('is-invalid', 'client-added');
+            const next = i.nextElementSibling;
+            if (next && next.classList && next.classList.contains('client-error')) next.remove();
+        });
+    });
+
+    // wire selectImageBtn to open file picker
+    const selectBtn = document.getElementById('selectImageBtn');
+    if (selectBtn && fileInput) {
+        selectBtn.addEventListener('click', function () { fileInput.click(); });
+    }
+
+    if (fileInput) {
+        fileInput.addEventListener('change', function () {
+            if (selectBtn && selectBtn.classList.contains('client-added')) {
+                selectBtn.classList.remove('is-invalid', 'client-added');
+                const next = selectBtn.nextElementSibling;
+                if (next && next.classList && next.classList.contains('client-error')) next.remove();
+            }
+        });
+    }
+
+    // on load, scroll to first server error if any
+    window.addEventListener('load', function () {
+        const serverError = document.querySelector('.invalid-feedback:not(.client-error)');
+        if (serverError) serverError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+
+})();
+</script>
+
 </body>
 </html>

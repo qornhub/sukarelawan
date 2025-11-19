@@ -39,45 +39,44 @@
         }
         /* Sentiment badge only — for event comments (scoped to #event-comments) */
 
-/* wrapper (if you place the badge below the content) */
-#event-comments .sentiment-row {
-  display: block;
-  margin-top: 0.5rem;   /* space between content/edit form and badge */
-  text-align: right;     /* change to right if you prefer right-aligned */
-}
+        /* wrapper (if you place the badge below the content) */
+        #event-comments .sentiment-row {
+          display: block;
+          margin-top: 0.5rem;   /* space between content/edit form and badge */
+          text-align: right;     /* change to right if you prefer right-aligned */
+        }
 
-/* badge (pill) */
-#event-comments .sentiment-badge {
-  display: inline-block;
-  font-size: 0.75rem;
-  padding: 0.18rem 0.5rem;
-  border-radius: 999px;
-  font-weight: 600;
-  line-height: 1;
-  vertical-align: middle;
-  color: #ffffff;       /* white text on colored pills */
-  box-shadow: none;
-}
+        /* badge (pill) */
+        #event-comments .sentiment-badge {
+          display: inline-block;
+          font-size: 0.75rem;
+          padding: 0.18rem 0.5rem;
+          border-radius: 999px;
+          font-weight: 600;
+          line-height: 1;
+          vertical-align: middle;
+          color: #ffffff;       /* white text on colored pills */
+          box-shadow: none;
+        }
 
-/* colors */
-#event-comments .sentiment-badge.positive { background: #198754; } /* green */
-#event-comments .sentiment-badge.negative { background: #fd7e14; } /* orange */
-#event-comments .sentiment-badge.toxic    { background: #dc3545; } /* red */
+        /* colors */
+        #event-comments .sentiment-badge.positive { background: #198754; } /* green */
+        #event-comments .sentiment-badge.negative { background: #fd7e14; } /* orange */
+        #event-comments .sentiment-badge.toxic    { background: #dc3545; } /* red */
 
-/* small mobile tweak */
-@media (max-width: 576px) {
-  #event-comments .sentiment-badge {
-    font-size: 0.70rem;
-    padding: 0.14rem 0.4rem;
-  }
-}
+        /* small mobile tweak */
+        @media (max-width: 576px) {
+          #event-comments .sentiment-badge {
+            font-size: 0.70rem;
+            padding: 0.14rem 0.4rem;
+          }
+        }
 
-/* specificity booster (in case other CSS overrides) */
-#event-comments .comments-list .sentiment-badge {
-  /* noop: keeps selector strong; uncomment !important only if absolutely needed */
-  /* color: #fff !important; */
-}
-
+        /* specificity booster (in case other CSS overrides) */
+        #event-comments .comments-list .sentiment-badge {
+          /* noop: keeps selector strong; uncomment !important only if absolutely needed */
+          /* color: #fff !important; */
+        }
     </style>
 </head>
 
@@ -157,8 +156,23 @@
                         </div>
                     </section>
 
+                    {{-- Requirements (moved under Mission Description; same structure) --}}
+                    <section class="content-card mt-3">
+                        <h4 class="section-heading">
+                            <i class="fas fa-list-check icon"></i>
+                            Requirements
+                        </h4>
+                        <div class="text-content">
+                            @if ($event->requirements && trim($event->requirements) !== '')
+                                {!! nl2br(e($event->requirements)) !!}
+                            @else
+                                <span class="text-muted">No requirements specified</span>
+                            @endif
+                        </div>
+                    </section>
+
                     {{-- Mission Impact --}}
-                    <section class="content-card">
+                    <section class="content-card mt-3">
                         <h4 class="section-heading">
                             <i class="fas fa-heart icon"></i>
                             Mission Impact
@@ -169,7 +183,7 @@
                     </section>
 
                     {{-- SDG Addressed --}}
-                    <section class="content-card">
+                    <section class="content-card mt-3">
                         <h4 class="section-heading">
                             <i class="fas fa-globe icon"></i>
                             SDG Addressed
@@ -198,7 +212,7 @@
                     </section>
 
                     {{-- Participants --}}
-                    <section class="content-card">
+                    <section class="content-card mt-3">
                         <h4 class="section-heading">
                             <i class="fas fa-users icon"></i>
                             Participants
@@ -239,7 +253,7 @@
                     </section>
 
                     {{-- comments --}}
-                    <section class="content-card">
+                    <section class="content-card mt-3">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h4 class="section-heading mb-0">
                                 <i class="fas fa-comments icon"></i>
@@ -289,7 +303,7 @@
                     </div>
 
                     {{-- Location & Details --}}
-                    <div class="sidebar-card">
+                    <div class="sidebar-card mt-3">
                         <h6 class="sidebar-heading">
                             <i class="fas fa-map-marker-alt"></i>
                             Event Details
@@ -321,7 +335,7 @@
                             @endif
                         </div>
 
-                        <div class="event-details">
+                        <div class="event-details mt-3">
                             <div class="detail-item">
                                 <div class="detail-label">
                                     <i class="fas fa-building me-1"></i>Venue
@@ -362,19 +376,21 @@
                                 </div>
                             </div>
 
-                            {{-- Skills --}}
+                            {{-- Skills (stacked vertically, right-aligned) --}}
                             <div class="detail-item">
                                 <div class="detail-label">
                                     <i class="fas fa-tools me-1"></i>Skills
                                 </div>
                                 <div class="detail-value">
                                     @if ($skills->count())
-                                        <div class="d-flex flex-wrap gap-2">
+                                        <div class="d-flex flex-column align-items-end gap-2">
                                             @foreach ($skills as $skill)
-                                                <span class="badge bg-light text-dark border">
-                                                    <i class="fas fa-check-circle text-success me-1"></i>
-                                                    {{ $skill->skillName ?? ($skill->name ?? 'Skill') }}
-                                                </span>
+                                                <div class="w-100 text-end">
+                                                    <span class="badge bg-light text-dark border d-inline-block">
+                                                        <i class="fas fa-check-circle text-success me-1"></i>
+                                                        {{ $skill->skillName ?? ($skill->name ?? 'Skill') }}
+                                                    </span>
+                                                </div>
                                             @endforeach
                                         </div>
                                     @else
@@ -383,20 +399,7 @@
                                 </div>
                             </div>
 
-                            {{-- Requirements --}}
-                            <div class="detail-item">
-                                <div class="detail-label">
-                                    <i class="fas fa-list-check me-1"></i>Requirements
-                                </div>
-                                <div class="detail-value">
-                                    @if ($event->requirements && trim($event->requirements) !== '')
-                                        {!! nl2br(e($event->requirements)) !!}
-                                    @else
-                                        <span class="text-muted">No requirements specified</span>
-                                    @endif
-                                </div>
-                            </div>
-
+                            {{-- Reward --}}
                             <div class="detail-item">
                                 <div class="detail-label">
                                     <i class="fas fa-star me-1"></i>Reward
@@ -412,7 +415,7 @@
                     </div>
 
                     {{-- Organizer card --}}
-                    <div class="sidebar-card organizer-card">
+                    <div class="sidebar-card organizer-card mt-3">
                         <div class="organizer-header">
                         @php
                             use Illuminate\Support\Facades\Storage;
@@ -484,8 +487,6 @@
                 </aside>
             </div>
         </main>
-
-       
 
     </div> {{-- end wrapper margin-left:70px --}}
 

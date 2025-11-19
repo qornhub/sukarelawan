@@ -181,7 +181,7 @@
                                                 <tbody>
                                                     <tr>
                                                         <td class="category">
-                                                            {{ optional($post->category)->categoryName ?? 'Uncategorized' }}
+                                                            {{ $post->custom_category ? $post->custom_category : optional($post->category)->categoryName ?? 'Uncategorized' }}
                                                         </td>
 
                                                         <td class="publication-date">

@@ -37,7 +37,7 @@
             <!-- top label area (left aligned heading like screenshot) -->
             <div class="d-flex align-items-center mb-3">
                 
-                <div class="section-title">Blog DETAILS</div>
+                <div class="section-title">Blog Details</div>
             </div>
 
             <!-- form wrapper (single form - partial contains fields/grid) -->

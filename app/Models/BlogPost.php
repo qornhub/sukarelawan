@@ -26,6 +26,7 @@ class BlogPost extends Model
         'image',
         'status',        // 'draft' | 'published'
         'published_at',  // nullable timestamp
+        'custom_category',
     ];
 
     // Casts

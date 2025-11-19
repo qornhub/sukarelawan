@@ -16,29 +16,30 @@ use App\Http\Controllers\Auth\AdminLoginController;
 use App\Http\Controllers\Auth\NGOProfileController;
 use App\Http\Controllers\Badge\UserBadgeController;
 use App\Http\Controllers\Badge\UserPointController;
-use App\Http\Controllers\Admin\AdminUsersController;
+use App\Http\Controllers\NgoNotificationController;
 
+use App\Http\Controllers\Admin\AdminUsersController;
 use App\Http\Controllers\Auth\NGORegisterController;
 use App\Http\Controllers\Blog\BlogCommentController;
 use App\Http\Controllers\Blog\NGOBlogPostController;
 use App\Http\Controllers\Auth\AdminProfileController;
 use App\Http\Controllers\Task\AssignedTaskController;
 use App\Http\Controllers\Admin\BlogCategoryController;
-use App\Http\Controllers\Auth\AdminRegisterController;
 
+use App\Http\Controllers\Auth\AdminRegisterController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Blog\AdminBlogPostController;
 use App\Http\Controllers\NGO\TaskAssignmentController;
+
 use App\Http\Controllers\Admin\EventCategoryController;
-
 use App\Http\Controllers\Auth\ForgotPasswordController;
-use App\Http\Controllers\Badge\BadgeCategoryController;
 
+use App\Http\Controllers\Badge\BadgeCategoryController;
 use App\Http\Controllers\Events\EventCommentController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Auth\VolunteerProfileController;
-use App\Http\Controllers\Events\EventDiscoveryController;
 
+use App\Http\Controllers\Events\EventDiscoveryController;
 use App\Http\Controllers\VolunteerNotificationController;
 use App\Http\Controllers\Attendances\AttendanceController;
 use App\Http\Controllers\Auth\VolunteerRegisterController;
@@ -195,19 +196,24 @@ Route::middleware(['auth', 'isNGO'])
     ->prefix('ngo')
     ->name('ngo.')
     ->group(function () {
-        Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-        Route::get('events/{event}/qr', function ($event) {
+    Route::get('/notifications', [NgoNotificationController::class, 'index']) ->name('notifications.index');
+    Route::post('/notifications/{id}/mark-as-read', [NgoNotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
+    Route::post('/notifications/mark-all-read', [NgoNotificationController::class, 'markAllRead'])->name('notifications.markAllRead');
+    Route::get('/notifications/unread-count', [NgoNotificationController::class, 'unreadCount'])->name('notifications.unreadCount');
+
+
+    Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    Route::get('events/{event}/qr', function ($event) {
         $event = Event::findOrFail($event);
         return view('ngo.attendances.qr', compact('event'));
     })->name('attendance.qr');
+
     // <-- Fix: call the plural method that actually exists in controller
     Route::get('/attendance-list/{eventId}', [AttendanceController::class, 'attendancesList'])->name('attendances.list');
     Route::delete('/events/{event}/attendances/{attendance}', [AttendanceController::class, 'destroy'])->name('attendances.destroy');
 
-
-        
-        
         // NGO Profile
         //Route::get('/profile', [NGOProfileController::class, 'show'])->name('profile.show');
         Route::get('/profile', [NGOProfileController::class, 'show'])->name('profile.self');

@@ -16,7 +16,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="stylesheet" href="{{ asset('css/blogs/show.css') }}">
     <link rel="stylesheet" href="{{ asset('css/blogs/comment.css') }}">
-   
+
 </head>
 
 <body>
@@ -92,9 +92,10 @@
                                 <div class="info-item">
                                     <span class="info-label">Category</span>
                                     <span class="info-value">
-                                        {{ optional($post->category)->categoryName ?? 'Uncategorized' }}
+                                        {{ $post->custom_category ? $post->custom_category : optional($post->category)->categoryName ?? 'Uncategorized' }}
                                     </span>
                                 </div>
+
 
                                 <div class="info-item">
                                     <span class="info-label">Reading Time</span>
@@ -148,7 +149,7 @@
                 readMoreSection.classList.remove('expanded');
                 showLessContainer.style.display = 'none';
 
-                // Scroll back to the position where read more was clicked
+                // Scroll back to top of content
                 setTimeout(() => {
                     readMoreSection.scrollIntoView({
                         behavior: 'smooth',
@@ -162,43 +163,42 @@
             }
         }
 
-        // Auto-expand if content is shorter than the max height
-        document.addEventListener('DOMContentLoaded', function() {
+        // Check content height and adjust buttons visibility
+        function adjustReadMoreUI() {
             const readMoreSection = document.getElementById('read-more-section');
+            const readMoreOverlay = document.querySelector('.read-more-overlay');
             const showLessContainer = document.querySelector('.show-less-container');
+
+            if (!readMoreSection || !readMoreOverlay || !showLessContainer) return;
+
             const contentHeight = readMoreSection.scrollHeight;
-            const maxHeight = 600; // Should match CSS max-height
+            const maxHeight = 600; // Match your CSS limit
+
+            if (window.innerWidth < 768) {
+                // Mobile: always show full content, hide buttons
+                readMoreSection.classList.add('expanded');
+                readMoreOverlay.style.display = 'none';
+                showLessContainer.style.display = 'none';
+                return;
+            }
 
             if (contentHeight <= maxHeight) {
+                // Content is short → fully visible, hide both buttons
                 readMoreSection.classList.add('expanded');
-                document.querySelector('.read-more-overlay').style.display = 'none';
-                showLessContainer.style.display = 'block';
-            }
-        });
-
-        // Handle responsive behavior
-        function handleResize() {
-            const readMoreSection = document.getElementById('read-more-section');
-            const showLessContainer = document.querySelector('.show-less-container');
-            const contentHeight = readMoreSection.scrollHeight;
-            const maxHeight = 600;
-
-            // On mobile, always show full content
-            if (window.innerWidth < 768) {
-                readMoreSection.classList.add('expanded');
-                document.querySelector('.read-more-overlay').style.display = 'none';
-                showLessContainer.style.display = 'block';
-            } else if (contentHeight <= maxHeight) {
-                readMoreSection.classList.add('expanded');
-                document.querySelector('.read-more-overlay').style.display = 'none';
-                showLessContainer.style.display = 'block';
+                readMoreOverlay.style.display = 'none';
+                showLessContainer.style.display = 'none'; // ✅ fixed here
+            } else {
+                // Content is long → show "Read More", hide "Show Less"
+                readMoreSection.classList.remove('expanded');
+                readMoreOverlay.style.display = 'block';
+                showLessContainer.style.display = 'none';
             }
         }
 
-        // Initial check and resize listener
-        document.addEventListener('DOMContentLoaded', handleResize);
-        window.addEventListener('resize', handleResize);
+        document.addEventListener('DOMContentLoaded', adjustReadMoreUI);
+        window.addEventListener('resize', adjustReadMoreUI);
     </script>
+
 
 
 </body>

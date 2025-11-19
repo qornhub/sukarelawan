@@ -13,16 +13,17 @@ use Illuminate\Support\Facades\Validator;
 
 class AdminBlogPostController extends Controller
 {
-
-     public function index(Request $request)
+    /**
+     * Display published blog posts.
+     */
+    public function index(Request $request)
     {
-        $query = BlogPost::query();
+        $query = BlogPost::where('status', 'published');
 
+        // Optional search
         if ($search = $request->input('q')) {
             $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
-                  // support both column names to avoid runtime errors
-                  ->orWhere('summary', 'like', "%{$search}%")
                   ->orWhere('blogSummary', 'like', "%{$search}%")
                   ->orWhere('content', 'like', "%{$search}%");
             });
@@ -35,13 +36,12 @@ class AdminBlogPostController extends Controller
     }
 
     /**
-     * Admin show: view a single post (admin can view drafts & published).
+     * Show blog post
      */
     public function show($id)
     {
         $post = BlogPost::where('blogPost_id', $id)->firstOrFail();
 
-        // Load comments (admin sees all comments)
         $comments = BlogComment::where('blogPost_id', $post->blogPost_id)
             ->orderBy('created_at', 'asc')
             ->paginate(5, ['*'], 'comments_page')
@@ -50,169 +50,202 @@ class AdminBlogPostController extends Controller
         return view('admin.blogs.show', compact('post', 'comments'));
     }
 
-
+    /**
+     * Create form
+     */
     public function create()
     {
         $categories = BlogCategory::orderBy('categoryName')->get();
         return view('admin.blogs.create', compact('categories'));
     }
 
+    /**
+     * Store new post
+     */
     public function store(Request $request)
     {
-        $input = [
-            'title'        => $request->input('title'),
-            'blogSummary'      => $request->input('blogSummary'),
-            'content'      => $request->input('content'),
-            'category_id'  => $request->input('category_id'),
-            'status'       => $request->input('status', 'draft'),
-            'published_at' => $request->input('published_at', null),
-        ];
-
         $rules = [
-            'title'        => 'required|string|max:255',
-            'blogSummary'      => 'nullable|string|max:500',
-            'content'      => 'required|string',
-            'category_id'  => 'required|exists:blog_categories,blogCategory_id',
-            'status'       => 'required|in:draft,published',
-            'published_at' => 'nullable|date',
-            'image'        => 'nullable|image|max:5120',
+            'title'           => 'required|string|max:255',
+            'blogSummary'     => 'nullable|string|max:500',
+            'content'         => 'required|string',
+            'category_id'     => 'required',
+            'custom_category' => 'required_if:category_id,other|string|max:255',
+            'status'          => 'required|in:draft,published',
+            'published_at'    => 'nullable|date',
+            'image'           => 'nullable|image|max:5120',
         ];
 
-        $validator = Validator::make($input + $request->only('image','blogImage','blog_image'), $rules);
+        $validator = Validator::make($request->all() + $request->only('image'), $rules);
+
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        // Handle image upload
-        $imageFileName = null;
-        if ($request->hasFile('image') || $request->hasFile('blogImage') || $request->hasFile('blog_image')) {
-            $file = $request->hasFile('image') ? $request->file('image')
-                  : ($request->hasFile('blogImage') ? $request->file('blogImage') : $request->file('blog_image'));
-            $safeOriginal = preg_replace('/\s+/', '_', $file->getClientOriginalName());
-            $imageFileName = time() . '_blog_' . $safeOriginal;
-            $destFolder = public_path('images/Blog');
-            if (! is_dir($destFolder)) mkdir($destFolder, 0755, true);
-            $file->move($destFolder, $imageFileName);
+        /**
+         * PRIVATE CATEGORY LOGIC
+         */
+        if ($request->category_id === 'other') {
+            $categoryId = null; // NO DB CATEGORY CREATED
+            $customCategory = $request->custom_category;
+        } else {
+            $categoryId = $request->category_id;
+            $customCategory = null;
         }
 
-        $payload = [
-            'blogPost_id'  => (string) Str::uuid(),
-            'user_id'      => Auth::id(),
-            'category_id'  => $input['category_id'],
-            'title'        => $input['title'],
-            'blogSummary'      => $input['blogSummary'],
-            'content'      => $input['content'],
-            'image'        => $imageFileName,
-            'status'       => $input['status'],
-            'published_at' => ($input['status'] === 'published' && empty($input['published_at'])) ? now() : $input['published_at'],
-        ];
+        // Publish date
+        $publishedAt =
+            ($request->status === 'published')
+                ? ($request->published_at ?: now())
+                : null;
 
-        BlogPost::create($payload);
+        // Image handling
+        $imageFileName = null;
+        if ($request->hasFile('image')) {
+            $file = $request->file('image');
+            $safeOriginal = preg_replace('/\s+/', '_', $file->getClientOriginalName());
+            $imageFileName = time() . '_blog_' . $safeOriginal;
 
-        return redirect()->route('blogs.index')->with('success', 'Blog post created.');
+            $dest = public_path('images/Blog');
+            if (!is_dir($dest)) mkdir($dest, 0755, true);
+
+            $file->move($dest, $imageFileName);
+        }
+
+        BlogPost::create([
+            'blogPost_id'     => (string) Str::uuid(),
+            'user_id'         => Auth::id(),
+            'category_id'     => $categoryId,
+            'custom_category' => $customCategory,
+            'title'           => $request->title,
+            'blogSummary'     => $request->blogSummary,
+            'content'         => $request->content,
+            'image'           => $imageFileName,
+            'status'          => $request->status,
+            'published_at'    => $publishedAt,
+        ]);
+
+        return redirect()->route('admin.blogs.index')->with('success', 'Blog post created.');
     }
 
+    /**
+     * Edit form
+     */
     public function edit($id)
     {
         $post = BlogPost::where('blogPost_id', $id)->firstOrFail();
         $categories = BlogCategory::orderBy('categoryName')->get();
-        return view('admin.blogs.edit', compact('post','categories'));
+
+        return view('admin.blogs.edit', compact('post', 'categories'));
     }
 
+    /**
+     * Update post
+     */
     public function update(Request $request, $id)
     {
         $post = BlogPost::where('blogPost_id', $id)->firstOrFail();
 
-        $input = [
-            'title'        => $request->input('title'),
-            'blogSummary'      => $request->input('blogSummary'),
-            'content'      => $request->input('content'),
-            'category_id'  => $request->input('category_id'),
-            'status'       => $request->input('status', $post->status),
-            'published_at' => $request->input('published_at', $post->published_at),
-        ];
-
         $rules = [
-            'title'        => 'required|string|max:255',
-            'blogSummary'      => 'nullable|string|max:500',
-            'content'      => 'required|string',
-            'category_id'  => 'nullable|exists:blog_categories,blogCategory_id',
-            'status'       => 'required|in:draft,published',
-            'published_at' => 'nullable|date',
-            'image'        => 'nullable|image|max:5120',
+            'title'           => 'required|string|max:255',
+            'blogSummary'     => 'nullable|string|max:500',
+            'content'         => 'required|string',
+            'category_id'     => 'required',
+            'custom_category' => 'required_if:category_id,other|string|max:255',
+            'status'          => 'required|in:draft,published',
+            'published_at'    => 'nullable|date',
+            'image'           => 'nullable|image|max:5120',
         ];
 
-        $validator = Validator::make($input + $request->only('image','blogImage','blog_image'), $rules);
+        $validator = Validator::make($request->all() + $request->only('image'), $rules);
+
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        // Image upload (replace old if any)
-        if ($request->hasFile('image') || $request->hasFile('blogImage') || $request->hasFile('blog_image')) {
+        /**
+         * PRIVATE CATEGORY LOGIC
+         */
+        if ($request->category_id === 'other') {
+            $post->category_id = null;
+            $post->custom_category = $request->custom_category;
+        } else {
+            $post->category_id = $request->category_id;
+            $post->custom_category = null;
+        }
+
+        // Image replacement
+        if ($request->hasFile('image')) {
             if ($post->image) {
-                $oldBasename = basename($post->image);
-                $oldPath = public_path('images/Blog/' . $oldBasename);
-                if ($oldBasename !== 'default-blog.jpg' && file_exists($oldPath)) {
-                    @unlink($oldPath);
+                $old = public_path('images/Blog/' . basename($post->image));
+                if (file_exists($old) && basename($post->image) !== 'default-blog.jpg') {
+                    unlink($old);
                 }
             }
 
-            $file = $request->hasFile('image') ? $request->file('image')
-                  : ($request->hasFile('blogImage') ? $request->file('blogImage') : $request->file('blog_image'));
+            $file = $request->file('image');
             $safeOriginal = preg_replace('/\s+/', '_', $file->getClientOriginalName());
             $imageFileName = time() . '_blog_' . $safeOriginal;
-            $destFolder = public_path('images/Blog');
-            if (! is_dir($destFolder)) mkdir($destFolder, 0755, true);
-            $file->move($destFolder, $imageFileName);
+
+            $dest = public_path('images/Blog');
+            if (!is_dir($dest)) mkdir($dest, 0755, true);
+
+            $file->move($dest, $imageFileName);
             $post->image = $imageFileName;
         }
 
-        $post->category_id = $input['category_id'];
-        $post->title       = $input['title'];
-        $post->blogSummary     = $input['blogSummary'];
-        $post->content     = $input['content'];
-        $post->status      = $input['status'];
+        // Update fields
+        $post->title       = $request->title;
+        $post->blogSummary = $request->blogSummary;
+        $post->content     = $request->content;
+        $post->status      = $request->status;
 
-        if ($post->status === 'published' && empty($input['published_at'])) {
-            if (empty($post->published_at)) $post->published_at = now();
+        // Publish/draft timing
+        if ($post->status === 'published' && empty($request->published_at)) {
+            if (empty($post->published_at)) {
+                $post->published_at = now();
+            }
         } elseif ($post->status === 'draft') {
             $post->published_at = null;
         } else {
-            $post->published_at = $input['published_at'];
+            $post->published_at = $request->published_at;
         }
 
         $post->save();
 
-        return redirect()->route('blogs.show', $post->blogPost_id)->with('success', 'Blog post updated.');
+        return redirect()->route('admin.blogs.show', $post->blogPost_id)
+            ->with('success', 'Blog post updated.');
     }
 
-  public function adminDestroy($id)
-{
-    $post = BlogPost::where('blogPost_id', $id)->firstOrFail();
+    /**
+     * Admin delete permanently
+     */
+    public function adminDestroy($id)
+    {
+        $post = BlogPost::where('blogPost_id', $id)->firstOrFail();
 
-    if ($post->image) {
-        $basename = basename($post->image);
-        $path = public_path('images/Blog/' . $basename);
-        if ($basename !== 'default-blog.jpg' && file_exists($path)) {
-            @unlink($path);
+        if ($post->image) {
+            $path = public_path('images/Blog/' . basename($post->image));
+            if (file_exists($path) && basename($post->image) !== 'default-blog.jpg') {
+                unlink($path);
+            }
         }
+
+        $post->delete();
+
+        return redirect()->route('admin.blogs.index')->with('success', 'Blog post removed by Admin.');
     }
 
-    $post->delete();
-
-    // Redirect admin back to admin listing after deletion
-    return redirect()->route('admin.blogs.index')->with('success', 'Blog post removed by Admin.');
-}
-
+    /**
+     * Delete for non-admin context
+     */
     public function destroy($id)
     {
         $post = BlogPost::where('blogPost_id', $id)->firstOrFail();
 
         if ($post->image) {
-            $basename = basename($post->image);
-            $path = public_path('images/Blog/' . $basename);
-            if ($basename !== 'default-blog.jpg' && file_exists($path)) {
-                @unlink($path);
+            $path = public_path('images/Blog/' . basename($post->image));
+            if (file_exists($path) && basename($post->image) !== 'default-blog.jpg') {
+                unlink($path);
             }
         }
 

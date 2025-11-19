@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Edit Registration</title>
@@ -7,56 +8,140 @@
 
     <!-- Bootstrap CSS (via CDN) -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-      <link rel="stylesheet" href="{{ asset('css/events/event_show.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="{{ asset('css/events/event_show.css') }}">
 
-    
     <style>
-        /* HERO */
-        
-
-        /* Layout */
+        /* ---------------------------
+           Section number + title
+        --------------------------- */
         .section-number {
-            width:40px; height:40px; border-radius:50%; background:#0d6efd; color:#fff; display:inline-flex; align-items:center; justify-content:center; font-weight:700;
-            margin-right:12px; box-shadow:0 4px 14px rgba(13,110,253,0.15);
+            background-color: var(--primary-color) !important;
+            color: #fff !important;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1rem;
+            margin-right: 12px;
+            box-shadow: 0 6px 18px rgba(0, 74, 173, 0.12);
         }
-        .section-title { font-size:1.25rem; font-weight:700; margin-bottom:16px; }
-        .form-section { padding:18px 22px; border-radius:8px; background:#fff; box-shadow:0 6px 24px rgba(3,0,0,0.04); margin-bottom:18px; }
+
+        .section-title {
+            color: var(--primary-color) !important;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .form-section {
+            padding: 18px 22px;
+            border-radius: 8px;
+            background: #fff;
+            box-shadow: 0 6px 24px rgba(3, 0, 0, 0.04);
+            margin-bottom: 18px;
+        }
 
         /* Organizer card */
-        .organizer-card { border:1px solid #e6e9ef; padding:18px; border-radius:8px; background:#fff; }
-        .organizer-avatar { width:48px; height:48px; border-radius:50%; background:#eef2ff; display:inline-flex; align-items:center; justify-content:center; font-weight:700; color:#0b5ed7; }
-        .organizer-actions .btn { width:100%; }
+        .organizer-card {
+            border: 1px solid #e6e9ef;
+            padding: 18px;
+            border-radius: 8px;
+            background: #fff;
+        }
 
-        /* Small helpers */
-        .muted { color:#6c757d; }
-        .form-label { font-weight:600; font-size:0.95rem; }
-        
-        .col-lg-4 .organizer-card {
-  margin-top: 69px; /* desktop: adjust the px value to tune alignment */
-}
-        /* Responsive tweaks */
-        @media (max-width: 768px) {
-            .hero { height:180px; }
+        .organizer-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #eef2ff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: #0b5ed7;
+        }
+
+        .organizer-actions .btn {
+            width: 100%;
+        }
+
+        .form-label {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        /* Primary button consistency */
+        .btn.btn-primary {
+            background-color: var(--primary-color) !important;
+            border-color: var(--primary-color) !important;
+            color: #fff !important;
+            font-weight: 600;
+            padding: 10px 18px;
+            border-radius: 8px;
+            transition: background-color 0.15s ease, transform 0.1s ease;
+        }
+
+        .btn.btn-primary:hover {
+            background-color: var(--primary-hover) !important;
+            border-color: var(--primary-hover) !important;
+            transform: translateY(-1px);
+        }
+
+        .btn.btn-primary:active,
+        .btn.btn-primary:focus,
+        .btn.btn-primary:focus-visible {
+            background-color: var(--primary-hover) !important;
+            border-color: var(--primary-hover) !important;
+            box-shadow: none !important;
+            outline: none !important;
+        }
+
+        /* Outline button */
+        .btn-outline-secondary {
+            border-radius: 8px;
+            padding: 10px 18px;
+        }
+
+        /* Right column spacing match create.blade */
+        @media (min-width: 992px) {
+            .col-lg-4 {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .col-lg-4 .organizer-card {
+                flex: 0 0 auto;
+            }
+
+            .col-lg-4 .form-section:last-child {
+                flex: 1;
+                margin-top: 1rem;
+            }
+        }
+
+        @media (max-width: 991px) {
+            .col-lg-4 .organizer-card {
+                margin-top: 0;
+            }
         }
     </style>
+
 </head>
+
 <body class="bg-light">
 
     @include('layouts.volunteer_header')
-    @include('layouts.messages')
 
     @php
-        // Expecting $registration passed from controller
         $event = $registration->event;
         $user = Auth::user();
         $volunteerProfile = $user ? $user->volunteerProfile : null;
 
         $eventImage = $event->eventImage ?? null;
         $eventHeroUrl = $eventImage ? asset('images/events/' . $eventImage) : asset('images/events/default-event.jpg');
-
-        $start = $event->eventStart ? \Carbon\Carbon::parse($event->eventStart) : null;
-        $end = $event->eventEnd ? \Carbon\Carbon::parse($event->eventEnd) : null;
     @endphp
 
     <!-- HERO -->
@@ -66,210 +151,249 @@
         <div class="hero-content container">
             <div class="hero-text">
                 <h1 class="hero-title">{{ $event->eventTitle ?? 'Untitled Event' }}</h1>
-                <div class="hero-sub ">By {{ optional($event->organizer)->name ?? 'Organizer' }}</div>
+                <div class="hero-sub">By {{ optional($event->organizer)->name ?? 'Organizer' }}</div>
             </div>
         </div>
     </header>
-    
-      
 
-    <div class="container mb-5">
-        <div class="row g-4">
+    @include('layouts.messages')
 
-            <!-- LEFT: edit form -->
+    <div class="container mt-4">
+        <div class="row g-4 align-items-start">
+
+            <!-- LEFT FORM -->
             <div class="col-lg-8">
-                {{-- Update route: adjust route name if yours is different --}}
-                <form action="{{ route('volunteer.event.register.update', $registration->registration_id) }}" method="POST">
+                <form action="{{ route('volunteer.event.register.update', $registration->registration_id) }}" method="POST" novalidate>
                     @csrf
                     @method('PUT')
 
-                    {{-- Keep IDs as hidden for safety --}}
                     <input type="hidden" name="registration_id" value="{{ $registration->registration_id }}">
                     <input type="hidden" name="event_id" value="{{ $registration->event_id }}">
 
+                    <!-- SECTION 1 -->
                     <div class="d-flex align-items-center mb-2">
                         <span class="section-number">1</span>
-                        <div class="section-title mt-3">Your Details</div>
+                        <div class="section-title">Your Details</div>
                     </div>
 
                     <div class="form-section">
-                        {{-- show validation errors summary --}}
-                        @if ($errors->any())
-                            <div class="alert alert-danger">
-                                <strong>There are some problems with your input.</strong>
-                                <ul class="mb-0 mt-2">
-                                    @foreach ($errors->all() as $err)
-                                        <li>{{ $err }}</li>
-                                    @endforeach
-                                </ul>
-                            </div>
-                        @endif
-
                         <div class="row g-3">
+
                             <div class="col-md-6">
-                                <label for="name" class="form-label">Full Name</label>
-                                <input id="name" type="text" name="name" class="form-control"
-                                       value="{{ old('name', $registration->name ?? $user->name ?? '') }}" required>
+                                <label class="form-label">Full Name</label>
+                                <input type="text" name="name" class="form-control" 
+                                    value="{{ old('name', $registration->name ?? $user->name ?? '') }}" required>
+                                @error('name') <div class="text-danger small">{{ $message }}</div> @enderror
                             </div>
 
                             <div class="col-md-6">
-                                <label for="email" class="form-label">Email</label>
-                                <input id="email" type="email" name="email" class="form-control"
-                                       value="{{ old('email', $registration->email ?? $user->email ?? '') }}" required>
+                                <label class="form-label">Email</label>
+                                <input type="email" name="email" class="form-control"
+                                    value="{{ old('email', $registration->email ?? $user->email ?? '') }}" required>
+                                @error('email') <div class="text-danger small">{{ $message }}</div> @enderror
                             </div>
 
                             <div class="col-md-6">
-                                <label for="contactNumber" class="form-label">Contact Number</label>
-                                <input id="contactNumber" type="tel" name="contactNumber" class="form-control"
-                                       value="{{ old('contactNumber', $registration->contactNumber ?? $volunteerProfile->contactNumber ?? '') }}" required>
+                                <label class="form-label">Contact Number</label>
+                                <input type="text" name="contactNumber" class="form-control"
+                                    value="{{ old('contactNumber', $registration->contactNumber ?? $volunteerProfile->contactNumber ?? '') }}" required>
+                                @error('contactNumber') <div class="text-danger small">{{ $message }}</div> @enderror
                             </div>
 
                             <div class="col-md-3">
-                                <label for="age" class="form-label">Age</label>
-                                <input id="age" type="number" name="age" class="form-control" min="10" max="120"
-                                       value="{{ old('age', $registration->age ?? $volunteerProfile->age ?? '') }}">
+                                <label class="form-label">Age</label>
+                                <input type="number" name="age" class="form-control" min="16" max="120"
+                                    value="{{ old('age', $registration->age ?? $volunteerProfile->age ?? '') }}" required>
+                                @error('age') <div class="text-danger small">{{ $message }}</div> @enderror
                             </div>
 
                             <div class="col-md-3">
-                                <label for="gender" class="form-label">Gender</label>
+                                <label class="form-label">Gender</label>
                                 @php $sg = old('gender', $registration->gender ?? $volunteerProfile->gender ?? ''); @endphp
-                                <select id="gender" name="gender" class="form-control">
+                                <select name="gender" class="form-control">
                                     <option value="">Choose Your Gender</option>
-                                    <option value="male" {{ $sg == 'male' ? 'selected' : '' }}>Male</option>
-                                    <option value="female" {{ $sg == 'female' ? 'selected' : '' }}>Female</option>
-                                    <option value="other" {{ $sg == 'other' ? 'selected' : '' }}>Other</option>
+                                    <option value="male" {{ $sg=='male' ? 'selected': '' }}>Male</option>
+                                    <option value="female" {{ $sg=='female' ? 'selected': '' }}>Female</option>
+                                    <option value="other" {{ $sg=='other' ? 'selected': '' }}>Other</option>
                                 </select>
+                                @error('gender') <div class="text-danger small">{{ $message }}</div> @enderror
                             </div>
 
                             <div class="col-12">
-                                <label for="company" class="form-label">Company (Optional)</label>
-                                <input id="company" type="text" name="company" class="form-control"
-                                       value="{{ old('company', $registration->company ?? '') }}" placeholder="Enter your Company">
+                                <label class="form-label">Company (Optional)</label>
+                                <input type="text" name="company" class="form-control"
+                                    value="{{ old('company', $registration->company ?? '') }}">
+                                @error('company') <div class="text-danger small">{{ $message }}</div> @enderror
                             </div>
 
                             <div class="col-12">
-                                <label for="address" class="form-label">Home Address</label>
-                                <textarea id="address" name="address" class="form-control" rows="2">{{ old('address', $registration->address ?? $volunteerProfile->address ?? '') }}</textarea>
+                                <label class="form-label">Home Address</label>
+                                <textarea name="address" class="form-control" rows="2">{{ old('address', $registration->address ?? $volunteerProfile->address ?? '') }}</textarea>
+                                @error('address') <div class="text-danger small">{{ $message }}</div> @enderror
                             </div>
+
                         </div>
                     </div>
 
-                    <!-- Section 2: Emergency Contact -->
+                    <!-- SECTION 2 -->
                     <div class="d-flex align-items-center mt-3 mb-2">
                         <span class="section-number">2</span>
-                        <div class="section-title mt-3">Emergency Contact</div>
+                        <div class="section-title">Emergency Contact</div>
                     </div>
 
                     <div class="form-section">
                         <div class="row g-3">
+
                             <div class="col-md-6">
-                                <label for="emergencyContact" class="form-label">Name</label>
-                                <input id="emergencyContact" type="text" name="emergencyContact" class="form-control"
-                                       value="{{ old('emergencyContact', $registration->emergencyContact ?? '') }}" required>
+                                <label class="form-label">Name</label>
+                                <input type="text" name="emergencyContact" class="form-control"
+                                    value="{{ old('emergencyContact', $registration->emergencyContact ?? '') }}" required>
+                                @error('emergencyContact') <div class="text-danger small">{{ $message }}</div> @enderror
                             </div>
+
                             <div class="col-md-6">
-                                <label for="emergencyContactNumber" class="form-label">Phone Number</label>
-                                <input id="emergencyContactNumber" type="tel" name="emergencyContactNumber" class="form-control"
-                                       value="{{ old('emergencyContactNumber', $registration->emergencyContactNumber ?? '') }}" required>
+                                <label class="form-label">Phone Number</label>
+                                <input type="text" name="emergencyContactNumber" class="form-control"
+                                    value="{{ old('emergencyContactNumber', $registration->emergencyContactNumber ?? '') }}" required>
+                                @error('emergencyContactNumber') <div class="text-danger small">{{ $message }}</div> @enderror
                             </div>
+
                             <div class="col-12">
-                                <label for="contactRelationship" class="form-label">Relationship</label>
-                                <input id="contactRelationship" type="text" name="contactRelationship" class="form-control"
-                                       value="{{ old('contactRelationship', $registration->contactRelationship ?? '') }}" required>
+                                <label class="form-label">Relationship</label>
+                                <input type="text" name="contactRelationship" class="form-control"
+                                    value="{{ old('contactRelationship', $registration->contactRelationship ?? '') }}" required>
+                                @error('contactRelationship') <div class="text-danger small">{{ $message }}</div> @enderror
                             </div>
+
                         </div>
                     </div>
 
-                    <!-- Section 3: Skills & Experience -->
+                    <!-- SECTION 3 -->
                     <div class="d-flex align-items-center mt-3 mb-2">
                         <span class="section-number">3</span>
-                        <div class="section-title mt-3">Skills & Experience</div>
+                        <div class="section-title">Skills & Experience</div>
                     </div>
 
                     <div class="form-section">
                         <div class="row g-3 align-items-center">
+
                             <div class="col-md-6">
-                                <label for="volExp" class="form-label">Have you Volunteered Before</label>
-                                <select id="volExp" name="volunteeringExperience" class="form-control">
-                                    @php $ve = old('volunteeringExperience', $registration->volunteeringExperience ?? ''); @endphp
+                                <label class="form-label">Have you Volunteered Before</label>
+                                @php $ve = old('volunteeringExperience', $registration->volunteeringExperience ?? ''); @endphp
+                                <select name="volunteeringExperience" class="form-control">
                                     <option value="">Choose</option>
-                                    <option value="yes" {{ $ve == 'yes' ? 'selected' : '' }}>Yes</option>
-                                    <option value="no" {{ $ve == 'no' ? 'selected' : '' }}>No</option>
+                                    <option value="yes" {{ $ve=='yes' ? 'selected': '' }}>Yes</option>
+                                    <option value="no" {{ $ve=='no' ? 'selected': '' }}>No</option>
                                 </select>
+                                @error('volunteeringExperience') <div class="text-danger small">{{ $message }}</div> @enderror
                             </div>
 
                             <div class="col-md-6">
-                                <label for="skill" class="form-label">Skills</label>
-                                <input id="skill" type="text" name="skill" class="form-control"
-                                       value="{{ old('skill', $registration->skill ?? $volunteerProfile->skill ?? '') }}" placeholder="e.g. First Aid, Crowd Management">
+                                <label class="form-label">Skills</label>
+                                <input type="text" name="skill" class="form-control"
+                                    value="{{ old('skill', $registration->skill ?? $volunteerProfile->skill ?? '') }}">
+                                @error('skill') <div class="text-danger small">{{ $message }}</div> @enderror
                             </div>
 
-                            <div class="col-12 text-start mt-3 d-flex gap-2">
+                            <div class="col-12 text-start mt-4 d-flex gap-2">
                                 <button type="submit" class="btn btn-primary">Save Changes</button>
                                 <a href="{{ route('volunteer.profile.registrationEditDelete', $event) }}" class="btn btn-outline-secondary">Cancel</a>
-
-                                
-                                
                             </div>
+
                         </div>
                     </div>
+
                 </form>
             </div>
 
-            <!-- RIGHT: organizer card + quick info -->
+            <!-- RIGHT SIDEBAR -->
             <div class="col-lg-4">
-                <div class="organizer-card mb-3 mt-6">
+
+                @php
+                    use Illuminate\Support\Facades\Storage;
+
+                    $default = asset('images/default-profile.png');
+                    $organizer = optional($event->organizer);
+
+                    $file = optional($organizer->ngoProfile)->profilePhoto ??
+                            optional($organizer->volunteerProfile)->profilePhoto ??
+                            null;
+
+                    $profileImageUrl = $default;
+
+                    if ($file) {
+                        $basename = basename($file);
+
+                        if (file_exists(public_path("images/profiles/{$basename}"))) {
+                            $profileImageUrl = asset("images/profiles/{$basename}");
+                        } elseif (file_exists(public_path("images/{$basename}"))) {
+                            $profileImageUrl = asset("images/{$basename}");
+                        } elseif (Storage::disk('public')->exists($file)) {
+                            $profileImageUrl = Storage::disk('public')->url($file);
+                        } elseif (Storage::disk('public')->exists("profiles/{$basename}")) {
+                            $profileImageUrl = Storage::disk('public')->url("profiles/{$basename}");
+                        }
+                    }
+                @endphp
+
+                <div class="organizer-card mb-3 mt-5">
                     <div class="d-flex align-items-center gap-3">
-                        <div class="organizer-avatar">{{ strtoupper(substr(optional($event->organizer)->name ?? 'O',0,1)) }}</div>
-                        <div>
-                            <div style="font-weight:700">{{ optional($event->organizer)->name ?? 'Organizer' }}</div>
-                            <div class="muted small">{{ optional($event->organizer)->organization ?? '' }}</div>
+
+                        <div class="organizer-avatar">
+                            <img src="{{ $profileImageUrl }}" alt="Organizer Image"
+                                class="rounded-circle"
+                                style="width:60px;height:60px;object-fit:cover;">
                         </div>
+
+                        <div>
+                            <div style="font-weight:700">
+                                {{ $organizer->name ?? 'Organizer' }}
+                            </div>
+                            <div class="muted small">
+                                {{ optional($organizer->organization)->name ?? '' }}
+                            </div>
+                        </div>
+
                     </div>
 
-                    <div class="mt-3 organizer-actions">
-                        <a href="#" class="btn btn-primary mb-2">WhatsApp Organizer</a>
-                        <a href="#" class="btn btn-outline-primary">View Profile</a>
+                    <div class="organizer-actions mt-4">
+                        @php
+                            $phone = optional($event->organizer)->phone ?? null;
+                            $waLink = $phone
+                                ? "https://wa.me/{$phone}"
+                                : 'https://wa.me/?text=' . urlencode('Hello, I am interested in your event: '.$event->eventTitle);
+                        @endphp
+
+                        <a href="{{ $waLink }}" target="_blank" class="btn-organizer primary">
+                            <i class="fab fa-whatsapp me-2"></i>WhatsApp Organizer
+                        </a>
+
+                        @php
+                            $profileId = $organizer->ngo_id ?? ($organizer->id ?? '#');
+                        @endphp
+
+                        <a href="{{ route('ngo.profile.show', ['id' => $profileId]) }}" class="btn-organizer secondary">
+                            <i class="fas fa-user me-2"></i>View Profile
+                        </a>
                     </div>
                 </div>
 
                 <div class="form-section">
                     <div class="mb-2"><strong>Event Details</strong></div>
-                    <div class="muted small">Date:
-                        <span>
-                            {{ $start ? $start->format('j M Y') : 'TBA' }}
-                            @if($start && $end)
-                                — {{ $end->format('j M Y') }}
-                            @endif
-                        </span>
-                    </div>
-
-                    <div class="muted small">Time:
-                        <span>
-                            {{ $start ? $start->format('g:i A') : '-' }}
-                            @if($end)
-                                — {{ $end->format('g:i A') }}
-                            @endif
-                        </span>
-                    </div>
-
-                    <div class="muted small">Location: <span>{{ $event->venueName ?? $event->eventLocation ?? 'TBA' }}</span></div>
+                    <div class="muted small">Date: <span>{{ $event->eventStart ?? 'TBA' }}</span></div>
+                    <div class="muted small">Location: <span>{{ $event->venueName ?? 'TBA' }}</span></div>
 
                     <div class="mt-3"><strong>Capacity</strong></div>
-                    <div class="muted small">
-                        {{ $event->eventMaximum !== null ? $event->eventMaximum . ' volunteers' : 'Unlimited' }}
-                    </div>
-
-                    @if(!empty($event->points))
-                        <div class="mt-2"><strong>Points</strong></div>
-                        <div class="muted small">{{ $event->points }} pts</div>
-                    @endif
+                    <div class="muted small">{{ $event->eventMaximum ?? 'Unlimited' }} volunteers</div>
                 </div>
+
             </div>
+
         </div>
     </div>
 
     <!-- bootstrap js -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>

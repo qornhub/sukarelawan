@@ -53,9 +53,7 @@
                             </a>
                         @endif
                     @endauth
-                    <a href="#" class="volunteer-dropdown-item">
-                        <i class="fas fa-cog"></i> Account Settings
-                    </a>
+                    
                     <a href="{{ route('volunteer.notifications.index') }}"
                         class="volunteer-dropdown-item position-relative volunteer-notifications-link">
                         <i class="fas fa-bell"></i> Notifications
@@ -82,10 +80,9 @@
     <!-- Mobile Menu Container -->
     <div class="volunteer-mobile-menu-container" id="volunteerMobileMenuContainer">
         <nav class="volunteer-nav-section">
-            <a href="#" class="volunteer-nav-link active"><i class="fas fa-home"></i> Home</a>
-            <a href="#" class="volunteer-nav-link"><i class="fas fa-calendar-alt"></i> Event</a>
-            <a href="#" class="volunteer-nav-link"><i class="fas fa-blog"></i> Blog</a>
-            <a href="#" class="volunteer-nav-link"><i class="fas fa-award"></i> Reward</a>
+            <a href="{{ route('volunteer.index.public') }}" class="volunteer-nav-link active"><i class="fas fa-home"></i> Home</a>
+            <a href="{{ route('blogs.index') }}" class="volunteer-nav-link"><i class="fas fa-blog"></i> Blog</a>
+            <a href="{{ route('volunteer.rewards.index') }}" class="volunteer-nav-link"><i class="fas fa-award"></i> Reward</a>
         </nav>
 
 
@@ -115,7 +112,7 @@
 
 
 
-            <a href="#" class="volunteer-dropdown-item"><i class="fas fa-cog"></i> Account Settings</a>
+            
            <a href="{{ route('volunteer.notifications.index') }}"
                         class="volunteer-dropdown-item position-relative volunteer-notifications-link">
                         <i class="fas fa-bell"></i> Notifications

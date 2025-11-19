@@ -2,39 +2,36 @@
 
 namespace App\Http\Controllers\Events;
 
-use App\Models\Event;
-use App\Models\EventRegistration;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
-use App\Http\Controllers\Controller;
 use Carbon\Carbon;
+use App\Models\Event;
+use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use App\Models\EventRegistration;
+use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 
 class EventRegistrationController extends Controller
 {
-    // helper example (implement based on your app)
+    /**
+     * Check if current user is the organizer of the event
+     */
     protected function currentUserCanManageEvent(Event $event): bool
     {
-        // Example: if the event's organizer_id matches logged in user id
         return Auth::check() && Auth::id() === optional($event->organizer)->id;
-        // adapt to your roles/permissions (e.g., role check for NGO)
     }
 
     /**
-     * Determine if the event for a given registration has started.
-     * Accepts either EventRegistration (with relation) or Event model.
+     * Determine if the event has already started
      */
     protected function eventHasStartedForRegistration($registrationOrEvent): bool
     {
-        // Accept either EventRegistration or Event
         $eventStartRaw = null;
 
         if ($registrationOrEvent instanceof EventRegistration) {
-            // Prefer related event->eventStart if available
             if (isset($registrationOrEvent->event) && !empty($registrationOrEvent->event->eventStart)) {
                 $eventStartRaw = $registrationOrEvent->event->eventStart;
             } elseif (!empty($registrationOrEvent->eventStart)) {
-                // fallback if snapshot stored on registration
                 $eventStartRaw = $registrationOrEvent->eventStart;
             }
         } elseif ($registrationOrEvent instanceof Event) {
@@ -47,58 +44,60 @@ class EventRegistrationController extends Controller
             $eventStart = Carbon::parse($eventStartRaw);
             return Carbon::now()->greaterThanOrEqualTo($eventStart);
         } catch (\Exception $ex) {
-            // if parse fails, be permissive (do not block). Change to true to be strict.
             return false;
         }
     }
 
     /**
-     * Show registration form for a given event
+     * Show create registration form
      */
     public function create(Event $event)
     {
-        // block registrations if event already started
         if ($this->eventHasStartedForRegistration($event)) {
             return redirect()->route('volunteer.events.show', $event->event_id)
                 ->with('error', 'This event has already started. Registration is closed.');
         }
 
         $user = Auth::user();
-        $volunteerProfile = $user->volunteerProfile ?? null; // relationship (may be null)
+        $volunteerProfile = $user->volunteerProfile ?? null;
 
         return view('volunteer.event_registrations.registrations_create', compact('event', 'user', 'volunteerProfile'));
     }
 
     /**
-     * Store a new event registration
+     * Store new event registration
      */
     public function store(Request $request, Event $event)
     {
-        // block registrations if event already started
         if ($this->eventHasStartedForRegistration($event)) {
             return redirect()->route('volunteer.events.show', $event->event_id)
                 ->with('error', 'This event has already started. Registration is closed.');
         }
 
+        // Validation — age MUST be 16 or above
         $request->validate([
-            // user info (snapshot)
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255',
             'contactNumber' => 'required|string|max:20',
-            'age' => 'nullable|integer|min:10|max:120',
+            'age' => 'required|integer|min:16|max:120',   // UPDATED HERE
             'gender' => 'nullable|string|max:20',
             'address' => 'nullable|string|max:500',
 
-            // registration details
             'company' => 'nullable|string|max:255',
             'volunteeringExperience' => 'nullable|string',
             'skill' => 'nullable|string|max:255',
+
             'emergencyContact' => 'required|string|max:255',
             'emergencyContactNumber' => 'required|string|max:20',
             'contactRelationship' => 'required|string|max:255',
         ]);
 
-        // prevent duplicate registration
+        // Extra strict check (prevents HTML tampering)
+        if ($request->age < 16) {
+            return back()->with('error', 'You must be at least 16 years old to register for this event.');
+        }
+
+        // Prevent duplicate registration
         $alreadyRegistered = EventRegistration::where('event_id', $event->event_id)
             ->where('user_id', Auth::id())
             ->exists();
@@ -108,20 +107,19 @@ class EventRegistrationController extends Controller
                 ->with('warning', 'You have already registered for this event.');
         }
 
-        // Check capacity (if eventMaximum is used)
+        // Check capacity
         if ($event->eventMaximum && $event->registrations()->count() >= $event->eventMaximum) {
             return back()->with('error', 'This event is full.');
         }
 
-        EventRegistration::create([
+        // Create registration
+        $registration = EventRegistration::create([
             'registration_id' => (string) Str::uuid(),
-
-            'event_id'=> $event->event_id,
+            'event_id' => $event->event_id,
             'user_id' => Auth::id(),
             'registrationDate' => now(),
             'status' => 'pending',
 
-            // new user snapshot fields
             'name' => $request->name,
             'email' => $request->email,
             'contactNumber' => $request->contactNumber,
@@ -129,16 +127,33 @@ class EventRegistrationController extends Controller
             'gender' => $request->gender,
             'address' => $request->address,
 
-            // existing registration fields
             'company' => $request->company,
             'volunteeringExperience' => $request->volunteeringExperience,
             'skill' => $request->skill,
+
             'emergencyContact' => $request->emergencyContact,
             'emergencyContactNumber' => $request->emergencyContactNumber,
             'contactRelationship' => $request->contactRelationship,
         ]);
 
-        // Redirect to event detail (consistent with other methods)
+        // Notify organizer
+        $organizer = $event->organizer;
+
+        if (!$organizer) {
+            $ngoProfile = \App\Models\NGOProfile::where('user_id', $event->user_id)->first();
+            if ($ngoProfile) $organizer = $ngoProfile->user;
+        }
+
+        if ($organizer && method_exists($organizer, 'notify')) {
+            $organizer->notify(
+                new \App\Notifications\VolunteerRegisteredNotification($event, $registration)
+            );
+        } else {
+            Log::warning('No valid NGO organizer found for event', [
+                'event_id' => $event->event_id,
+            ]);
+        }
+
         return redirect()->route('volunteer.events.show', $event->event_id)
             ->with('success', 'You have successfully registered for this event!');
     }
@@ -148,12 +163,8 @@ class EventRegistrationController extends Controller
      */
     public function edit(EventRegistration $registration)
     {
-        // Ensure only the owner can edit
-        if ($registration->user_id !== Auth::id()) {
-            abort(403, 'Unauthorized action.');
-        }
+        if ($registration->user_id !== Auth::id()) abort(403);
 
-        // Block editing if event has started
         if ($this->eventHasStartedForRegistration($registration)) {
             return redirect()->route('volunteer.events.show', $registration->event_id)
                 ->with('error', 'Event has already started — registration cannot be edited.');
@@ -167,36 +178,35 @@ class EventRegistrationController extends Controller
      */
     public function update(Request $request, EventRegistration $registration)
     {
-        if ($registration->user_id !== Auth::id()) {
-            abort(403, 'Unauthorized action.');
-        }
+        if ($registration->user_id !== Auth::id()) abort(403);
 
-        // Block updating if event has started
         if ($this->eventHasStartedForRegistration($registration)) {
             return redirect()->route('volunteer.events.show', $registration->event_id)
                 ->with('error', 'Event has already started — registration cannot be updated.');
         }
 
         $request->validate([
-            // user info (snapshot)
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255',
             'contactNumber' => 'required|string|max:20',
-            'age' => 'nullable|integer|min:10|max:120',
+            'age' => 'required|integer|min:16|max:120',   // UPDATED HERE TOO
             'gender' => 'nullable|string|max:20',
             'address' => 'nullable|string|max:500',
 
-            // registration details
             'company' => 'nullable|string|max:255',
             'volunteeringExperience' => 'nullable|string',
             'skill' => 'nullable|string|max:255',
+
             'emergencyContact' => 'required|string|max:255',
             'emergencyContactNumber' => 'required|string|max:20',
             'contactRelationship' => 'required|string|max:255',
         ]);
 
+        if ($request->age < 16) {
+            return back()->with('error', 'You must be at least 16 years old.');
+        }
+
         $registration->update([
-            // user snapshot fields
             'name' => $request->name,
             'email' => $request->email,
             'contactNumber' => $request->contactNumber,
@@ -204,10 +214,10 @@ class EventRegistrationController extends Controller
             'gender' => $request->gender,
             'address' => $request->address,
 
-            // registration fields
             'company' => $request->company,
             'volunteeringExperience' => $request->volunteeringExperience,
             'skill' => $request->skill,
+
             'emergencyContact' => $request->emergencyContact,
             'emergencyContactNumber' => $request->emergencyContactNumber,
             'contactRelationship' => $request->contactRelationship,
@@ -218,15 +228,12 @@ class EventRegistrationController extends Controller
     }
 
     /**
-     * Delete (cancel) registration
+     * Destroy registration
      */
     public function destroy(EventRegistration $registration)
     {
-        if ($registration->user_id !== Auth::id()) {
-            abort(403, 'Unauthorized action.');
-        }
+        if ($registration->user_id !== Auth::id()) abort(403);
 
-        // Block deletion if event has started
         if ($this->eventHasStartedForRegistration($registration)) {
             return redirect()->route('volunteer.events.show', $registration->event_id)
                 ->with('error', 'Event has already started — registration cannot be deleted.');

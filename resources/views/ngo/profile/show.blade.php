@@ -36,6 +36,62 @@
             display: block;
             width: 100%;
         }
+
+        /* Ensure text is readable on highlighted rows */
+.rank-highlight,
+.list-group-item.rank-highlight {
+    background-color: var(--primary-purple);
+    color: #fff;
+}
+
+/* Make anchors (names) white and remove default link color in highlighted rows */
+.rank-highlight a,
+.rank-highlight a:visited,
+.rank-highlight a:hover,
+.rank-highlight a:focus {
+    color: #fff !important;
+    text-decoration: none;
+}
+
+/* Make small / muted text readable on purple */
+.rank-highlight .small,
+.rank-highlight .text-muted,
+.rank-highlight .me-2,
+.rank-highlight .list-group-numbered>li::marker {
+    color: rgba(255,255,255,0.92) !important;
+}
+
+/* Style badges inside highlighted rows so they remain visible (lighter translucent pill) */
+.rank-highlight .badge {
+    background-color: rgba(255,255,255,0.14) !important;
+    color: #fff !important;
+    border: 1px solid rgba(255,255,255,0.18);
+}
+
+/* Slight visual lift for avatar on highlighted row */
+.rank-highlight img {
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    border: 2px solid rgba(255,255,255,0.06);
+}
+
+/* Podium-specific: ensure podium highlighted names are white (for top-3) */
+.podium-highlight a,
+.podium-highlight a:visited,
+.podium-highlight a:focus,
+.podium-highlight a:hover {
+    color: #fff !important;
+}
+
+/* If you used the .podium-current-link class above, style it too */
+.podium-current-link {
+    color: #fff !important;
+}
+
+/* Optional: adjust list marker when using ordered list and highlight */
+.list-group-numbered>li.rank-highlight::marker {
+    color: #fff;
+}
+
     </style>
 </head>
 
@@ -181,8 +237,7 @@
                                 </button>
                             </li>
 
-                            @auth
-                                @if (strtolower(auth()->user()->role->roleName ?? (auth()->user()->role ?? '')) === 'ngo')
+                            
                                     <li class="nav-item me-5" role="presentation">
                                         <button
                                             class="nav-link {{ request()->has('tab') && request('tab') == 'blog' ? 'active' : '' }}"
@@ -191,8 +246,7 @@
                                             <i class="fas fa-blog me-2"></i>My Blog
                                         </button>
                                     </li>
-                                @endif
-                            @endauth
+                               
                         </ul>
 
                         <!-- Tabs Content -->

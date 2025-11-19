@@ -163,7 +163,7 @@
                                 <div class="info-item">
                                     <span class="info-label">Category</span>
                                     <span class="info-value">
-                                        {{ optional($post->category)->categoryName ?? 'Uncategorized' }}
+                                        {{ $post->custom_category ? $post->custom_category : optional($post->category)->categoryName ?? 'Uncategorized' }}
                                     </span>
                                 </div>
 

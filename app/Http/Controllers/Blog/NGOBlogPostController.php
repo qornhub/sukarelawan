@@ -24,32 +24,36 @@ class NGOBlogPostController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'title'        => 'required|string|max:255',
+            'title'            => 'required|string|max:255',
             'blogSummary'      => 'nullable|string|max:300',
-            'content'      => 'required|string',
-            'category_id'  => 'required|exists:blog_categories,blogCategory_id',
-            'status'       => 'required|in:draft,published',
-            'published_at' => 'nullable|date',
-            'image'        => 'nullable|image|max:5120',
+            'content'          => 'required|string',
+            'category_id'      => 'required|string',
+            'custom_category'  => 'required_if:category_id,other|string|max:255',
+            'status'           => 'required|in:draft,published',
+            'published_at'     => 'nullable|date',
+            'image'            => 'nullable|image|max:5120',
         ]);
 
-        // Normalize publish date
-        if ($request->filled('published_at')) {
-            try {
-                $validated['published_at'] = Carbon::parse($request->input('published_at'))->toDateTimeString();
-            } catch (\Throwable $e) {
-                $validated['published_at'] = null;
-            }
+        /** 
+         * PRIVATE CATEGORY LOGIC
+         */
+        if ($validated['category_id'] === 'other') {
+            $categoryId = null;
+            $customCategory = $validated['custom_category'];
         } else {
-            $validated['published_at'] = null;
+            $categoryId = $validated['category_id'];
+            $customCategory = null;
         }
+
+        // Normalize published_at
+        $validated['published_at'] = $request->filled('published_at')
+            ? Carbon::parse($request->published_at)->toDateTimeString()
+            : null;
 
         // Handle image upload
         $imageFileName = null;
-        if ($request->hasFile('image') || $request->hasFile('blogImage') || $request->hasFile('blog_image')) {
-            $file = $request->hasFile('image') ? $request->file('image')
-                  : ($request->hasFile('blogImage') ? $request->file('blogImage') : $request->file('blog_image'));
-
+        if ($request->hasFile('image')) {
+            $file = $request->file('image');
             $safeOriginal = preg_replace('/\s+/', '_', $file->getClientOriginalName());
             $imageFileName = time() . '_blog_' . $safeOriginal;
 
@@ -62,15 +66,16 @@ class NGOBlogPostController extends Controller
 
         // Create post
         BlogPost::create([
-            'blogPost_id'  => (string) Str::uuid(),
-            'user_id'      => Auth::id(),
-            'category_id'  => $validated['category_id'],
-            'title'        => $validated['title'],
-            'blogSummary'      => $validated['blogSummary'] ?? null,
-            'content'      => $validated['content'],
-            'image'        => $imageFileName,
-            'status'       => $validated['status'],
-            'published_at' => ($validated['status'] === 'published' && empty($validated['published_at']))
+            'blogPost_id'     => (string) Str::uuid(),
+            'user_id'         => Auth::id(),
+            'category_id'     => $categoryId,
+            'custom_category' => $customCategory,
+            'title'           => $validated['title'],
+            'blogSummary'     => $validated['blogSummary'] ?? null,
+            'content'         => $validated['content'],
+            'image'           => $imageFileName,
+            'status'          => $validated['status'],
+            'published_at'    => ($validated['status'] === 'published' && empty($validated['published_at']))
                 ? now()
                 : $validated['published_at'],
         ]);
@@ -101,39 +106,43 @@ class NGOBlogPostController extends Controller
         }
 
         $validated = $request->validate([
-            'title'        => 'required|string|max:255',
+            'title'            => 'required|string|max:255',
             'blogSummary'      => 'nullable|string|max:300',
-            'content'      => 'required|string',
-            'category_id'  => 'nullable|exists:blog_categories,blogCategory_id',
-            'status'       => 'required|in:draft,published',
-            'published_at' => 'nullable|date',
-            'image'        => 'nullable|image|max:5120',
+            'content'          => 'required|string',
+            'category_id'      => 'required|string',
+            'custom_category'  => 'required_if:category_id,other|string|max:255',
+            'status'           => 'required|in:draft,published',
+            'published_at'     => 'nullable|date',
+            'image'            => 'nullable|image|max:5120',
         ]);
+
+        /**
+         * PRIVATE CATEGORY LOGIC
+         */
+        if ($validated['category_id'] === 'other') {
+            $post->category_id = null;
+            $post->custom_category = $validated['custom_category'];
+        } else {
+            $post->category_id = $validated['category_id'];
+            $post->custom_category = null;
+        }
 
         // Normalize published_at
         if ($request->filled('published_at')) {
-            try {
-                $validated['published_at'] = Carbon::parse($request->input('published_at'))->toDateTimeString();
-            } catch (\Throwable $e) {
-                $validated['published_at'] = null;
-            }
-        } else {
-            $validated['published_at'] = $post->published_at;
+            $validated['published_at'] =
+                Carbon::parse($request->published_at)->toDateTimeString();
         }
 
-        // Handle image replacement
-        if ($request->hasFile('image') || $request->hasFile('blogImage') || $request->hasFile('blog_image')) {
+        // Image replacement
+        if ($request->hasFile('image')) {
             if ($post->image) {
-                $oldBasename = basename($post->image);
-                $oldPath = public_path('images/Blog/' . $oldBasename);
-                if ($oldBasename !== 'default-blog.jpg' && file_exists($oldPath)) {
-                    @unlink($oldPath);
+                $oldPath = public_path('images/Blog/' . basename($post->image));
+                if (file_exists($oldPath) && basename($post->image) !== 'default-blog.jpg') {
+                    unlink($oldPath);
                 }
             }
 
-            $file = $request->hasFile('image') ? $request->file('image')
-                  : ($request->hasFile('blogImage') ? $request->file('blogImage') : $request->file('blog_image'));
-
+            $file = $request->file('image');
             $safeOriginal = preg_replace('/\s+/', '_', $file->getClientOriginalName());
             $imageFileName = time() . '_blog_' . $safeOriginal;
 
@@ -146,12 +155,13 @@ class NGOBlogPostController extends Controller
             $post->image = $imageFileName;
         }
 
+        // Update normal fields
         $post->title       = $validated['title'];
-        $post->blogSummary     = $validated['blogSummary'] ?? $post->summary;
+        $post->blogSummary = $validated['blogSummary'];
         $post->content     = $validated['content'];
-        $post->category_id = $validated['category_id'] ?? $post->category_id;
         $post->status      = $validated['status'];
 
+        // Publish/draft logic
         if ($post->status === 'published' && empty($validated['published_at'])) {
             if (empty($post->published_at)) {
                 $post->published_at = now();
@@ -164,7 +174,8 @@ class NGOBlogPostController extends Controller
 
         $post->save();
 
-        return redirect()->route('blogs.show', $post->blogPost_id)->with('success', 'Blog post updated.');
+        return redirect()->route('blogs.show', $post->blogPost_id)
+            ->with('success', 'Blog post updated.');
     }
 
     // Delete
@@ -177,39 +188,34 @@ class NGOBlogPostController extends Controller
         }
 
         if ($post->image) {
-            $basename = basename($post->image);
-            $path = public_path('images/Blog/' . $basename);
-            if ($basename !== 'default-blog.jpg' && file_exists($path)) {
-                @unlink($path);
+            $path = public_path('images/Blog/' . basename($post->image));
+            if (file_exists($path) && basename($post->image) !== 'default-blog.jpg') {
+                unlink($path);
             }
         }
 
         $post->delete();
 
-        return redirect()->route('blogs.index')->with('success', 'Blog post deleted.');
+        return redirect()->route('blogs.index')
+            ->with('success', 'Blog post deleted.');
     }
 
     public function manage($id)
-{
-    // Load post
-    $post = BlogPost::where('blogPost_id', $id)->firstOrFail();
-    $comments = BlogComment::where('blogPost_id', $post->blogPost_id)
-    ->orderBy('created_at', 'asc')
-    ->paginate(3, ['*'], 'comments_page')
-    ->withQueryString();
+    {
+        $post = BlogPost::where('blogPost_id', $id)->firstOrFail();
+        $comments = BlogComment::where('blogPost_id', $post->blogPost_id)
+            ->orderBy('created_at', 'asc')
+            ->paginate(3, ['*'], 'comments_page')
+            ->withQueryString();
 
-    // Not owner -> send to public show page
-    if (! Auth::check() || Auth::id() !== $post->user_id) {
-        return redirect()->route('blogs.show', $post->blogPost_id);
+        if (!Auth::check() || Auth::id() !== $post->user_id) {
+            return redirect()->route('blogs.show', $post->blogPost_id);
+        }
+
+        if ($post->status === 'draft') {
+            return redirect()->route('ngo.blogs.edit', $post->blogPost_id);
+        }
+
+        return view('ngo.blogs.blogEditDelete', compact('post', 'comments'));
     }
-
-    // Owner
-    if ($post->status === 'draft') {
-        // Owner editing draft -> go straight to edit form
-        return redirect()->route('ngo.blogs.edit', $post->blogPost_id);
-    }
-
-    // Owner and published -> show the edit/delete UI
-    return view('ngo.blogs.blogEditDelete', compact('post', 'comments'));
-}
 }

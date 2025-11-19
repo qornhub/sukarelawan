@@ -110,7 +110,7 @@ body {
 .register-btn:hover {
     transform: translateY(-3px);
     box-shadow: 0 14px 28px rgba(0, 0, 0, 0.12);
-    background: #00b896;
+    background: var(--primary-hover);
 }
 
 /* Small responsive tweak */
@@ -135,7 +135,6 @@ body {
 .page-body {
     padding: 0 0 4rem 0;
 }
-
 
 .content-card {
     background: white;
@@ -451,8 +450,6 @@ body {
     margin-bottom: 1rem;
     opacity: 0.5;
 }
-
-
 
 /* Empty state */
 .empty-state {

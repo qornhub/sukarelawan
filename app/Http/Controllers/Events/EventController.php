@@ -144,8 +144,9 @@ class EventController extends Controller
         $rules = [
             'eventTitle'       => 'required|string|max:255',
             'eventPoints'      => 'nullable|integer|min:0',
-            'eventStart'       => 'required|date',
-            'eventEnd'         => 'required|date|after_or_equal:eventStart',
+            'eventStart' => 'required|date|after_or_equal:now',
+            'eventEnd'   => 'required|date|after_or_equal:eventStart',
+
             'eventSummary'     => 'nullable|string|max:500',
             'eventDescription' => 'required|string',
             'venueName'        => 'required|string|max:255',
@@ -153,7 +154,7 @@ class EventController extends Controller
             'city'             => 'required|string|max:100',
             'state'            => 'required|string|max:100',
             'country'          => 'required|string|max:100',
-            'eventMaximum'     => 'nullable|integer|min:0',
+            'eventMaximum'     => 'nullable|integer|min:1',
             'category_id'      => 'required|exists:event_categories,eventCategory_id',
             'sdgs'             => 'nullable|array',
             'sdgs.*'           => 'exists:sdgs,sdg_id',
@@ -300,34 +301,48 @@ class EventController extends Controller
         ];
 
         // Validation rules (eventPoints optional, we'll recalculate below)
-        $rules = [
-            'eventTitle'       => 'required|string|max:255',
-            'eventPoints'      => 'nullable|integer|min:0',
-            'eventStart'       => 'required|date',
-            'eventEnd'         => 'required|date|after_or_equal:eventStart',
-            'eventSummary'     => 'nullable|string|max:500',
-            'eventDescription' => 'required|string',
-            'venueName'        => 'required|string|max:255',
-            'zipCode'          => 'nullable|string|max:20',
-            'city'             => 'required|string|max:100',
-            'state'            => 'required|string|max:100',
-            'country'          => 'required|string|max:100',
-            'eventMaximum'     => 'nullable|integer|min:0',
-            'category_id'      => 'nullable|exists:event_categories,eventCategory_id',
-            'sdgs'             => 'nullable|array',
-            'sdgs.*'           => 'exists:sdgs,sdg_id',
-            'skills'           => 'nullable|array',
-            'skills.*'         => 'exists:skills,skill_id',
-            'requirements'     => 'nullable|string|max:2000',
-        ];
+       // --- validation rules for update() ---
+$rules = [
+    'eventTitle'       => 'required|string|max:255',
+    'eventPoints'      => 'nullable|integer|min:0',
+     'eventStart' => 'required|date|after_or_equal:now',
+    'eventEnd'   => 'required|date|after_or_equal:eventStart',
 
-        $validator = Validator::make(array_merge($input, $request->only('sdgs', 'skills')), $rules);
+    'eventSummary'     => 'nullable|string|max:500',
+    'eventDescription' => 'required|string',
+    'venueName'        => 'required|string|max:255',
+    'zipCode'          => 'nullable|string|max:20',
+    'city'             => 'required|string|max:100',
+    'state'            => 'required|string|max:100',
+    'country'          => 'required|string|max:100',
+    // eventMaximum now REQUIRED on edit
+    'eventMaximum'     => 'required|integer|min:1',
+    'category_id'      => 'nullable|exists:event_categories,eventCategory_id',
+    'sdgs'             => 'nullable|array',
+    'sdgs.*'           => 'exists:sdgs,sdg_id',
+    'skills'           => 'nullable|array',
+    'skills.*'         => 'exists:skills,skill_id',
+    'requirements'     => 'nullable|string|max:2000',
+];
 
-        if ($validator->fails()) {
-            return redirect()->back()
-                ->withErrors($validator)
-                ->withInput($request->all());
-        }
+// Conditional image rule: required only if the event currently has no image
+if ($event->eventImage) {
+    // optional on edit, but validate if provided
+    $rules['eventImage'] = 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120';
+} else {
+    // no existing image — require upload on edit
+    $rules['eventImage'] = 'required|image|mimes:jpeg,png,jpg,webp|max:5120';
+}
+
+// Create validator (keep your custom messages/attributes if you have them)
+$validator = Validator::make(array_merge($input, $request->only('sdgs', 'skills')), $rules);
+
+if ($validator->fails()) {
+    return redirect()->back()
+        ->withErrors($validator)
+        ->withInput($request->all());
+}
+
 
         // Image handling (replace if new uploaded)
         $defaultEventImage = 'default-event.jpg';

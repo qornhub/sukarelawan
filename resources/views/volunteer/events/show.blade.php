@@ -1,7 +1,6 @@
 {{-- resources/views/ngo/events/show.blade.php --}}
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -14,11 +13,16 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="stylesheet" href="{{ asset('css/events/event_show.css') }}">
     <link rel="stylesheet" href="{{ asset('css/blogs/comment.css') }}">
-</head>
+    <style>
+        /* event_show.css */
+.sidebar-card .detail-value .badge {
+  display: inline-block; /* ensures badge width is respected when text-end used */
+}
 
+    </style>
+</head>
 <body>
     @include('layouts.volunteer_header')
-
 
     @php
         // image helpers
@@ -40,7 +44,6 @@
     {{-- HERO --}}
     <header class="hero" style="background-image: url('{{ $eventHeroUrl }}');">
         <div class="hero-overlay"></div>
-
         <div class="hero-content container">
             <div class="hero-text">
                 <h1 class="hero-title">{{ $event->eventTitle ?? 'Untitled Event' }}</h1>
@@ -56,7 +59,6 @@
             <a href="{{ route('volunteer.event.register', $event) }}" class="register-btn">
                 <i class="fas fa-user-plus me-2"></i> REGISTER NOW
             </a>
-
         </div>
     </div>
 
@@ -72,6 +74,21 @@
                     </h4>
                     <div class="text-content">
                         {!! nl2br(e($event->eventDescription ?? 'No description provided.')) !!}
+                    </div>
+                </section>
+
+                {{-- Requirements (moved here; same structure as Mission Description) --}}
+                <section class="content-card">
+                    <h4 class="section-heading">
+                        <i class="fas fa-list-check icon"></i>
+                        Requirements
+                    </h4>
+                    <div class="text-content">
+                        @if ($event->requirements && trim($event->requirements) !== '')
+                            {!! nl2br(e($event->requirements)) !!}
+                        @else
+                            <span class="text-muted">No requirements specified</span>
+                        @endif
                     </div>
                 </section>
 
@@ -156,16 +173,14 @@
                     </div>
                 </section>
 
-                {{-- commetn --}}
+                {{-- comments --}}
                 <section class="content-card">
-
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h4 class="section-heading mb-0">
                             <i class="fas fa-comments icon"></i>
                             Comments ({{ $comments->total() ?? count($comments) }})
                         </h4>
                     </div>
-
 
                     @include('partials.events.comments', [
                         'event' => $event,
@@ -175,12 +190,7 @@
                         'profileRoute' => 'volunteer.profile.show',
                         'profileStoragePath' => 'images/profiles/',
                     ])
-
                 </section>
-
-
-
-
             </div>
 
             {{-- RIGHT SIDEBAR --}}
@@ -286,20 +296,21 @@
                             </div>
                         </div>
 
-                        {{-- Skills --}}
+                        {{-- Skills (stacked vertically, right-aligned) --}}
                         <div class="detail-item">
                             <div class="detail-label">
                                 <i class="fas fa-tools me-1"></i>Skills
                             </div>
                             <div class="detail-value">
                                 @if ($skills->count())
-                                    <div class="d-flex flex-wrap gap-2">
+                                    <div class="d-flex flex-column gap-2">
                                         @foreach ($skills as $skill)
-                                            {{-- skill table column is skillName --}}
-                                            <span class="badge bg-light text-dark border">
-                                                <i class="fas fa-check-circle text-success me-1"></i>
-                                                {{ $skill->skillName ?? ($skill->name ?? 'Skill') }}
-                                            </span>
+                                            <div class="w-100 text-end">
+                                                <span class="badge bg-light text-dark border d-inline-block">
+                                                    <i class="fas fa-check-circle text-success me-1"></i>
+                                                    {{ $skill->skillName ?? ($skill->name ?? 'Skill') }}
+                                                </span>
+                                            </div>
                                         @endforeach
                                     </div>
                                 @else
@@ -308,20 +319,7 @@
                             </div>
                         </div>
 
-                        {{-- Requirements --}}
-                        <div class="detail-item">
-                            <div class="detail-label">
-                                <i class="fas fa-list-check me-1"></i>Requirements
-                            </div>
-                            <div class="detail-value">
-                                @if ($event->requirements && trim($event->requirements) !== '')
-                                    {!! nl2br(e($event->requirements)) !!}
-                                @else
-                                    <span class="text-muted">No requirements specified</span>
-                                @endif
-                            </div>
-                        </div>
-
+                        {{-- Reward --}}
                         <div class="detail-item">
                             <div class="detail-label">
                                 <i class="fas fa-star me-1"></i>Reward
@@ -347,7 +345,7 @@
 
                             // Try to get profile photo from organizer->ngoProfile or volunteerProfile
                             $file =
-                                optional($organizer->ngoProfile)->profilePhoto ??
+                                optional($organizer->ngoProfile)->profilePhoto ?? 
                                 (optional($organizer->volunteerProfile)->profilePhoto ?? null);
 
                             $profileImageUrl = $default;
@@ -377,9 +375,6 @@
                                 style="width:60px;height:60px;object-fit:cover;">
                         </div>
 
-
-
-
                         <div>
                             <div class="organizer-label">Organized By</div>
                             <div class="organizer-name">{{ optional($event->organizer)->name ?? 'Organizer' }}</div>
@@ -407,7 +402,6 @@
                             class="btn-organizer secondary">
                             <i class="fas fa-user me-2"></i>View Profile
                         </a>
-
                     </div>
                 </div>
             </aside>
@@ -419,5 +413,4 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     @stack('scripts')
 </body>
-
 </html>

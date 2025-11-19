@@ -23,57 +23,60 @@ class VolunteerBlogPostController extends Controller
     // Store new blog post (volunteer)
     public function store(Request $request)
     {
-        // Validate request (use controller validation because textarea is handled by TinyMCE)
+        // Validation (fixed)
         $validated = $request->validate([
-            'title'        => 'required|string|max:255',
+            'title'            => 'required|string|max:255',
             'blogSummary'      => 'nullable|string|max:300',
-            'content'      => 'required|string',
-            'category_id'  => 'required|exists:blog_categories,blogCategory_id',
-            'status'       => 'required|in:draft,published',
-            'published_at' => 'nullable|date',
-            'image'        => 'nullable|image|max:5120',
+            'content'          => 'required|string',
+            'category_id'      => 'required|string',
+            'custom_category'  => 'required_if:category_id,other|string|max:255',
+            'status'           => 'required|in:draft,published',
+            'published_at'     => 'nullable|date',
+            'image'            => 'nullable|image|max:5120',
         ]);
 
-        // Normalize published_at (datetime-local from browser -> Y-m-d H:i:s)
-        if ($request->filled('published_at')) {
-            try {
-                $validated['published_at'] = Carbon::parse($request->input('published_at'))->toDateTimeString();
-            } catch (\Throwable $e) {
-                // leave as-is; validation above should have caught invalid dates
-            }
-        } else {
-            $validated['published_at'] = null;
-        }
+        // Normalize published_at
+        $validated['published_at'] =
+            $request->filled('published_at')
+            ? Carbon::parse($request->published_at)->toDateTimeString()
+            : null;
 
-        // Image handling (same style as your Event controller)
+        // Handle image upload
         $imageFileName = null;
-        if ($request->hasFile('image') || $request->hasFile('blogImage') || $request->hasFile('blog_image')) {
-            $file = $request->hasFile('image') ? $request->file('image')
-                  : ($request->hasFile('blogImage') ? $request->file('blogImage') : $request->file('blog_image'));
-
+        if ($request->hasFile('image')) {
+            $file = $request->file('image');
             $safeOriginal = preg_replace('/\s+/', '_', $file->getClientOriginalName());
             $imageFileName = time() . '_blog_' . $safeOriginal;
 
             $destFolder = public_path('images/Blog');
-            if (! is_dir($destFolder)) {
-                mkdir($destFolder, 0755, true);
-            }
-
+            if (!is_dir($destFolder)) mkdir($destFolder, 0755, true);
             $file->move($destFolder, $imageFileName);
         }
 
-        // Prepare payload
+        // Build payload (PRIVATE CATEGORY LOGIC)
         $payload = [
-            'blogPost_id'  => (string) Str::uuid(),
-            'user_id'      => Auth::id(),
-            'category_id'  => $validated['category_id'],
-            'title'        => $validated['title'],
-            'blogSummary'      => $validated['blogSummary'] ?? null,
-            'content'      => $validated['content'],
-            'image'        => $imageFileName,
-            'status'       => $validated['status'],
-            'published_at' => ($validated['status'] === 'published' && empty($validated['published_at'])) ? now() : $validated['published_at'],
+            'blogPost_id'   => (string) Str::uuid(),
+            'user_id'       => Auth::id(),
+            'title'         => $validated['title'],
+            'blogSummary'   => $validated['blogSummary'] ?? null,
+            'content'       => $validated['content'],
+            'image'         => $imageFileName,
+            'status'        => $validated['status'],
         ];
+
+        if ($validated['category_id'] === 'other') {
+            $payload['category_id'] = null;
+            $payload['custom_category'] = $validated['custom_category'];
+        } else {
+            $payload['category_id'] = $validated['category_id'];
+            $payload['custom_category'] = null;
+        }
+
+        // Handle publish date
+        $payload['published_at'] =
+            ($validated['status'] === 'published' && empty($validated['published_at']))
+            ? now()
+            : $validated['published_at'];
 
         BlogPost::create($payload);
 
@@ -85,7 +88,6 @@ class VolunteerBlogPostController extends Controller
     {
         $post = BlogPost::where('blogPost_id', $id)->firstOrFail();
 
-        // owner only (volunteer) — volunteers can only edit their own posts
         if (Auth::id() !== $post->user_id) {
             abort(403);
         }
@@ -94,7 +96,7 @@ class VolunteerBlogPostController extends Controller
         return view('volunteer.blogs.edit', compact('post','categories'));
     }
 
-    // Update
+    // Update post
     public function update(Request $request, $id)
     {
         $post = BlogPost::where('blogPost_id', $id)->firstOrFail();
@@ -103,65 +105,59 @@ class VolunteerBlogPostController extends Controller
             abort(403);
         }
 
-        // Validate input
+        // Validation
         $validated = $request->validate([
-            'title'        => 'required|string|max:255',
+            'title'            => 'required|string|max:255',
             'blogSummary'      => 'nullable|string|max:300',
-            'content'      => 'required|string',
-            'category_id'  => 'nullable|exists:blog_categories,blogCategory_id',
-            'status'       => 'required|in:draft,published',
-            'published_at' => 'nullable|date',
-            'image'        => 'nullable|image|max:5120',
+            'content'          => 'required|string',
+            'category_id'      => 'required|string',
+            'custom_category'  => 'required_if:category_id,other|string|max:255',
+            'status'           => 'required|in:draft,published',
+            'published_at'     => 'nullable|date',
+            'image'            => 'nullable|image|max:5120',
         ]);
 
-        // Normalize published_at if provided
+        // Normalize published_at
         if ($request->filled('published_at')) {
-            try {
-                $validated['published_at'] = Carbon::parse($request->input('published_at'))->toDateTimeString();
-            } catch (\Throwable $e) {
-                // ignore; validator should have prevented invalid date
-            }
-        } else {
-            // keep existing published_at if not provided and not changing to draft
-            if (!isset($validated['published_at'])) {
-                $validated['published_at'] = $post->published_at;
-            }
+            $validated['published_at'] = Carbon::parse($request->published_at)->toDateTimeString();
         }
 
-        // Image handling (replace if uploaded)
-        if ($request->hasFile('image') || $request->hasFile('blogImage') || $request->hasFile('blog_image')) {
+        // Handle image replacement
+        if ($request->hasFile('image')) {
             if ($post->image) {
-                $oldBasename = basename($post->image);
-                $oldPath = public_path('images/Blog/' . $oldBasename);
-                if ($oldBasename !== 'default-blog.jpg' && file_exists($oldPath)) {
-                    @unlink($oldPath);
-                }
+                $old = public_path('images/Blog/' . basename($post->image));
+                if (file_exists($old)) unlink($old);
             }
 
-            $file = $request->hasFile('image') ? $request->file('image')
-                  : ($request->hasFile('blogImage') ? $request->file('blogImage') : $request->file('blog_image'));
-
+            $file = $request->file('image');
             $safeOriginal = preg_replace('/\s+/', '_', $file->getClientOriginalName());
             $imageFileName = time() . '_blog_' . $safeOriginal;
+
             $destFolder = public_path('images/Blog');
-            if (! is_dir($destFolder)) {
-                mkdir($destFolder, 0755, true);
-            }
+            if (!is_dir($destFolder)) mkdir($destFolder, 0755, true);
+
             $file->move($destFolder, $imageFileName);
             $post->image = $imageFileName;
         }
 
-        // Update fields
-        $post->category_id = $validated['category_id'] ?? $post->category_id;
+        // Update normal fields
         $post->title       = $validated['title'];
-        $post->blogSummary     = $validated['blogSummary'] ?? $post->blogSummary;
+        $post->blogSummary = $validated['blogSummary'];
         $post->content     = $validated['content'];
         $post->status      = $validated['status'];
 
-        if ($post->status === 'published' && empty($validated['published_at'])) {
-            if (empty($post->published_at)) {
-                $post->published_at = now();
-            }
+        // CATEGORY LOGIC (PRIVATE)
+        if ($validated['category_id'] === 'other') {
+            $post->category_id     = null;
+            $post->custom_category = $validated['custom_category'];
+        } else {
+            $post->category_id     = $validated['category_id'];
+            $post->custom_category = null;
+        }
+
+        // Publish logic
+        if ($post->status === 'published' && empty($post->published_at)) {
+            $post->published_at = now();
         } elseif ($post->status === 'draft') {
             $post->published_at = null;
         } else {
@@ -173,7 +169,7 @@ class VolunteerBlogPostController extends Controller
         return redirect()->route('blogs.show', $post->blogPost_id)->with('success', 'Blog post updated.');
     }
 
-    // Delete own post
+    // Delete
     public function destroy($id)
     {
         $post = BlogPost::where('blogPost_id', $id)->firstOrFail();
@@ -182,13 +178,9 @@ class VolunteerBlogPostController extends Controller
             abort(403);
         }
 
-        $defaultBlogImage = 'default-blog.jpg';
         if ($post->image) {
-            $basename = basename($post->image);
-            $path = public_path('images/Blog/' . $basename);
-            if ($basename !== $defaultBlogImage && file_exists($path)) {
-                @unlink($path);
-            }
+            $path = public_path('images/Blog/' . basename($post->image));
+            if (file_exists($path)) unlink($path);
         }
 
         $post->delete();
@@ -196,37 +188,22 @@ class VolunteerBlogPostController extends Controller
         return redirect()->route('blogs.index')->with('success', 'Blog post deleted.');
     }
 
-    /**
- * Show management page for owner, otherwise redirect to public view.
- *
- * Behaviour:
- *  - If visitor is owner:
- *      - draft -> redirect to volunteer.blogs.edit
- *      - published -> show volunteer.blogs.blogEditDelete
- *  - If visitor NOT owner:
- *      - redirect to public blogs.show
- */
-public function manage($id)
-{
-    // Load post
-    $post = BlogPost::where('blogPost_id', $id)->firstOrFail();
-    $comments = BlogComment::where('blogPost_id', $post->blogPost_id)
-    ->orderBy('created_at', 'asc')
-    ->paginate(3, ['*'], 'comments_page')
-    ->withQueryString();
+    public function manage($id)
+    {
+        $post = BlogPost::where('blogPost_id', $id)->firstOrFail();
+        $comments = BlogComment::where('blogPost_id', $post->blogPost_id)
+            ->orderBy('created_at', 'asc')
+            ->paginate(3, ['*'], 'comments_page')
+            ->withQueryString();
 
-    // Not owner -> send to public show page
-    if (! Auth::check() || Auth::id() !== $post->user_id) {
-        return redirect()->route('blogs.show', $post->blogPost_id);
+        if (!Auth::check() || Auth::id() !== $post->user_id) {
+            return redirect()->route('blogs.show', $post->blogPost_id);
+        }
+
+        if ($post->status === 'draft') {
+            return redirect()->route('volunteer.blogs.edit', $post->blogPost_id);
+        }
+
+        return view('volunteer.blogs.blogEditDelete', compact('post', 'comments'));
     }
-
-    // Owner
-    if ($post->status === 'draft') {
-        // Owner editing draft -> go straight to edit form
-        return redirect()->route('volunteer.blogs.edit', $post->blogPost_id);
-    }
-
-    // Owner and published -> show the edit/delete UI
-    return view('volunteer.blogs.blogEditDelete', compact('post', 'comments'));
-}
 }

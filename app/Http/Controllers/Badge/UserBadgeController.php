@@ -38,31 +38,42 @@ class UserBadgeController extends Controller
      * Volunteer: Claim an unlocked badge.
      * Creates a record in user_badges table (UserBadge model).
      */
-    public function claim(Request $request, $badge_id)
-    {
-        $user = Auth::user();
+   public function claim(Request $request, $badge_id)
+{
+    $user = Auth::user();
 
-        $badge = Badge::findOrFail($badge_id);
+    $badge = Badge::findOrFail($badge_id);
 
-        // Prevent duplicate claims
-        if (UserBadge::where('user_id', $user->id)->where('badge_id', $badge->badge_id)->exists()) {
-            return redirect()->back()->with('info', 'You have already claimed this badge.');
-        }
-
-        // Check points
-        $points = UserPoint::where('user_id', $user->id)->sum('points');
-        if ($points < $badge->pointsRequired) {
-            return redirect()->back()->with('error', 'Not enough points to claim this badge.');
-        }
-
-        // Create user_badges record
-        UserBadge::create([
-            'userBadge_id' => (string) Str::uuid(),
-            'user_id'      => $user->id,
-            'badge_id'     => $badge->badge_id,
-            'earnedDate'   => now(),
-        ]);
-
-        return redirect()->back()->with('success', 'Badge claimed successfully!');
+    // Prevent duplicate claims
+    if (UserBadge::where('user_id', $user->id)->where('badge_id', $badge->badge_id)->exists()) {
+        return redirect()->back()->with('info', 'You have already claimed this badge.');
     }
+
+    // Check points
+    $points = UserPoint::where('user_id', $user->id)->sum('points');
+    if ($points < $badge->pointsRequired) {
+        return redirect()->back()->with('error', 'Not enough points to claim this badge.');
+    }
+
+    // Create user_badges record
+    UserBadge::create([
+        'userBadge_id' => (string) Str::uuid(),
+        'user_id'      => $user->id,
+        'badge_id'     => $badge->badge_id,
+        'earnedDate'   => now(),
+    ]);
+
+    // Deduct points
+    UserPoint::create([
+        'userPoint_id'  => (string) Str::uuid(),
+        'user_id'       => $user->id,
+        'points'        => -$badge->pointsRequired, // DEDUCT POINTS HERE
+        'activityType'  => 'Badge Claimed',
+        'event_id'      => null,
+        'attendance_id' => null,
+    ]);
+
+    return redirect()->back()->with('success', 'Badge claimed successfully! Points deducted.');
+}
+
 }

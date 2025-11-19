@@ -1,10 +1,10 @@
-{{-- resources/views/volunteer/notifications/index.blade.php --}}
+{{-- resources/views/ngo/notifications/index.blade.php --}}
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Notifications — Volunteer</title>
+  <title>Notifications — NGO</title>
 
   <meta name="csrf-token" content="{{ csrf_token() }}">
   <meta name="user-id" content="{{ auth()->id() ?? '' }}">
@@ -13,11 +13,10 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link rel="stylesheet" href="{{ asset('css/notification.css') }}">
 
-  
 </head>
 
 <body>
-  @include('layouts.volunteer_header')
+  @include('layouts.ngo_header')
 
   <main class="py-4">
     <div class="container">
@@ -28,7 +27,7 @@
           <div class="row align-items-center">
             <div class="col">
               <h1 class="h3 mb-1 fw-bold">Notifications</h1>
-              <p class="text-muted mb-0">Stay updated with your volunteer activities</p>
+              <p class="text-muted mb-0">Stay updated with your organisation's activities</p>
             </div>
             <div class="col-auto">
               <button id="btn-mark-all" class="btn btn-mark-all btn-outline-primary">
@@ -46,14 +45,15 @@
           <div class="card-body" id="notifications-list">
             @forelse($notifications as $note)
               @php
-                // Normalize the data array
+                // Normalize data
                 $data = (array) $note->data;
                 $isUnread = $note->read_at ? false : true;
 
-                // Common fields
-                $action = $data['action'] ?? null; // 'assigned'|'unassigned'
+                // Common fields (support multiple payload shapes)
+                $action = $data['action'] ?? null; // 'assigned'|'unassigned' etc
                 $taskTitle = $data['task_title'] ?? $data['taskName'] ?? $data['title'] ?? null;
                 $taskId = $data['task_id'] ?? null;
+
                 // event info (try several common keys)
                 $eventId = $data['event_id'] ?? $data['eventId'] ?? $data['event'] ?? null;
                 $eventName = $data['event_name'] ?? $data['eventTitle'] ?? $data['eventName'] ?? null;
@@ -61,19 +61,23 @@
                 $givenMessage = $data['message'] ?? null;
                 $status = $data['status'] ?? null;
 
+                // NGO-specific helper fields (if present)
+                $volName = $data['volunteer_name'] ?? ($data['meta']['name'] ?? null);
+                $metaEmail = $data['meta']['email'] ?? null;
+                $metaContact = $data['meta']['contact'] ?? null;
+
                 // Default icon/badge/message
                 $icon = 'fas fa-bell';
                 $iconClass = 'icon-default';
                 $badgeClass = 'badge-default';
                 $messageToShow = $givenMessage ?? '';
 
-                // Task assignment/unassignment priority
+                // Handle assignment/unassignment (keep same icons + classes used in volunteer view)
                 if ($action === 'assigned') {
                     $icon = 'fas fa-user-plus';
                     $iconClass = 'icon-assigned';
                     $badgeClass = 'badge-assigned';
                     if (!$messageToShow) {
-                        // prefer showing event name (clickable) if available, otherwise task title
                         $targetName = $eventName ?: $taskTitle ?: 'a task';
                         $messageToShow = "You were assigned to '{$targetName}'";
                         if ($by) $messageToShow .= " (by {$by})";
@@ -88,7 +92,7 @@
                         if ($by) $messageToShow .= " (by {$by})";
                     }
                 } else {
-                    // fallback to existing event status logic
+                    // fallback to event status logic (approved/rejected/attended)
                     if ($givenMessage) {
                       $messageToShow = $givenMessage;
                     } else {
@@ -96,19 +100,24 @@
                           $icon = 'fas fa-check-circle';
                           $iconClass = 'icon-approved';
                           $badgeClass = 'badge-approved';
-                          $messageToShow = "You have been approved to join '" . ($eventName ?? 'Unknown Event') . "'";
+                          $messageToShow = "A change occurred for '" . ($eventName ?? 'Unknown Event') . "'";
                       } elseif ($status === 'rejected') {
                           $icon = 'fas fa-times-circle';
                           $iconClass = 'icon-rejected';
                           $badgeClass = 'badge-rejected';
-                          $messageToShow = "Your registration for '" . ($eventName ?? 'Unknown Event') . "' was rejected";
+                          $messageToShow = "A change occurred for '" . ($eventName ?? 'Unknown Event') . "'";
                       } elseif ($status === 'attended') {
                           $icon = 'fas fa-user-check';
                           $iconClass = 'icon-attended';
                           $badgeClass = 'badge-attended';
-                          $messageToShow = "Your attendance for '" . ($eventName ?? 'Unknown Event') . "' has been recorded";
+                          $messageToShow = "Attendance recorded for '" . ($eventName ?? 'Unknown Event') . "'";
                       } else {
-                          $messageToShow = $givenMessage ?? "Update for '" . ($eventName ?? 'Unknown Event') . "'";
+                          if ($volName && !$messageToShow) {
+                              // common NGO notification: volunteer registered
+                              $messageToShow = "{$volName} has registered for '" . ($eventName ?? 'an event') . "' and awaits approval.";
+                          } else {
+                              $messageToShow = $givenMessage ?? "Update for '" . ($eventName ?? 'Unknown Event') . "'";
+                          }
                       }
                     }
                 }
@@ -117,22 +126,29 @@
                 $messageHtml = e($messageToShow);
 
                 if ($eventId && $eventName) {
-                    // create link to volunteer event manage route (server-side)
-                    $link = '<a href="' . e(route('volunteer.profile.registrationEditDelete', ['event_id' => $eventId])) . '" class="text-decoration-underline">' . e($eventName) . '</a>';
-                    // replace plain event name in message with link (first occurrence)
+                    // create link to NGO event manage route
+                    $link = '<a href="' . e(route('ngo.events.manage', ['event_id' => $eventId])) . '" class="text-decoration-underline">' . e($eventName) . '</a>';
+                    // replace first occurrence of event name in message with link when possible
                     $pos = mb_stripos($messageHtml, e($eventName));
                     if ($pos !== false) {
                         $before = mb_substr($messageHtml, 0, $pos);
                         $after = mb_substr($messageHtml, $pos + mb_strlen(e($eventName)));
                         $messageHtml = $before . $link . $after;
                     } else {
-                        // if the event name wasn't present verbatim, append the link at the end
+                        // if not found verbatim, append link
                         $messageHtml .= ' — ' . $link;
                     }
                 } elseif ($eventId && !$eventName) {
-                    // If event id exists but not name, append link labeled "View event"
-                    $link = '<a href="' . e(route('volunteer.profile.registrationEditDelete', ['event_id' => $eventId])) . '" class="text-decoration-underline">View event</a>';
+                    $link = '<a href="' . e(route('ngo.events.manage', ['event_id' => $eventId])) . '" class="text-decoration-underline">View event</a>';
                     $messageHtml .= ' — ' . $link;
+                }
+
+                $contactHtml = '';
+                if ($metaEmail || $metaContact) {
+                  $parts = [];
+                  if ($metaEmail) $parts[] = e($metaEmail);
+                  if ($metaContact) $parts[] = e($metaContact);
+                  $contactHtml = '<div class="text-muted small mt-1">' . implode(' — ', $parts) . '</div>';
                 }
               @endphp
 
@@ -157,6 +173,7 @@
                       <div class="notification-message flex-grow-1">
                         {{-- allow limited html for the event link (we already escaped other text) --}}
                         {!! $messageHtml !!}
+                        {!! $contactHtml !!}
                       </div>
                     </div>
 
@@ -186,7 +203,7 @@
                   <i class="far fa-bell fa-2x text-muted"></i>
                 </div>
                 <h4 class="h5 text-muted mb-2">No notifications yet</h4>
-                <p class="text-muted mb-0">When you get notifications, they'll appear here</p>
+                <p class="text-muted mb-0">When volunteers register, you'll see them here</p>
               </div>
             @endforelse
           </div>
@@ -218,7 +235,6 @@
     function flash(text, type = 'success', timeout = 5000) { // Changed to 5 seconds
       const normalized = (text || '').trim();
       if (!normalized) return;
-      // dedupe identical messages for a short window (5s)
       if (recentFlashSet.has(normalized)) return;
       recentFlashSet.add(normalized);
       setTimeout(() => recentFlashSet.delete(normalized), 5000);
@@ -279,7 +295,7 @@
     // ensure a small badge on header/profile exists
     (function ensureBadgesExist() {
       if (!document.getElementById('notification-count')) {
-        const profileImg = document.querySelector('.volunteer-profile-img');
+        const profileImg = document.querySelector('.ngo-profile-img');
         if (profileImg) {
           const parent = profileImg.parentElement || profileImg;
           if (getComputedStyle(parent).position === 'static') parent.style.position = 'relative';
@@ -296,7 +312,7 @@
     // ----- Initialize unread count -----
     async function initUnreadCount() {
       try {
-        const resp = await fetch("{{ route('volunteer.notifications.unreadCount') }}", {
+        const resp = await fetch("{{ route('ngo.notifications.unreadCount') }}", {
           credentials: 'same-origin',
           headers: { 'X-CSRF-TOKEN': csrfToken, 'X-Requested-With': 'XMLHttpRequest' }
         });
@@ -315,14 +331,14 @@
       if (!id) return;
       if (markingSingle.has(id)) return;
       markingSingle.add(id);
-      
+
       try {
         if (elButton) {
           elButton.disabled = true;
           elButton.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Marking...';
         }
 
-        const url = "{{ url('/volunteer/notifications') }}/" + encodeURIComponent(id) + "/mark-as-read";
+        const url = "{{ url('/ngo/notifications') }}/" + encodeURIComponent(id) + "/mark-as-read";
         const resp = await fetch(url, {
           method: 'POST',
           credentials: 'same-origin',
@@ -337,8 +353,7 @@
         if (!resp.ok) throw new Error('Server error: ' + resp.status);
 
         const data = await resp.json();
-        
-        // Only update UI if the operation was successful
+
         if (data.success) {
             const row = document.querySelector(`.notification-item[data-id="${id}"]`);
             if (row && row.classList.contains('notification-unread')) {
@@ -352,9 +367,6 @@
                 }
                 decrementBadges(1);
             }
-            
-            // REMOVED: No success message from frontend
-            // Only show error messages if operation failed
         } else {
             flash(data.message || 'Failed to mark notification as read', 'error');
         }
@@ -375,15 +387,15 @@
     async function markAllRead() {
       if (markingAll) return;
       markingAll = true;
-      
+
       try {
         const btn = document.getElementById('btn-mark-all');
         if (btn) {
           btn.disabled = true;
-          btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Marking all...';
+          btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Marking all...</i>';
         }
 
-        const url = "{{ route('volunteer.notifications.markAllRead') }}";
+        const url = "{{ route('ngo.notifications.markAllRead') }}";
         const resp = await fetch(url, {
           method: 'POST',
           credentials: 'same-origin',
@@ -398,9 +410,8 @@
         if (!resp.ok) throw new Error('Server returned ' + resp.status);
 
         const data = await resp.json();
-        
+
         if (data.success) {
-            // Update DOM (only unread ones)
             const unreadRows = document.querySelectorAll('.notification-item.notification-unread');
             unreadRows.forEach(row => {
                 row.classList.remove('notification-unread');
@@ -414,8 +425,6 @@
             });
 
             setBadges(0);
-            // REMOVED: No success message from frontend
-            // Only show error messages if operation failed
         } else {
             flash(data.message || 'Failed to mark all notifications as read', 'error');
         }
@@ -478,7 +487,9 @@
         } else if (payload.status) {
           msg = payload.message || `Update: ${payload.status}`;
         } else {
-          msg = 'New notification';
+          // NGO default: volunteer registered
+          const volunteerName = payload.volunteer_name ?? payload.meta?.name ?? 'A volunteer';
+          msg = payload.message || `${volunteerName} has registered for '${eventName ?? 'an event'}' and awaits approval.`;
         }
       }
 
@@ -486,8 +497,8 @@
       let messageHtml = escapeHtml(msg);
 
       if (eventId && eventName) {
-        // Build link URL directly to the volunteer manage route pattern
-        const linkUrl = '/volunteer/events/' + encodeURIComponent(eventId) + '/manage';
+        // Build link URL to the NGO manage route pattern
+        const linkUrl = '/ngo/events/' + encodeURIComponent(eventId) + '/manage';
         const escapedEventName = escapeHtml(eventName);
         const link = `<a href="${escapeHtml(linkUrl)}" class="text-decoration-underline">${escapedEventName}</a>`;
 
@@ -499,19 +510,26 @@
           messageHtml += ' — ' + link;
         }
       } else if (eventId && !eventName) {
-        const linkUrl = '/volunteer/events/' + encodeURIComponent(eventId) + '/manage';
+        const linkUrl = '/ngo/events/' + encodeURIComponent(eventId) + '/manage';
         const link = `<a href="${escapeHtml(linkUrl)}" class="text-decoration-underline">View event</a>`;
         messageHtml += ' — ' + link;
       }
 
+      // contact info if present
+      let contactHtml = '';
+      const parts = [];
+      if (payload.meta?.email) parts.push(escapeHtml(payload.meta.email));
+      if (payload.meta?.contact) parts.push(escapeHtml(payload.meta.contact));
+      if (parts.length) contactHtml = `<div class="text-muted small mt-1">${parts.join(' — ')}</div>`;
+
       container.innerHTML = `
         <div class="d-flex align-items-start">
-          <div class="notification-icon me-3"><i class="${iconClass}"></i></div>
+          <div class="notification-icon me-3"><i class="${escapeHtml(iconClass)}"></i></div>
           <div class="flex-grow-1 me-3">
             <div class="d-flex align-items-center mb-2">
-              ${unread ? '<span class="unread-indicator me-2"></span>' : ''}
+              ${unread ? '<span class="unread-indicator me-2" title="Unread"></span>' : ''}
               ${badgeText ? `<span class="status-badge me-2">${escapeHtml(badgeText)}</span>` : ''}
-              <div class="notification-message flex-grow-1">${messageHtml}</div>
+              <div class="notification-message flex-grow-1">${messageHtml}${contactHtml}</div>
             </div>
             <div class="notification-time text-muted small"><i class="far fa-clock me-1"></i>just now</div>
           </div>
