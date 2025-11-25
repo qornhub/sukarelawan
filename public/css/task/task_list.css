@@ -28,3 +28,4 @@
 .task-flash.enter { transform: translateY(-6px) scale(0.98); opacity: 0; }
 .task-flash.enter-active { transform: translateY(0) scale(1); opacity: 1; }
 .task-flash.exit { transform: translateY(-6px) scale(0.98); opacity: 0; }
+

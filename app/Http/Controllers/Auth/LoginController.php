@@ -10,34 +10,42 @@ class LoginController extends Controller
 {
     public function showLoginForm()
     {
-        return view('auth.login'); // make sure you create this Blade view
+        return view('auth.login');
     }
 
     public function showAdminLoginForm()
-{
-    return view('auth.admin_login');
-}
-
-public function loginAdmin(Request $request)
-{
-    $request->validate([
-        'email' => 'required|email',
-        'password' => 'required',
-    ]);
-
-    if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
-        if (Auth::user()->role->roleName === 'admin') {
-            return redirect('/admin/dashboard');
-        } else {
-            Auth::logout();
-            return back()->withErrors(['email' => 'Access denied. Not an admin.']);
-        }
+    {
+        return view('auth.admin_login');
     }
 
-    return back()->withErrors(['email' => 'Invalid credentials']);
-}
+    public function loginAdmin(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
 
-      public function login(Request $request)
+      if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
+
+    /** @var \App\Models\User $admin */
+    $admin = Auth::user();
+    $admin->update([
+        'last_login_at' => now(),
+    ]);
+
+
+            if (Auth::user()->role->roleName === 'admin') {
+                return redirect('/admin/dashboard');
+            } else {
+                Auth::logout();
+                return back()->withErrors(['email' => 'Access denied. Not an admin.']);
+            }
+        }
+
+        return back()->withErrors(['email' => 'Invalid credentials']);
+    }
+
+    public function login(Request $request)
     {
         // validate input
         $request->validate([
@@ -51,33 +59,33 @@ public function loginAdmin(Request $request)
             return back()->withErrors(['email' => 'Invalid email or password'])->withInput();
         }
 
-        // Authentication successful
-        $user = Auth::user();
+       
 
-        // Try to get a role name in several safe ways (your app may store role differently)
+       // Authentication successful
+/** @var \App\Models\User $user */
+$user = Auth::user();
+
+$user->update([
+    'last_login_at' => now(),
+]);
+        // Try to get a role name in several safe ways
         $roleName = null;
 
-        // 1) If user->role is an object/relationship: ->roleName
         if (isset($user->role) && is_object($user->role)) {
             $roleName = $user->role->roleName ?? null;
         }
 
-        // 2) If user->role is a string (some apps store role directly on users table)
         if (!$roleName && isset($user->role) && is_string($user->role)) {
             $roleName = $user->role;
         }
 
-        // 3) Another common column name fallback
         if (!$roleName && isset($user->role_name)) {
             $roleName = $user->role_name;
         }
 
-        // Normalize to lowercase for matching
         $roleName = $roleName ? strtolower($roleName) : null;
 
-        // Redirect based on role
         if ($roleName === 'volunteer') {
-            // route to your public volunteer index
             return redirect()->route('volunteer.index.public');
         }
 
@@ -85,32 +93,25 @@ public function loginAdmin(Request $request)
             return redirect()->route('ngo.dashboard');
         }
 
-        
-
-        // If role unknown, logout and show error
         Auth::logout();
         return back()->withErrors(['email' => 'Access denied. Your account role is not recognized.']);
     }
 
-public function logoutNgo(Request $request)
-{
-    Auth::logout();
-    $request->session()->invalidate();
-    $request->session()->regenerateToken();
+    public function logoutNgo(Request $request)
+    {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
 
-    return redirect()->route('login.ngo');
-}
+        return redirect()->route('login.ngo');
+    }
 
-public function logoutVolunteer(Request $request)
-{
-    Auth::logout();
-    $request->session()->invalidate();
-    $request->session()->regenerateToken();
+    public function logoutVolunteer(Request $request)
+    {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
 
-    return redirect()->route('login.volunteer');
-}
-
-
-
-
+        return redirect()->route('login.volunteer');
+    }
 }

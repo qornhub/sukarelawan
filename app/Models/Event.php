@@ -17,6 +17,7 @@ class Event extends Model
     'event_id',
     'user_id',
     'category_id',
+    'custom_category',
     'eventTitle',
     'eventPoints',
     'eventStart',

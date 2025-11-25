@@ -1,10 +1,19 @@
 @foreach ($events as $event)
     {{-- We already filtered to future events in the controller --}}
     <div class="event-card">
-        <div class="image-container">
+         <div class="image-container">
             <img src="{{ asset('images/events/' . ($event->eventImage ?? 'default-event.jpg')) }}"
                 alt="{{ $event->eventTitle }}" class="event-image">
-            <span class="category-tag">{{ $event->category->eventCategoryName ?? 'Uncategorized' }}</span>
+
+            <span class="category-tag">
+                @if (!empty($event->custom_category))
+                    {{ $event->custom_category }} 
+                @elseif ($event->category)
+                    {{ $event->category->eventCategoryName }}
+                @else
+                    Uncategorized
+                @endif
+            </span>
         </div>
 
         <div class="event-details">

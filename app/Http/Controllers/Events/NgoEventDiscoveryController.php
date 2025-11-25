@@ -45,10 +45,18 @@ public function index(Request $request)
         });
     }
 
-    // Category filter
+    // -------------- CATEGORY FILTER (UPDATED FOR "other") --------------
     if ($categoryId) {
-        $query->where('category_id', $categoryId);
+        if ($categoryId === 'other') {
+            // Show all events that use a custom category (not admin-defined)
+            $query->whereNotNull('custom_category')
+                  ->where('custom_category', '!=', '');
+        } else {
+            // Normal predefined category (admin-defined)
+            $query->where('category_id', $categoryId);
+        }
     }
+    // -------------------------------------------------------------------
 
     // Location filter
     if ($location) {
@@ -70,7 +78,7 @@ public function index(Request $request)
             $end   = (clone $now)->endOfMonth();
         } else {
             $start = null;
-            $end = null;
+            $end   = null;
         }
 
         if ($start && $end) {
@@ -89,7 +97,7 @@ public function index(Request $request)
         $html = view('partials.events.event_cards', ['events' => $events])->render();
 
         return response()->json([
-            'html' => $html,
+            'html'      => $html,
             'next_page' => $events->hasMorePages() ? $events->nextPageUrl() : null,
         ]);
     }
@@ -105,6 +113,7 @@ public function index(Request $request)
         'date_range' => $dateRange,
     ]);
 }
+
 
 
     public function show($event_id)

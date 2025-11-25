@@ -18,7 +18,7 @@ class AdminUsersController extends Controller
     {
         // --- Inputs / safe defaults ---
         $qRaw          = trim((string)$request->query('q', ''));
-        $roleParamRaw  = trim((string)$request->query('role', '')); // may be "role_id|roleName" or role_id or roleName
+        $roleParamRaw  = trim((string)$request->query('role', ''));
         $dateFrom      = trim((string)$request->query('date_from', ''));
         $dateTo        = trim((string)$request->query('date_to', ''));
         $allowedSorts  = ['name', 'created_at', 'role'];
@@ -32,7 +32,7 @@ class AdminUsersController extends Controller
         // --- Base query: eager load related profiles & role ---
         $query = User::with(['role', 'volunteerProfile', 'ngoProfile', 'adminProfile']);
 
-        // --- Role filter: accept composite "id|name", plain id, or roleName ---
+        // --- Role filter ---
         $appliedRole = null;
         $selectedRoleValue = $roleParamRaw;
 
@@ -49,14 +49,12 @@ class AdminUsersController extends Controller
 
                 if ($role) {
                     $appliedRole = $role;
-                    // qualify users.role_id to avoid ambiguity if we later join roles
                     $query->where('users.role_id', $role->role_id);
                     $selectedRoleValue = "{$role->role_id}|{$role->roleName}";
                 } else {
                     $selectedRoleValue = $roleParamRaw;
                 }
             } else {
-                // no pipe: try find by id or exact name
                 $role = Role::where('role_id', $roleParamRaw)
                             ->orWhereRaw('LOWER(roleName) = ?', [strtolower($roleParamRaw)])
                             ->first();
@@ -65,7 +63,6 @@ class AdminUsersController extends Controller
                     $query->where('users.role_id', $role->role_id);
                     $selectedRoleValue = "{$role->role_id}|{$role->roleName}";
                 } else {
-                    // fallback: roleName substring match via whereHas
                     $query->whereHas('role', function ($qRole) use ($roleParamRaw) {
                         $qRole->whereRaw('LOWER(roleName) LIKE ?', ['%' . strtolower($roleParamRaw) . '%']);
                     });
@@ -74,25 +71,21 @@ class AdminUsersController extends Controller
             }
         }
 
-        // --- Date filters (user created_at) ---
+        // --- Date filters ---
         if ($dateFrom) {
             try {
                 $from = Carbon::createFromFormat('Y-m-d', $dateFrom)->startOfDay();
                 $query->where('users.created_at', '>=', $from->toDateTimeString());
-            } catch (\Exception $ex) {
-                // ignore invalid date
-            }
+            } catch (\Exception $ex) {}
         }
         if ($dateTo) {
             try {
                 $to = Carbon::createFromFormat('Y-m-d', $dateTo)->endOfDay();
                 $query->where('users.created_at', '<=', $to->toDateTimeString());
-            } catch (\Exception $ex) {
-                // ignore invalid date
-            }
+            } catch (\Exception $ex) {}
         }
 
-        // --- Search: name, email, roleName, and profile names/org ---
+        // --- Search ---
         if ($q) {
             $query->where(function ($sub) use ($q) {
                 $sub->where('users.name', 'LIKE', "%{$q}%")
@@ -114,7 +107,6 @@ class AdminUsersController extends Controller
 
         // --- Sorting ---
         if ($sortBy === 'role') {
-            // left join roles and order by roles.roleName — ensure we select users.* so models hydrate
             $query->leftJoin('roles', 'users.role_id', '=', 'roles.role_id')
                   ->orderBy('roles.roleName', $sortDir)
                   ->select('users.*');
@@ -124,16 +116,23 @@ class AdminUsersController extends Controller
             $query->orderBy('users.created_at', $sortDir);
         }
 
-        // --- Pagination (with query string preserved) ---
+        // --- Pagination ---
         $users = $query->paginate($perPage)->withQueryString();
 
-        // --- Roles for dropdown (dedupe by roleName) ---
-        $roles = Role::orderBy('roleName')->get()
-            ->unique(function ($r) {
-                return strtolower(trim($r->roleName));
-            })->values();
+        // ⭐⭐⭐ NEW BLOCK START — Add idle_days for each user
+        foreach ($users as $u) {
+            $u->idle_days = $u->last_login_at
+                ? Carbon::parse($u->last_login_at)->diffInDays(now())
+                : Carbon::parse($u->created_at)->diffInDays(now());
+        }
+        // ⭐⭐⭐ NEW BLOCK END
 
-        // --- Applied filters for UI ---
+        // --- Roles dropdown ---
+        $roles = Role::orderBy('roleName')->get()
+            ->unique(fn($r) => strtolower(trim($r->roleName)))
+            ->values();
+
+        // --- Applied filters ---
         $appliedFilters = [
             'q' => $qRaw ?: null,
             'role' => $selectedRoleValue,
@@ -149,7 +148,7 @@ class AdminUsersController extends Controller
     }
 
     /**
-     * Show a single user's details (profile + relations).
+     * Show user details.
      */
     public function show($id)
     {
@@ -167,7 +166,7 @@ class AdminUsersController extends Controller
     }
 
     /**
-     * Delete a user (soft-delete or hard depending on your app).
+     * Delete user.
      */
     public function destroy($id)
     {

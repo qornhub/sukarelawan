@@ -13,13 +13,15 @@
     <link rel="stylesheet" href="{{ asset('css/events/create_events.css') }}">
     <style>
         /* show invalid outline for the button used to select image */
-.btn.is-invalid {
-    border-color: #dc3545 !important;
-    box-shadow: 0 0 0 .2rem rgba(220,53,69,.15) !important;
-}
+        .btn.is-invalid {
+            border-color: #dc3545 !important;
+            box-shadow: 0 0 0 .2rem rgba(220, 53, 69, .15) !important;
+        }
 
-/* small helper for client-side-only error blocks so they don't conflict with server ones */
-.invalid-feedback.client-error { display: block; }
+        /* small helper for client-side-only error blocks so they don't conflict with server ones */
+        .invalid-feedback.client-error {
+            display: block;
+        }
     </style>
 </head>
 
@@ -36,7 +38,7 @@
                         <span>Start An Event</span>
                     </h1>
 
-                   
+
 
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <a href="{{ route('ngo.events.index') }}" class="btn btn-outline-secondary">
@@ -83,18 +85,37 @@
                                             {{ $cat->eventCategoryName ?? ($cat->name ?? 'Category') }}
                                         </option>
                                     @endforeach
+
+                                    {{-- Custom category option --}}
+                                    <option value="other" {{ old('category_id') == 'other' ? 'selected' : '' }}>
+                                        Other (Specify)
+                                    </option>
                                 </select>
                                 @error('category_id')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
+                            {{-- Custom category (shown when "Other" is selected) --}}
+                            <div class="col-md-6" id="customCategoryWrapper"
+                                style="{{ old('category_id') == 'other' ? '' : 'display:none;' }}">
+                                <label for="custom_category" class="form-label">
+                                    Custom Category <span class="text-danger">*</span>
+                                </label>
+                                <input id="custom_category" name="custom_category" type="text"
+                                    class="form-control @error('custom_category') is-invalid @enderror"
+                                    value="{{ old('custom_category') }}">
+                                @error('custom_category')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
 
                             {{-- Reward points (read-only display) --}}
                             <div class="col-md-6">
                                 <label for="reward_points" class="form-label">
                                     Reward Points
                                     <small class="text-muted">(auto-calculated — not editable)</small>
-                                   
+
 
                                 </label>
 
@@ -103,7 +124,8 @@
                                     value="{{ old('reward_points') }}" type="number" min="0"
                                     class="form-control" readonly>
 
-                                    <small id="calcError" class="text-danger d-none" role="alert" aria-live="polite"></small>
+                                <small id="calcError" class="text-danger d-none" role="alert"
+                                    aria-live="polite"></small>
                                 <!-- Hidden input that will be submitted to backend as eventPoints -->
                                 <input id="eventPointsHidden" name="eventPoints" type="hidden"
                                     value="{{ old('eventPoints') ?? '' }}">
@@ -197,21 +219,18 @@
                                     event details.</div>
                             </div>
 
-                         <div class="col-md-6">
-    <label for="event_maximum" class="form-label">Maximum Participants <span class="text-danger">*</span></label>
+                            <div class="col-md-6">
+                                <label for="event_maximum" class="form-label">Maximum Participants <span
+                                        class="text-danger">*</span></label>
 
-    <input id="event_maximum"
-           name="event_maximum"
-           value="{{ old('event_maximum') }}"
-           type="number"
-           min="1"
-           required
-           class="form-control @error('eventMaximum') is-invalid @enderror">
+                                <input id="event_maximum" name="event_maximum" value="{{ old('event_maximum') }}"
+                                    type="number" min="1" required
+                                    class="form-control @error('eventMaximum') is-invalid @enderror">
 
-    @error('eventMaximum')
-        <div class="invalid-feedback">{{ $message }}</div>
-    @enderror
-</div>
+                                @error('eventMaximum')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
 
 
                             {{-- Skills (left column) --}}
@@ -446,307 +465,397 @@
     <script src="{{ asset('js/events/createEvents.js') }}"></script>
 
     <script>
-document.addEventListener('DOMContentLoaded', function () {
-    const categorySelect = document.getElementById('category_id');
-    const startInput = document.getElementById('start_date');
-    const endInput = document.getElementById('end_date');
-    const maxInput = document.getElementById('event_maximum');
-    const displayReward = document.getElementById('reward_points');
-    const hiddenReward = document.getElementById('eventPointsHidden');
-    const calcErrorEl = document.getElementById('calcError');
+        document.addEventListener('DOMContentLoaded', function() {
+            const categorySelect = document.getElementById('category_id');
+            const startInput = document.getElementById('start_date');
+            const endInput = document.getElementById('end_date');
+            const maxInput = document.getElementById('event_maximum');
+            const displayReward = document.getElementById('reward_points');
+            const hiddenReward = document.getElementById('eventPointsHidden');
+            const calcErrorEl = document.getElementById('calcError');
+            const customCategoryWrapper = document.getElementById('customCategoryWrapper');
+            const customCategoryInput   = document.getElementById('custom_category');
+            // CSRF token
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            // Route (uses your ngo group -> route name should be ngo.events.calcPoints)
+            const calcPointsUrl = "{{ route('ngo.events.calcPoints') }}";
+            function toggleCustomCategory() {
+        if (!categorySelect || !customCategoryWrapper) return;
 
-    // CSRF token
-    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
-    // Route (uses your ngo group -> route name should be ngo.events.calcPoints)
-    const calcPointsUrl = "{{ route('ngo.events.calcPoints') }}";
-
-    function clearDisplay() {
-        displayReward.value = '';
-        hiddenReward.value = 0;
-        if (calcErrorEl) { calcErrorEl.textContent = ''; calcErrorEl.classList.add('d-none'); }
-    }
-
-    // Debounce helper
-    function debounce(fn, delay) {
-        let t;
-        return function(...args) {
-            clearTimeout(t);
-            t = setTimeout(() => fn.apply(this, args), delay);
-        };
-    }
-
-    // Allow equal start and end to match server's after_or_equal (recommended)
-    function shouldCalculate() {
-        const category = categorySelect.value && categorySelect.value.trim() !== '';
-        const s = startInput.value;
-        const e = endInput.value;
-        if (!category || !s || !e) return false;
-        const start = new Date(s);
-        const end = new Date(e);
-        // allow equal start and end
-        return !isNaN(start) && !isNaN(end) && end >= start;
-    }
-
-    async function fetchCalculatedPoints() {
-        if (!shouldCalculate()) {
-            clearDisplay();
-            return;
+        if (categorySelect.value === 'other') {
+            customCategoryWrapper.style.display = '';
+            if (customCategoryInput) {
+                customCategoryInput.setAttribute('required', 'required');
+            }
+        } else {
+            customCategoryWrapper.style.display = 'none';
+            if (customCategoryInput) {
+                customCategoryInput.removeAttribute('required');
+                // optional: clear when switching away from "other"
+                // customCategoryInput.value = '';
+            }
         }
+    }
 
-        const payload = {
-            category_id: categorySelect.value,
-            eventStart: startInput.value,
-            eventEnd: endInput.value,
-            eventMaximum: maxInput.value || null
-        };
+    if (categorySelect) {
+        categorySelect.addEventListener('change', toggleCustomCategory);
+        // run once on load (for old() state)
+        toggleCustomCategory();
+    }
+            function clearDisplay() {
+                displayReward.value = '';
+                hiddenReward.value = 0;
+                if (calcErrorEl) {
+                    calcErrorEl.textContent = '';
+                    calcErrorEl.classList.add('d-none');
+                }
+            }
 
-        try {
-            const res = await fetch(calcPointsUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken,
-                    'Accept': 'application/json'
+            // Debounce helper
+            function debounce(fn, delay) {
+                let t;
+                return function(...args) {
+                    clearTimeout(t);
+                    t = setTimeout(() => fn.apply(this, args), delay);
+                };
+            }
+
+            // Allow equal start and end to match server's after_or_equal (recommended)
+            function shouldCalculate() {
+                const category = categorySelect.value && categorySelect.value.trim() !== '';
+                const s = startInput.value;
+                const e = endInput.value;
+                if (!category || !s || !e) return false;
+                const start = new Date(s);
+                const end = new Date(e);
+                // allow equal start and end
+                return !isNaN(start) && !isNaN(end) && end >= start;
+            }
+
+            async function fetchCalculatedPoints() {
+                if (!shouldCalculate()) {
+                    clearDisplay();
+                    return;
+                }
+
+                const payload = {
+                    category_id: categorySelect.value,
+                    eventStart: startInput.value,
+                    eventEnd: endInput.value,
+                    eventMaximum: maxInput.value || null
+                };
+
+                try {
+                    const res = await fetch(calcPointsUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify(payload),
+                        credentials: 'same-origin'
+                    });
+
+                    // Handle validation errors (422) and other non-ok responses
+                    if (!res.ok) {
+                        const errBody = await res.json().catch(() => null);
+                        if (errBody && errBody.errors) {
+                            // show first error message returned
+                            const firstErr = Object.values(errBody.errors)[0];
+                            const msg = Array.isArray(firstErr) ? firstErr[0] : firstErr;
+                            if (calcErrorEl) {
+                                calcErrorEl.textContent = msg;
+                                calcErrorEl.classList.remove('d-none');
+                            } else {
+                                console.warn('Calc points validation:', msg);
+                            }
+                        } else {
+                            // unknown server error
+                            if (calcErrorEl) {
+                                calcErrorEl.textContent = 'Unable to calculate points at the moment.';
+                                calcErrorEl.classList.remove('d-none');
+                            }
+                        }
+                        clearDisplay();
+                        return;
+                    }
+
+                    const data = await res.json();
+
+                    if (data && data.calculated) {
+                        displayReward.value = data.points;
+                        hiddenReward.value = data.points;
+                        if (calcErrorEl) {
+                            calcErrorEl.textContent = '';
+                            calcErrorEl.classList.add('d-none');
+                        }
+                    } else {
+                        clearDisplay();
+                    }
+                } catch (err) {
+                    console.error('Points calc request failed', err);
+                    // network error - show a friendly message optionally
+                    if (calcErrorEl) {
+                        calcErrorEl.textContent = 'Network error while calculating points.';
+                        calcErrorEl.classList.remove('d-none');
+                    }
+                    clearDisplay();
+                }
+            }
+
+            const debouncedFetch = debounce(fetchCalculatedPoints, 400);
+
+            // Attach events
+            if (categorySelect) categorySelect.addEventListener('change', debouncedFetch);
+            if (startInput) startInput.addEventListener('change', debouncedFetch);
+            if (endInput) endInput.addEventListener('change', debouncedFetch);
+            if (maxInput) maxInput.addEventListener('input', debouncedFetch);
+
+            // Init: don't auto-calc unless inputs present
+            debouncedFetch();
+        });
+    </script>
+
+    <!-- ====== Add right before </body> ====== -->
+    <script>
+        (function() {
+            const form = document.querySelector('form[action="{{ route('ngo.events.store') }}"]');
+            if (!form) return;
+
+            // Map of field selectors to friendly labels (used in client messages)
+            const fields = [{
+                    sel: '#event_title',
+                    name: 'Event title'
                 },
-                body: JSON.stringify(payload),
-                credentials: 'same-origin'
+                {
+                    sel: '#category_id',
+                    name: 'Category'
+                },
+                {
+                    sel: '#start_date',
+                    name: 'Start date/time'
+                },
+                {
+                    sel: '#end_date',
+                    name: 'End date/time'
+                },
+                {
+                    sel: '#event_description',
+                    name: 'Description'
+                },
+                {
+                    sel: '#venue_name',
+                    name: 'Venue'
+                },
+                {
+                    sel: '#city',
+                    name: 'City'
+                },
+                {
+                    sel: '#state',
+                    name: 'State'
+                },
+                {
+                    sel: '#country',
+                    name: 'Country'
+                },
+                // event_maximum is visually required in your form, so validate it client-side too
+                {
+                    sel: '#event_maximum',
+                    name: 'Maximum participants',
+                    numeric: true,
+                    min: 1
+                },
+            ];
+
+            // special: file input is hidden, UI is the selectImageBtn; validate file exists
+            const fileInput = document.getElementById('event_image');
+            const fileUIbtn = document.getElementById('selectImageBtn');
+            const fileContainer = fileUIbtn ? fileUIbtn.closest('.d-flex') : null; // place error after this
+
+            // helper: remove any client-side error nodes we added earlier
+            function clearClientErrors() {
+                // remove client-added invalid-feedback blocks
+                document.querySelectorAll('.invalid-feedback.client-error').forEach(n => n.remove());
+                // remove is-invalid class we added
+                document.querySelectorAll('.is-invalid.client-added').forEach(el => {
+                    el.classList.remove('is-invalid', 'client-added');
+                });
+            }
+
+            function showClientError(el, message, options = {}) {
+                // el: DOM element to attach invalid state to (input/select/button)
+                if (!el) return;
+                // mark as invalid (but keep server-side is-invalid untouched)
+                el.classList.add('is-invalid', 'client-added');
+
+                // create feedback block
+                const fb = document.createElement('div');
+                fb.className = 'invalid-feedback client-error';
+                fb.textContent = message;
+
+                // insertion: if options.afterEl provided, insert after that; otherwise after el
+                const anchor = options.afterEl || el;
+                if (anchor.nextSibling) anchor.parentNode.insertBefore(fb, anchor.nextSibling);
+                else anchor.parentNode.appendChild(fb);
+            }
+
+            function validateFormClientSide() {
+                clearClientErrors();
+                const errors = [];
+
+                // Validate normal fields
+                fields.forEach(field => {
+                    const el = document.querySelector(field.sel);
+                    if (!el) {
+                        // skip if element not present
+                        return;
+                    }
+                    const value = (el.value || '').toString().trim();
+
+                    // required: your markup uses required attribute for many fields;
+                    // we'll treat a field as required if it has required attribute OR it's in our fields list.
+                    const isRequired = el.hasAttribute('required') || field.required === true;
+
+                    if (isRequired && value === '') {
+                        errors.push({
+                            el,
+                            msg: `${field.name} is required.`
+                        });
+                        return;
+                    }
+
+                    if (field.numeric && value !== '') {
+                        const num = Number(value);
+                        if (isNaN(num) || (field.min !== undefined && num < field.min)) {
+                            errors.push({
+                                el,
+                                msg: `${field.name} must be a number${field.min !== undefined ? ' ≥ ' + field.min : ''}.`
+                            });
+                        }
+                    }
+                });
+
+                // Validate start/end logical order (client-side helpful rule)
+                const sEl = document.querySelector('#start_date');
+                const eEl = document.querySelector('#end_date');
+                if (sEl && eEl && sEl.value && eEl.value) {
+                    const s = new Date(sEl.value);
+                    const e = new Date(eEl.value);
+                    if (isNaN(s) || isNaN(e) || e < s) {
+                        errors.push({
+                            el: (eEl || sEl),
+                            msg: 'End date/time must be the same as or later than start date/time.'
+                        });
+                    }
+                }
+
+                // Validate file (treat image as required on frontend — remove this block if you don't want it)
+                // If user wants image optional, comment out the file block below.
+                if (fileInput) {
+                    const hasFile = fileInput.files && fileInput.files.length > 0;
+                    if (!hasFile) {
+                        // show error on the file UI button area (or file input if visible)
+                        const targetEl = fileUIbtn || fileInput;
+                        errors.push({
+                            el: targetEl,
+                            msg: 'Please select an event image.',
+                            file: false
+                        });
+                    } else {
+                        // optional: validate file type/size client-side
+                        const file = fileInput.files[0];
+                        const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
+                        if (allowedTypes.indexOf(file.type) === -1) {
+                            errors.push({
+                                el: (fileUIbtn || fileInput),
+                                msg: 'Image must be JPG/PNG/WebP.'
+                            });
+                        } else if (file.size > 5 * 1024 * 1024) { // 5MB
+                            errors.push({
+                                el: (fileUIbtn || fileInput),
+                                msg: 'Image must be ≤ 5 MB.'
+                            });
+                        }
+                    }
+                }
+
+                // Attach errors visually
+                errors.forEach(err => {
+                    // If target is our selectImageBtn, place the message after the button container
+                    if (err.el === fileUIbtn && fileContainer) {
+                        showClientError(fileUIbtn, err.msg, {
+                            afterEl: fileContainer
+                        });
+                    } else {
+                        showClientError(err.el, err.msg);
+                    }
+                });
+
+                return errors.length === 0;
+            }
+
+            // Wire up form submit
+            form.addEventListener('submit', function(ev) {
+                // If there are server-side errors already rendered by Blade, we still run client-side check on fresh submit.
+                if (!validateFormClientSide()) {
+                    ev.preventDefault();
+                    // scroll to first client error
+                    const first = document.querySelector('.invalid-feedback.client-error');
+                    if (first) {
+                        first.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'center'
+                        });
+                        // give focus to the associated input if possible
+                        const prev = first.previousElementSibling;
+                        if (prev && typeof prev.focus === 'function') prev.focus();
+                    }
+                    return false;
+                }
+                // else let the form submit normally
+            }, {
+                passive: false
             });
 
-            // Handle validation errors (422) and other non-ok responses
-            if (!res.ok) {
-                const errBody = await res.json().catch(() => null);
-                if (errBody && errBody.errors) {
-                    // show first error message returned
-                    const firstErr = Object.values(errBody.errors)[0];
-                    const msg = Array.isArray(firstErr) ? firstErr[0] : firstErr;
-                    if (calcErrorEl) {
-                        calcErrorEl.textContent = msg;
-                        calcErrorEl.classList.remove('d-none');
-                    } else {
-                        console.warn('Calc points validation:', msg);
+            // Remove client-side invalid state on user edits
+            const inputs = form.querySelectorAll('input, select, textarea, button');
+            inputs.forEach(i => {
+                i.addEventListener('input', () => {
+                    if (i.classList.contains('client-added')) {
+                        i.classList.remove('is-invalid', 'client-added');
                     }
-                } else {
-                    // unknown server error
-                    if (calcErrorEl) {
-                        calcErrorEl.textContent = 'Unable to calculate points at the moment.';
-                        calcErrorEl.classList.remove('d-none');
+                    // remove immediate adjacent client-error if exists
+                    const next = i.nextElementSibling;
+                    if (next && next.classList && next.classList.contains('client-error')) next
+                        .remove();
+                });
+                i.addEventListener('change', () => {
+                    if (i.classList.contains('client-added')) {
+                        i.classList.remove('is-invalid', 'client-added');
                     }
+                    const next = i.nextElementSibling;
+                    if (next && next.classList && next.classList.contains('client-error')) next
+                        .remove();
+                });
+            });
+
+            // If server has passed validation errors and they are already rendered by Blade,
+            // we want to ensure they are scrolled into view on page load so the user sees them.
+            window.addEventListener('load', function() {
+                const serverError = document.querySelector('.invalid-feedback:not(.client-error)');
+                if (serverError) {
+                    // scroll to server error (first one)
+                    serverError.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center'
+                    });
                 }
-                clearDisplay();
-                return;
-            }
+            });
 
-            const data = await res.json();
-
-            if (data && data.calculated) {
-                displayReward.value = data.points;
-                hiddenReward.value = data.points;
-                if (calcErrorEl) { calcErrorEl.textContent = ''; calcErrorEl.classList.add('d-none'); }
-            } else {
-                clearDisplay();
-            }
-        } catch (err) {
-            console.error('Points calc request failed', err);
-            // network error - show a friendly message optionally
-            if (calcErrorEl) {
-                calcErrorEl.textContent = 'Network error while calculating points.';
-                calcErrorEl.classList.remove('d-none');
-            }
-            clearDisplay();
-        }
-    }
-
-    const debouncedFetch = debounce(fetchCalculatedPoints, 400);
-
-    // Attach events
-    if (categorySelect) categorySelect.addEventListener('change', debouncedFetch);
-    if (startInput) startInput.addEventListener('change', debouncedFetch);
-    if (endInput) endInput.addEventListener('change', debouncedFetch);
-    if (maxInput) maxInput.addEventListener('input', debouncedFetch);
-
-    // Init: don't auto-calc unless inputs present
-    debouncedFetch();
-});
-</script>
-
-<!-- ====== Add right before </body> ====== -->
-<script>
-(function () {
-    const form = document.querySelector('form[action="{{ route('ngo.events.store') }}"]');
-    if (!form) return;
-
-    // Map of field selectors to friendly labels (used in client messages)
-    const fields = [
-        { sel: '#event_title', name: 'Event title' },
-        { sel: '#category_id', name: 'Category' },
-        { sel: '#start_date', name: 'Start date/time' },
-        { sel: '#end_date', name: 'End date/time' },
-        { sel: '#event_description', name: 'Description' },
-        { sel: '#venue_name', name: 'Venue' },
-        { sel: '#city', name: 'City' },
-        { sel: '#state', name: 'State' },
-        { sel: '#country', name: 'Country' },
-        // event_maximum is visually required in your form, so validate it client-side too
-        { sel: '#event_maximum', name: 'Maximum participants', numeric: true, min: 1 },
-    ];
-
-    // special: file input is hidden, UI is the selectImageBtn; validate file exists
-    const fileInput = document.getElementById('event_image');
-    const fileUIbtn = document.getElementById('selectImageBtn');
-    const fileContainer = fileUIbtn ? fileUIbtn.closest('.d-flex') : null; // place error after this
-
-    // helper: remove any client-side error nodes we added earlier
-    function clearClientErrors() {
-        // remove client-added invalid-feedback blocks
-        document.querySelectorAll('.invalid-feedback.client-error').forEach(n => n.remove());
-        // remove is-invalid class we added
-        document.querySelectorAll('.is-invalid.client-added').forEach(el => {
-            el.classList.remove('is-invalid', 'client-added');
-        });
-    }
-
-    function showClientError(el, message, options = {}) {
-        // el: DOM element to attach invalid state to (input/select/button)
-        if (!el) return;
-        // mark as invalid (but keep server-side is-invalid untouched)
-        el.classList.add('is-invalid', 'client-added');
-
-        // create feedback block
-        const fb = document.createElement('div');
-        fb.className = 'invalid-feedback client-error';
-        fb.textContent = message;
-
-        // insertion: if options.afterEl provided, insert after that; otherwise after el
-        const anchor = options.afterEl || el;
-        if (anchor.nextSibling) anchor.parentNode.insertBefore(fb, anchor.nextSibling);
-        else anchor.parentNode.appendChild(fb);
-    }
-
-    function validateFormClientSide() {
-        clearClientErrors();
-        const errors = [];
-
-        // Validate normal fields
-        fields.forEach(field => {
-            const el = document.querySelector(field.sel);
-            if (!el) {
-                // skip if element not present
-                return;
-            }
-            const value = (el.value || '').toString().trim();
-
-            // required: your markup uses required attribute for many fields;
-            // we'll treat a field as required if it has required attribute OR it's in our fields list.
-            const isRequired = el.hasAttribute('required') || field.required === true;
-
-            if (isRequired && value === '') {
-                errors.push({ el, msg: `${field.name} is required.` });
-                return;
-            }
-
-            if (field.numeric && value !== '') {
-                const num = Number(value);
-                if (isNaN(num) || (field.min !== undefined && num < field.min)) {
-                    errors.push({ el, msg: `${field.name} must be a number${field.min !== undefined ? ' ≥ ' + field.min : ''}.` });
-                }
-            }
-        });
-
-        // Validate start/end logical order (client-side helpful rule)
-        const sEl = document.querySelector('#start_date');
-        const eEl = document.querySelector('#end_date');
-        if (sEl && eEl && sEl.value && eEl.value) {
-            const s = new Date(sEl.value);
-            const e = new Date(eEl.value);
-            if (isNaN(s) || isNaN(e) || e < s) {
-                errors.push({ el: (eEl || sEl), msg: 'End date/time must be the same as or later than start date/time.' });
-            }
-        }
-
-        // Validate file (treat image as required on frontend — remove this block if you don't want it)
-        // If user wants image optional, comment out the file block below.
-        if (fileInput) {
-            const hasFile = fileInput.files && fileInput.files.length > 0;
-            if (!hasFile) {
-                // show error on the file UI button area (or file input if visible)
-                const targetEl = fileUIbtn || fileInput;
-                errors.push({ el: targetEl, msg: 'Please select an event image.' , file:false});
-            } else {
-                // optional: validate file type/size client-side
-                const file = fileInput.files[0];
-                const allowedTypes = ['image/jpeg','image/png','image/jpg','image/webp'];
-                if (allowedTypes.indexOf(file.type) === -1) {
-                    errors.push({ el: (fileUIbtn || fileInput), msg: 'Image must be JPG/PNG/WebP.' });
-                } else if (file.size > 5 * 1024 * 1024) { // 5MB
-                    errors.push({ el: (fileUIbtn || fileInput), msg: 'Image must be ≤ 5 MB.' });
-                }
-            }
-        }
-
-        // Attach errors visually
-        errors.forEach(err => {
-            // If target is our selectImageBtn, place the message after the button container
-            if (err.el === fileUIbtn && fileContainer) {
-                showClientError(fileUIbtn, err.msg, { afterEl: fileContainer });
-            } else {
-                showClientError(err.el, err.msg);
-            }
-        });
-
-        return errors.length === 0;
-    }
-
-    // Wire up form submit
-    form.addEventListener('submit', function (ev) {
-        // If there are server-side errors already rendered by Blade, we still run client-side check on fresh submit.
-        if (!validateFormClientSide()) {
-            ev.preventDefault();
-            // scroll to first client error
-            const first = document.querySelector('.invalid-feedback.client-error');
-            if (first) {
-                first.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                // give focus to the associated input if possible
-                const prev = first.previousElementSibling;
-                if (prev && typeof prev.focus === 'function') prev.focus();
-            }
-            return false;
-        }
-        // else let the form submit normally
-    }, { passive: false });
-
-    // Remove client-side invalid state on user edits
-    const inputs = form.querySelectorAll('input, select, textarea, button');
-    inputs.forEach(i => {
-        i.addEventListener('input', () => {
-            if (i.classList.contains('client-added')) {
-                i.classList.remove('is-invalid', 'client-added');
-            }
-            // remove immediate adjacent client-error if exists
-            const next = i.nextElementSibling;
-            if (next && next.classList && next.classList.contains('client-error')) next.remove();
-        });
-        i.addEventListener('change', () => {
-            if (i.classList.contains('client-added')) {
-                i.classList.remove('is-invalid', 'client-added');
-            }
-            const next = i.nextElementSibling;
-            if (next && next.classList && next.classList.contains('client-error')) next.remove();
-        });
-    });
-
-    // If server has passed validation errors and they are already rendered by Blade,
-    // we want to ensure they are scrolled into view on page load so the user sees them.
-    window.addEventListener('load', function () {
-        const serverError = document.querySelector('.invalid-feedback:not(.client-error)');
-        if (serverError) {
-            // scroll to server error (first one)
-            serverError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-    });
-
-})();
-</script>
+        })();
+    </script>
 
 </body>
 

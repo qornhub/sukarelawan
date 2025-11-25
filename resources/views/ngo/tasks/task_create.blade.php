@@ -181,16 +181,15 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // helper to remove placeholder rows from a tbody
+// helper to remove placeholder rows from a tbody
 function removePlaceholderRowsFrom(tbody) {
     if (!tbody) return;
     const rows = Array.from(tbody.querySelectorAll('tr'));
     rows.forEach(tr => {
-        // remove explicit .empty-row class
         if (tr.classList.contains('empty-row')) {
             tr.remove();
             return;
         }
-        // or remove rows that show "No tasks found." placeholder text
         const txt = (tr.textContent || '').trim();
         if (/No tasks found\./i.test(txt)) {
             tr.remove();
@@ -199,52 +198,57 @@ function removePlaceholderRowsFrom(tbody) {
     });
 }
 
-// helper to insert new row into main task list (prepending)
+// INSERT NEW TASK ROW INTO MAIN TASK TABLE (same structure as Blade)
 function insertTaskRow(task) {
-    const tbody = document.querySelector('#section-tasks table.task-table tbody')
-               || document.querySelector('#section-tasks table tbody');
+    const tbody =
+        document.querySelector('#section-tasks table.task-table tbody') ||
+        document.querySelector('#section-tasks table tbody');
     if (!tbody) return;
 
-    // remove "No tasks found" placeholders before inserting
     removePlaceholderRowsFrom(tbody);
 
+    const taskId   = task.task_id || task.id;
+    const title    = task.title || '';
+    const descFull = task.description || '';
+    const descShort =
+        descFull.length > 160 ? descFull.slice(0, 160) + '...' : descFull;
+    const eventId  = (task.event && task.event.event_id) || task.event_id || '{{ $event->event_id }}';
+    const eventTitle = (task.event && task.event.eventTitle) || (task.eventTitle || 'N/A');
+
     const row = document.createElement('tr');
-    row.setAttribute('data-task-id', task.task_id);
+    row.setAttribute('data-task-id', taskId);
 
-    const titleTd = document.createElement('td');
-    titleTd.className = 'task-title-cell';
-    titleTd.textContent = task.title || '';
+    row.innerHTML = `
+        <td class="task-title-cell">${escapeHtml(title)}</td>
+        <td class="task-desc">${escapeHtml(descShort)}</td>
+        <td class="text-nowrap">
+            <span class="badge-event">${escapeHtml(eventTitle)}</span>
+        </td>
+        <td class="text-center">
+            <div class="task-actions">
+                <button type="button"
+                        class="btn btn-outline-secondary btn-sm btn-edit-task"
+                        data-task-id="${escapeHtml(String(taskId))}"
+                        data-title="${escapeHtml(title)}"
+                        data-description="${escapeHtml(descFull)}"
+                        data-event-id="${escapeHtml(String(eventId))}">
+                    Edit
+                </button>
 
-    const descTd = document.createElement('td');
-    descTd.className = 'task-desc';
-    descTd.textContent = task.description ? (task.description.length > 200 ? task.description.slice(0,200) + '...' : task.description) : '';
-
-    const eventTd = document.createElement('td');
-    eventTd.className = 'text-nowrap';
-    eventTd.innerHTML = '<span class="badge-event">' + (task.event?.eventTitle || '') + '</span>';
-
-    const actionsTd = document.createElement('td');
-    actionsTd.className = 'text-center';
-    actionsTd.innerHTML = `
-        <div class="task-actions">
-          <a href="${buildEditUrl(task)}" class="btn btn-outline-secondary btn-sm">Edit</a>
-          <form action="${buildDeleteUrl(task)}" method="POST" class="d-inline" onsubmit="return confirm('Delete this task?');">
-            <input type="hidden" name="_token" value="${document.querySelector('meta[name=csrf-token]').content}">
-            <input type="hidden" name="_method" value="DELETE">
-            <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
-          </form>
-        </div>
+                <button type="button"
+                        class="btn btn-outline-danger btn-sm btn-delete-task"
+                        data-event-id="${escapeHtml(String(eventId))}"
+                        data-task-id="${escapeHtml(String(taskId))}">
+                    Delete
+                </button>
+            </div>
+        </td>
     `;
 
-    row.appendChild(titleTd);
-    row.appendChild(descTd);
-    row.appendChild(eventTd);
-    row.appendChild(actionsTd);
-
-    // prepend new row
-    if (tbody.firstChild) tbody.insertBefore(row, tbody.firstChild);
-    else tbody.appendChild(row);
+    // prepend or append as you like; here we append
+    tbody.appendChild(row);
 }
+
 
 // helper to insert new row into Manage Tasks table (appending)
 function insertManageTaskRow(task) {
@@ -275,22 +279,7 @@ function insertManageTaskRow(task) {
 }
 
 
-    // helpers to build URLs
-    function buildEditUrl(task) {
-        const table = document.querySelector('#section-tasks table.task-table');
-        const template = table?.getAttribute('data-edit-url');
-        if (template) return template.replace('{event}', encodeURIComponent(task.event?.event_id || '{{ $event->event_id }}'))
-                                     .replace('{task}', encodeURIComponent(task.task_id || task.id));
-        return '#';
-    }
-
-    function buildDeleteUrl(task) {
-        const table = document.querySelector('#section-tasks table.task-table');
-        const template = table?.getAttribute('data-destroy-url');
-        if (template) return template.replace('{event}', encodeURIComponent(task.event?.event_id || '{{ $event->event_id }}'))
-                                     .replace('{task}', encodeURIComponent(task.task_id || task.id));
-        return '#';
-    }
+   
 });
 </script>
 

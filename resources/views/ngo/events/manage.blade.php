@@ -1,16 +1,16 @@
- @php
-        use Carbon\Carbon;
-        $eventHasEnded = false;
-        if (!empty($event->eventEnd)) {
-            try {
-                $eventHasEnded = Carbon::parse($event->eventEnd)
-                    ->startOfDay()
-                    ->lessThanOrEqualTo(Carbon::now()->startOfDay());
-            } catch (\Exception $ex) {
-                $eventHasEnded = false;
-            }
+@php
+    use Carbon\Carbon;
+    $eventHasEnded = false;
+    if (!empty($event->eventEnd)) {
+        try {
+            $eventHasEnded = Carbon::parse($event->eventEnd)
+                ->startOfDay()
+                ->lessThanOrEqualTo(Carbon::now()->startOfDay());
+        } catch (\Exception $ex) {
+            $eventHasEnded = false;
         }
-    @endphp
+    }
+@endphp
 <!doctype html>
 <html lang="en">
 
@@ -35,7 +35,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     {{-- HEAD (Bootstrap CSS) --}}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-
 
     <link rel="stylesheet" href="{{ asset('css/events/manage.css') }}">
     <link rel="stylesheet" href="{{ asset('css/task/task_list.css') }}">
@@ -84,9 +83,9 @@
             outline: none;
         }
 
-             /* ----------------------------
-   Disabled state for nav tabs
-   ---------------------------- */
+        /* ----------------------------
+       Disabled state for nav tabs
+       ---------------------------- */
 
         /* Generic disabled look & block interactions (applies to edit/delete/etc) */
         .nav-tab.disabled,
@@ -119,28 +118,27 @@
         }
 
         /* generic disabled state */
-.is-disabled,
-.disabled,
-[aria-disabled="true"] {
-    pointer-events: none !important;
-    cursor: default !important;
-    opacity: 0.55 !important;
-}
+        .is-disabled,
+        .disabled,
+        [aria-disabled="true"] {
+            pointer-events: none !important;
+            cursor: default !important;
+            opacity: 0.55 !important;
+        }
 
-/* ensure inner controls don't accidentally remain interactive */
-.is-disabled * ,
-.disabled * ,
-[aria-disabled="true"] * {
-    pointer-events: none !important;
-}
+        /* ensure inner controls don't accidentally remain interactive */
+        .is-disabled *,
+        .disabled *,
+        [aria-disabled="true"] * {
+            pointer-events: none !important;
+        }
 
-/* optionally mute icons a little more */
-.is-disabled i,
-.disabled i,
-[aria-disabled="true"] i {
-    opacity: 0.65;
-}
-
+        /* optionally mute icons a little more */
+        .is-disabled i,
+        .disabled i,
+        [aria-disabled="true"] i {
+            opacity: 0.65;
+        }
     </style>
 </head>
 
@@ -151,10 +149,8 @@
         <div class="hero-overlay"></div>
         <div class="hero-content">
             <h1 class="hero-title">Event Management</h1>
-
         </div>
     </header>
-  
 
     <div class="event-header mt-3">
         <div class="header-content">
@@ -194,7 +190,6 @@
                     </a>
 
                     {{-- Delete form: disabled when event ended --}}
-                    {{-- Delete form: disabled when event ended --}}
                     @if ($eventHasEnded)
                         <div class="nav-tab delete-tab disabled" aria-disabled="true"
                             title="Event ended — deletion locked">
@@ -216,12 +211,11 @@
                             </button>
                         </form>
                     @endif
-
-
                 </nav>
             </div>
         </div>
     </div>
+
     <div class="page" role="main">
         <div class="grid">
             <!-- Sidebar -->
@@ -251,13 +245,11 @@
                         Task Creation
                     </a>
 
-
-                    <a class="side-btn" href="{{ route('ngo.events.manage', $event->event_id) }}" {{-- fallback if JS is off --}}
-                        data-show="manage-tasks" {{-- JS hook --}} role="button"
+                    <a class="side-btn" href="{{ route('ngo.events.manage', $event->event_id) }}"
+                        {{-- fallback if JS is off --}} data-show="manage-tasks" {{-- JS hook --}} role="button"
                         aria-controls="section-manage-tasks">
                         Manage Task
                     </a>
-
                 </div>
 
                 <div class="side-card mb-3">
@@ -267,7 +259,6 @@
                         Email Participants
                     </a>
                 </div>
-
 
                 <div class="side-card">
                     <div style="font-weight:700;margin-bottom:8px">Attendance</div>
@@ -284,7 +275,6 @@
 
             <!-- Content -->
             <section class="content">
-
 
                 <!-- Registered -->
                 <div id="section-registered" class="card participant-section" aria-live="polite">
@@ -308,7 +298,6 @@
                                 class="reset-btn" style="padding: 6px 12px; text-decoration:none;">Reset</a>
                         </form>
                     </div>
-
 
                     <div class="table-responsive">
                         <table class="table" id="table-registered" role="table"
@@ -361,7 +350,6 @@
                                                 data-json='@json($r)'>View</button>
                                         </td>
                                         {{-- View details uses a JSON payload to avoid many data-* attributes --}}
-
                                     </tr>
                                 @empty
                                     <tr>
@@ -369,7 +357,6 @@
                                     </tr>
                                 @endforelse
                             </tbody>
-
                         </table>
                     </div>
                 </div>
@@ -408,7 +395,6 @@
                                     <th>Age</th>
                                     <th>Gender</th>
                                     <th>Skill</th>
-
                                     <th>Status</th>
                                     <th>Action</th>
                                 </tr>
@@ -432,25 +418,24 @@
                                         <td>{{ $r->age }}</td>
                                         <td>{{ $r->gender }}</td>
                                         <td>{{ $r->skill ?? 'No skills' }}</td>
-
                                         <td>Approved</td>
                                         <td>
+                                            {{-- NEW: allow reverting Approved -> Rejected --}}
+                                            <button class="action-btn btn-reject"
+                                                data-id="{{ $r->registration_id }}">Reject</button>
                                             <button type="button" class="btn-view-details"
                                                 data-json='@json($r)'>View</button>
                                         </td>
                                     </tr>
-
                                 @empty
                                     <tr class="empty-row">
                                         <td colspan="9" class="text-center">No confirmed participants</td>
                                     </tr>
                                 @endforelse
-
                             </tbody>
                         </table>
                     </div>
                 </div>
-
 
                 <!-- Rejected -->
                 <div id="section-rejected" class="card participant-section" style="display:none">
@@ -485,7 +470,6 @@
                                     <th>Age</th>
                                     <th>Gender</th>
                                     <th>Skill</th>
-
                                     <th>Status</th>
                                     <th>Action</th>
                                 </tr>
@@ -509,9 +493,11 @@
                                         <td>{{ $r->age }}</td>
                                         <td>{{ $r->gender }}</td>
                                         <td>{{ $r->skill ?? 'No skills' }}</td>
-
                                         <td>Rejected</td>
                                         <td>
+                                            {{-- NEW: allow reverting Rejected -> Approved --}}
+                                            <button class="action-btn btn-approve"
+                                                data-id="{{ $r->registration_id }}">Approve</button>
                                             <button type="button" class="btn-view-details"
                                                 data-json='@json($r)'>View</button>
                                         </td>
@@ -526,50 +512,42 @@
                     </div>
                 </div>
 
-            
+                <!-- Tasks Section -->
+                @include('ngo.tasks.task_list', ['event' => $event, 'disabled' => $eventHasEnded])
 
-              
-<!-- Tasks Section -->
-@include('ngo.tasks.task_list', ['event' => $event, 'disabled' => $eventHasEnded])
+                <!-- Create Task Section -->
+                @include('ngo.tasks.task_create', ['event' => $event, 'disabled' => $eventHasEnded])
 
-<!-- Create Task Section -->
-@include('ngo.tasks.task_create', ['event' => $event, 'disabled' => $eventHasEnded])
+                <!-- Edit Task -->
+                @include('ngo.tasks.task_edit', ['event' => $event, 'disabled' => $eventHasEnded])
 
-<!-- Edit Task -->
-@include('ngo.tasks.task_edit', ['event' => $event, 'disabled' => $eventHasEnded])
+                <!-- Manage Tasks section -->
+                @include('ngo.tasks.task_manage', [
+                    'event' => $event,
+                    'tasks' => $tasks,
+                    'confirmedParticipants' => $confirmedParticipants,
+                    'assignedMap' => $assignedMap,
+                    'disabled' => $eventHasEnded,
+                ])
 
-<!-- Manage Tasks section -->
-@include('ngo.tasks.task_manage', [
-    'event' => $event,
-    'tasks' => $tasks,
-    'confirmedParticipants' => $confirmedParticipants,
-    'assignedMap' => $assignedMap,
-    'disabled' => $eventHasEnded,
-])
+                @include('ngo.events.email', [
+                    'event' => $event,
+                    'registered' => $registered,
+                    'confirmed' => $confirmed,
+                    'rejected' => $rejected,
+                    'confirmedParticipants' => $confirmedParticipants,
+                    'disabled' => $eventHasEnded,
+                ])
 
-@include('ngo.events.email', [
-    'event' => $event,
-    'registered' => $registered,
-    'confirmed' => $confirmed,
-    'rejected' => $rejected,
-    'confirmedParticipants' => $confirmedParticipants,
-    'disabled' => $eventHasEnded,
-])
-
-<!-- QR & Attendance -->
-@include('ngo.attendances.qr', ['event' => $event, 'disabled' => $eventHasEnded])
-@include('ngo.attendances.list', [
-    'event' => $event,
-    'attendances' => $attendances ?? collect(),
-    'disabled' => $eventHasEnded,
-])
-
-
-
+                <!-- QR & Attendance -->
+                @include('ngo.attendances.qr', ['event' => $event, 'disabled' => $eventHasEnded])
+                @include('ngo.attendances.list', [
+                    'event' => $event,
+                    'attendances' => $attendances ?? collect(),
+                    'disabled' => $eventHasEnded,
+                ])
 
             </section>
-
-
         </div>
     </div>
 
@@ -618,9 +596,6 @@
             const approveUrlTemplate = @json(route('ngo.events.registrations.approve', ['event' => $event->event_id, 'registration' => '__REG__']));
             const rejectUrlTemplate = @json(route('ngo.events.registrations.reject', ['event' => $event->event_id, 'registration' => '__REG__']));
 
-            // Delegate approve/reject clicks
-
-
             // ------- Delegated clicks (robust) -------
             document.addEventListener('click', function(e) {
                 const approveBtn = e.target.closest && e.target.closest('.btn-approve');
@@ -662,169 +637,202 @@
                 };
             }
 
-            // Replace your existing handleAction with this version (adds a confirm prompt)
-            function handleAction(action, registrationId, btn) {
-                if (!registrationId) return;
+// ------- handleAction with origin detection + email + task modal sync -------
+function handleAction(action, registrationId, btn) {
+    if (!registrationId) return;
 
-                // friendly verb & message
-                const verb = action === 'approve' ? 'approve' : 'reject';
-                const pretty = action === 'approve' ? 'Approve' : 'Reject';
-                const confirmMsg =
-                    `${pretty} this participant?\n\nThis action cannot be undone. Do you want to continue?`;
+    const pretty = action === 'approve' ? 'Approve' : 'Reject';
+    const confirmMsg =
+        `${pretty} this participant?\n\nThis action cannot be undone. Do you want to continue?`;
 
-                // show native confirmation dialog
-                if (!window.confirm(confirmMsg)) {
-                    // user cancelled — do nothing
-                    return;
-                }
+    if (!window.confirm(confirmMsg)) {
+        return;
+    }
 
-                // user confirmed -> disable the button and proceed
-                if (btn) btn.disabled = true;
+    const row = btn ? btn.closest('tr') : null;
 
-                let url = (action === 'approve') ? approveUrlTemplate : rejectUrlTemplate;
-                url = url.replace('__REG__', registrationId);
+    // Detect which table the click came from
+    let origin = 'registered';
+    if (row && row.id) {
+        if (row.id.startsWith('conf-row-')) origin = 'confirmed';
+        else if (row.id.startsWith('rej-row-')) origin = 'rejected';
+        else if (row.id.startsWith('reg-row-')) origin = 'registered';
+    }
 
-                fetch(url, {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': token,
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({})
-                    })
-                    .then(response => response.text().then(text => {
-                        if (!response.ok) {
-                            const err = new Error(text || `Request failed (${response.status})`);
-                            err.bodyText = text;
-                            err.status = response.status;
-                            throw err;
-                        }
-                        try {
-                            return JSON.parse(text || '{}');
-                        } catch (parseErr) {
-                            console.warn('Non-JSON response, falling back to DOM row data. text=', text);
-                            return null;
-                        }
-                    }))
-                    .then(data => {
-                        if (btn) btn.disabled = false;
+    if (btn) btn.disabled = true;
 
-                        const regRow = document.getElementById('reg-row-' + registrationId);
-                        let vol = (data && data.volunteer) ? data.volunteer : null;
+    let url = (action === 'approve') ? approveUrlTemplate : rejectUrlTemplate;
+    url = url.replace('__REG__', registrationId);
 
-                        if (!vol && regRow) vol = extractVolFromRow(regRow, registrationId);
-                        vol = vol || {
-                            registration_id: registrationId
-                        };
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': token,
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({})
+    })
+    .then(response => response.text().then(text => {
+        if (!response.ok) {
+            const err = new Error(text || `Request failed (${response.status})`);
+            err.bodyText = text;
+            err.status = response.status;
+            throw err;
+        }
+        try {
+            return JSON.parse(text || '{}');
+        } catch {
+            console.warn('Non-JSON response, falling back to DOM row data. text=', text);
+            return null;
+        }
+    }))
+    .then(data => {
+        if (btn) btn.disabled = false;
 
-                        // Update Registered row in-place (keeps it visible) — same as before
-                        if (regRow) {
-                            const cols = Array.from(regRow.querySelectorAll('td'));
+        const regRow = document.getElementById('reg-row-' + registrationId);
+        let vol = (data && data.volunteer) ? data.volunteer : null;
 
-                            if (cols[0]) {
-                                cols[0].innerHTML = '';
-                                if (vol.user_id) {
-                                    const uid = String(vol.user_id).split('/').pop();
-                                    const a = document.createElement('a');
-                                    a.href = `/volunteers/${uid}`;
-                                    a.className = 'text-primary text-decoration-none';
-                                    a.title = 'View volunteer profile';
-                                    a.textContent = vol.name || '';
-                                    cols[0].appendChild(a);
-                                } else {
-                                    cols[0].textContent = vol.name || '';
-                                }
-                            }
+        if (!vol && regRow) vol = extractVolFromRow(regRow, registrationId);
+        vol = vol || { registration_id: registrationId };
 
-                            if (cols[1]) cols[1].textContent = vol.email || '';
-                            if (cols[2]) cols[2].textContent = vol.contact || '';
-                            if (cols[3]) cols[3].textContent = vol.age ?? '';
-                            if (cols[4]) cols[4].textContent = vol.gender || '';
-                            if (cols[5]) cols[5].textContent = vol.skill || 'No skills';
+        // ---- Keep "Registered" table row in sync (name/email/status/View button) ----
+        if (regRow) {
+            const cols = regRow.querySelectorAll('td');
 
-                            if (cols[6]) {
-                                cols[6].innerHTML = (action === 'approve') ?
-                                    '<span class="badge badge-success">Approved</span>' :
-                                    '<span class="badge badge-danger">Rejected</span>';
-                            }
-
-                            if (cols[7]) {
-                                cols[7].innerHTML = '';
-                                const viewBtn = document.createElement('button');
-                                viewBtn.type = 'button';
-                                viewBtn.className = 'btn-view-details';
-                                try {
-                                    viewBtn.setAttribute('data-json', JSON.stringify(vol));
-                                } catch (e) {
-                                    viewBtn.setAttribute('data-json', '{}');
-                                }
-                                viewBtn.textContent = 'View';
-                                cols[7].appendChild(viewBtn);
-                            }
-                        }
-
-                        // Also insert into other lists & update badges
-                        if (action === 'approve') {
-                            insertConfirmedRow(vol);
-                            incrementBadge('confirmed', 1);
-                        } else {
-                            insertRejectedRow(vol);
-                            incrementBadge('rejected', 1);
-                        }
-
-                        // keep registered row visible (so we DO NOT decrement registered badge here).
-                        // If you want Registered to represent "pending only", remove the Registered row here and call:
-                        //   if (regRow) regRow.remove();
-                        //   incrementBadge('registered', -1);
-                        updateTotalCount();
-                    })
-                    .catch(err => {
-                        console.error('handleAction error:', err);
-                        if (btn) btn.disabled = false;
-
-                        // fallback UI update so user still sees change (best-effort)
-                        const regRow = document.getElementById('reg-row-' + registrationId);
-                        if (regRow) {
-                            try {
-                                const cols = Array.from(regRow.querySelectorAll('td'));
-                                if (cols[6]) cols[6].innerHTML = (action === 'approve') ?
-                                    '<span class="badge badge-success">Approved</span>' :
-                                    '<span class="badge badge-danger">Rejected</span>';
-
-                                if (cols[7]) {
-                                    cols[7].innerHTML = '';
-                                    const viewBtn = document.createElement('button');
-                                    viewBtn.type = 'button';
-                                    viewBtn.className = 'btn-view-details';
-                                    const fallbackVol = extractVolFromRow(regRow, registrationId);
-                                    try {
-                                        viewBtn.setAttribute('data-json', JSON.stringify(fallbackVol));
-                                    } catch (e) {
-                                        viewBtn.setAttribute('data-json', '{}');
-                                    }
-                                    viewBtn.textContent = 'View';
-                                    cols[7].appendChild(viewBtn);
-                                }
-
-                                const fallbackVol = extractVolFromRow(regRow, registrationId);
-                                if (action === 'approve') insertConfirmedRow(fallbackVol), incrementBadge(
-                                    'confirmed', 1);
-                                else insertRejectedRow(fallbackVol), incrementBadge('rejected', 1);
-
-                                updateTotalCount();
-                            } catch (e) {
-                                console.error('fallback DOM update failed', e);
-                            }
-                        }
-
-                        let msg = 'Request failed';
-                        if (err && err.bodyText) msg += ': ' + err.bodyText;
-                        else if (err && err.message) msg = err.message;
-                        alert(msg);
-                    });
+            // Name
+            cols[0].innerHTML = '';
+            if (vol.user_id) {
+                const uid = String(vol.user_id).split('/').pop();
+                const a = document.createElement('a');
+                a.href = `/volunteers/${uid}`;
+                a.className = 'text-primary text-decoration-none';
+                a.title = 'View volunteer profile';
+                a.textContent = vol.name || '';
+                cols[0].appendChild(a);
+            } else {
+                cols[0].textContent = vol.name || '';
             }
-            // ------- Insert full confirmed row (defensive, avoids duplicates) -------
+
+            // Email, contact, age, gender, skill
+            if (cols[1]) cols[1].textContent = vol.email   || '';
+            if (cols[2]) cols[2].textContent = vol.contact || '';
+            if (cols[3]) cols[3].textContent = vol.age     || '';
+            if (cols[4]) cols[4].textContent = vol.gender  || '';
+            if (cols[5]) cols[5].textContent = vol.skill   || 'No skills';
+
+            // Status badge
+            if (cols[6]) {
+                cols[6].innerHTML = (action === 'approve')
+                    ? '<span class="badge badge-success">Approved</span>'
+                    : '<span class="badge badge-danger">Rejected</span>';
+            }
+
+            // Action = View
+            if (cols[7]) {
+                cols[7].innerHTML = '';
+                const viewBtn = document.createElement('button');
+                viewBtn.type = 'button';
+                viewBtn.className = 'btn-view-details';
+                try {
+                    viewBtn.setAttribute('data-json', JSON.stringify(vol));
+                } catch {
+                    viewBtn.setAttribute('data-json', '{}');
+                }
+                viewBtn.textContent = 'View';
+                cols[7].appendChild(viewBtn);
+            }
+        }
+
+        // =====================
+        // MOVE BETWEEN LISTS
+        // =====================
+
+        if (origin === 'registered') {
+            if (action === 'approve') {
+                // Registered → Confirmed
+                insertConfirmedRow(vol);
+                incrementBadge('confirmed', 1);
+                refreshEmptyState('table-confirmed', 'No confirmed participants');
+
+                // Email panel
+                if (window.addEmailRecipient)    window.addEmailRecipient(vol, 'confirmed');
+                if (window.removeEmailRecipient) window.removeEmailRecipient(vol, 'rejected');
+
+                // Task assign modal (add to confirmed list)
+                if (window.addConfirmedParticipantForTasks) {
+                    window.addConfirmedParticipantForTasks(vol);
+                }
+            } else {
+                // Registered → Rejected
+                insertRejectedRow(vol);
+                incrementBadge('rejected', 1);
+                refreshEmptyState('table-rejected', 'No rejected participants');
+
+                // Email panel
+                if (window.addEmailRecipient)    window.addEmailRecipient(vol, 'rejected');
+                if (window.removeEmailRecipient) window.removeEmailRecipient(vol, 'confirmed');
+
+                // Task assign modal (remove from confirmed list, just in case)
+                if (window.removeConfirmedParticipantForTasks) {
+                    window.removeConfirmedParticipantForTasks(vol);
+                }
+            }
+
+        } else if (origin === 'confirmed' && action === 'reject') {
+            // Confirmed → Rejected
+            if (row) row.remove();
+            incrementBadge('confirmed', -1);
+            insertRejectedRow(vol);
+            incrementBadge('rejected', 1);
+
+            refreshEmptyState('table-confirmed', 'No confirmed participants');
+            refreshEmptyState('table-rejected',  'No rejected participants');
+
+            // Email panel
+            if (window.removeEmailRecipient) window.removeEmailRecipient(vol, 'confirmed');
+            if (window.addEmailRecipient)    window.addEmailRecipient(vol, 'rejected');
+
+            // Task assign modal
+            if (window.removeConfirmedParticipantForTasks) {
+                window.removeConfirmedParticipantForTasks(vol);
+            }
+
+        } else if (origin === 'rejected' && action === 'approve') {
+            // Rejected → Confirmed
+            if (row) row.remove();
+            incrementBadge('rejected', -1);
+            insertConfirmedRow(vol);
+            incrementBadge('confirmed', 1);
+
+            refreshEmptyState('table-rejected',  'No rejected participants');
+            refreshEmptyState('table-confirmed', 'No confirmed participants');
+
+            // Email panel
+            if (window.removeEmailRecipient) window.removeEmailRecipient(vol, 'rejected');
+            if (window.addEmailRecipient)    window.addEmailRecipient(vol, 'confirmed');
+
+            // Task assign modal
+            if (window.addConfirmedParticipantForTasks) {
+                window.addConfirmedParticipantForTasks(vol);
+            }
+        }
+
+        updateTotalCount();
+    })
+    .catch(err => {
+        console.error('handleAction error:', err);
+        if (btn) btn.disabled = false;
+
+        let msg = 'Request failed';
+        if (err && err.bodyText) msg += ': ' + err.bodyText;
+        else if (err && err.message) msg = err.message;
+        alert(msg);
+    });
+}
+
+
+            // ------- Insert full confirmed row (now with Reject button) -------
             function insertConfirmedRow(vol) {
                 const tbody = document.querySelector('#table-confirmed tbody');
                 if (!tbody) return;
@@ -863,23 +871,33 @@
                 tdStatus.textContent = 'Approved';
                 tr.appendChild(tdStatus);
 
-                // action view
+                // action: Reject + View
                 const tdAction = document.createElement('td');
-                const btn = document.createElement('button');
-                btn.type = 'button';
-                btn.className = 'btn-view-details';
+
+                const rejectBtn = document.createElement('button');
+                rejectBtn.type = 'button';
+                rejectBtn.className = 'action-btn btn-reject';
+                rejectBtn.setAttribute('data-id', vol.registration_id);
+                rejectBtn.textContent = 'Reject';
+                tdAction.appendChild(rejectBtn);
+
+                const viewBtn = document.createElement('button');
+                viewBtn.type = 'button';
+                viewBtn.className = 'btn-view-details';
                 try {
-                    btn.setAttribute('data-json', JSON.stringify(vol));
+                    viewBtn.setAttribute('data-json', JSON.stringify(vol));
                 } catch (e) {
-                    btn.setAttribute('data-json', '{}');
+                    viewBtn.setAttribute('data-json', '{}');
                 }
-                btn.textContent = 'View';
-                tdAction.appendChild(btn);
+                viewBtn.textContent = 'View';
+                tdAction.appendChild(viewBtn);
+
                 tr.appendChild(tdAction);
 
                 tbody.prepend(tr);
             }
-            // ------- Insert full rejected row (defensive) -------
+
+            // ------- Insert full rejected row (now with Approve button) -------
             function insertRejectedRow(vol) {
                 const tbody = document.querySelector('#table-rejected tbody');
                 if (!tbody) return;
@@ -916,20 +934,30 @@
                 tr.appendChild(tdStatus);
 
                 const tdAction = document.createElement('td');
-                const btn = document.createElement('button');
-                btn.type = 'button';
-                btn.className = 'btn-view-details';
+
+                const approveBtn = document.createElement('button');
+                approveBtn.type = 'button';
+                approveBtn.className = 'action-btn btn-approve';
+                approveBtn.setAttribute('data-id', vol.registration_id);
+                approveBtn.textContent = 'Approve';
+                tdAction.appendChild(approveBtn);
+
+                const viewBtn = document.createElement('button');
+                viewBtn.type = 'button';
+                viewBtn.className = 'btn-view-details';
                 try {
-                    btn.setAttribute('data-json', JSON.stringify(vol));
+                    viewBtn.setAttribute('data-json', JSON.stringify(vol));
                 } catch (e) {
-                    btn.setAttribute('data-json', '{}');
+                    viewBtn.setAttribute('data-json', '{}');
                 }
-                btn.textContent = 'View';
-                tdAction.appendChild(btn);
+                viewBtn.textContent = 'View';
+                tdAction.appendChild(viewBtn);
+
                 tr.appendChild(tdAction);
 
                 tbody.prepend(tr);
             }
+
             // Update all DOM nodes that represent a badge for "which".
             // Preferred: a single element with id="badge-<which>" (canonical).
             // Also supports copies with class .badge-<which> or data-badge="<which>".
@@ -978,6 +1006,7 @@
                     });
                 }
             }
+
             // Recalculate total across registered/confirmed/rejected badges and update all copies
             function updateTotalCount() {
                 const r = parseInt(document.querySelector('#badge-registered')?.textContent || '0', 10);
@@ -994,11 +1023,30 @@
                 document.querySelectorAll('[data-total]').forEach(el => el.textContent = String(total));
             }
 
+            function refreshEmptyState(tableId, message) {
+                const tbody = document.querySelector(`#${tableId} tbody`);
+                if (!tbody) return;
+
+                // Count how many real rows exist (ignore placeholder)
+                const realRows = Array.from(tbody.querySelectorAll('tr'))
+                    .filter(tr => !tr.classList.contains('empty-row'));
+
+                // If table empty → insert placeholder
+                if (realRows.length === 0) {
+                    tbody.innerHTML = `
+            <tr class="empty-row">
+                <td colspan="9" class="text-center">${message}</td>
+            </tr>
+        `;
+                }
+            }
+
             function escapeHtml(s) {
                 if (!s) return '';
                 return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g,
                     '&quot;').replace(/'/g, '&#39;');
             }
+
             // ===== Details modal handler (uses escapeHtml already defined above) =====
             (function registrationDetails() {
                 const modal = document.getElementById('sr-details-modal');
@@ -1028,8 +1076,6 @@
 
                     modal.style.display = 'flex';
                     modal.setAttribute('aria-hidden', 'false');
-
-                    // optionally trap focus, etc. (keep simple)
                 }
 
                 function closeModal() {
@@ -1055,7 +1101,6 @@
 
                     // close actions (close button or clicking backdrop)
                     if (e.target.closest('[data-close="true"]')) {
-                        // close when user clicks element with data-close (backdrop or close btn)
                         closeModal();
                     }
                 });
@@ -1065,6 +1110,7 @@
                     if (e.key === 'Escape' && modal.style.display === 'flex') closeModal();
                 });
             })();
+
             (function tabsBlock() {
                 const indicator = document.querySelector('.nav-indicator');
                 const allTabs = Array.from(document.querySelectorAll('.nav-tab'));
@@ -1107,15 +1153,15 @@
                     switch (tabName) {
                         case 'event':
                             contentArea.innerHTML = `
-            <i class="fas fa-calendar-day"></i>
-            <h3>Create New Event</h3>
-            <p>Set up a new event with details, date, and location</p>`;
+                <i class="fas fa-calendar-day"></i>
+                <h3>Create New Event</h3>
+                <p>Set up a new event with details, date, and location</p>`;
                             break;
                         case 'manage':
                             contentArea.innerHTML = `
-            <i class="fas fa-tasks"></i>
-            <h3>Manage Events</h3>
-            <p>View and manage all your events in one place</p>`;
+                <i class="fas fa-tasks"></i>
+                <h3>Manage Events</h3>
+                <p>View and manage all your events in one place</p>`;
                             break;
                         default:
                             contentArea.innerHTML = '';
@@ -1130,10 +1176,8 @@
             })();
         });
     </script>
-    {{-- stack for scripts pushed from partials like task_create.blade --}}
 
     @stack('scripts')
-
 
     <!-- Details Modal -->
     <div id="sr-details-modal" class="sr-modal" aria-hidden="true" style="display:none;">
@@ -1202,6 +1246,7 @@
             margin-bottom: 6px;
         }
     </style>
+
     @include('layouts.ngo_footer');
 </body>
 

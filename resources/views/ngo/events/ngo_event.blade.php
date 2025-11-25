@@ -144,14 +144,21 @@
                     <div class="filters-container">
                         <div class="filter-group">
                             <label class="filter-label">Categories</label>
-                            <select name="category" class="filter-select" onchange="this.form.submit()">
+                           <select name="category" class="filter-select" onchange="this.form.submit()">
                                 <option value="">All Categories</option>
+
+                                {{-- Predefined categories (admin-defined) --}}
                                 @foreach ($categories as $category)
                                     <option value="{{ $category->eventCategory_id }}"
                                         {{ request('category') == $category->eventCategory_id ? 'selected' : '' }}>
                                         {{ $category->eventCategoryName }}
                                     </option>
                                 @endforeach
+
+                                {{-- Single "Other" option for all custom categories --}}
+                                <option value="other" {{ request('category') == 'other' ? 'selected' : '' }}>
+                                    Other
+                                </option>
                             </select>
                         </div>
 

@@ -137,6 +137,7 @@ class EventController extends Controller
             'country'          => $request->input('country'),
             'eventMaximum'     => $request->input('eventMaximum') ?? $request->input('event_maximum') ?? $request->input('max_attendees'),
             'category_id'      => $request->input('category_id') ?? $request->input('category') ?? $request->input('event_category_id'),
+            'custom_category'  => $request->input('custom_category'),
             'requirements'     => $request->input('requirements') ?? $request->input('requirements_text') ?? null,
         ];
 
@@ -144,8 +145,8 @@ class EventController extends Controller
         $rules = [
             'eventTitle'       => 'required|string|max:255',
             'eventPoints'      => 'nullable|integer|min:0',
-            'eventStart' => 'required|date|after_or_equal:now',
-            'eventEnd'   => 'required|date|after_or_equal:eventStart',
+            'eventStart'       => 'required|date|after_or_equal:now',
+            'eventEnd'         => 'required|date|after_or_equal:eventStart',
 
             'eventSummary'     => 'nullable|string|max:500',
             'eventDescription' => 'required|string',
@@ -155,7 +156,11 @@ class EventController extends Controller
             'state'            => 'required|string|max:100',
             'country'          => 'required|string|max:100',
             'eventMaximum'     => 'nullable|integer|min:1',
-            'category_id'      => 'required|exists:event_categories,eventCategory_id',
+
+            // UPDATED: allow "other" + custom
+            'category_id'      => 'required|string',
+            'custom_category'  => 'required_if:category_id,other|string|max:255',
+
             'sdgs'             => 'nullable|array',
             'sdgs.*'           => 'exists:sdgs,sdg_id',
             'skills'           => 'nullable|array',
@@ -194,9 +199,12 @@ class EventController extends Controller
 
         // --- AUTO-GENERATE POINTS ---
         // robust lookup (covers eventCategory_id or id)
-        $category = EventCategory::find($input['category_id']);
-        if (! $category) {
-            $category = EventCategory::where('eventCategory_id', $input['category_id'])->first();
+        $category = null;
+        if ($input['category_id'] !== 'other') {
+            $category = EventCategory::find($input['category_id']);
+            if (! $category) {
+                $category = EventCategory::where('eventCategory_id', $input['category_id'])->first();
+            }
         }
         $categoryBase = $category ? (int) $category->basePoints : 10;
 
@@ -207,11 +215,21 @@ class EventController extends Controller
             $input['eventMaximum']
         );
 
+        // Decide what to store in category/custom_category
+        $categoryIdToStore = $input['category_id'];
+        $customCategoryToStore = null;
+
+        if ($input['category_id'] === 'other') {
+            $categoryIdToStore = null;
+            $customCategoryToStore = $input['custom_category'];
+        }
+
         // Prepare payload
         $payload = [
             'event_id'        => $eventId,
             'user_id'         => Auth::id(),
-            'category_id'     => $input['category_id'],
+            'category_id'     => $categoryIdToStore,
+            'custom_category' => $customCategoryToStore,
             'eventTitle'      => $input['eventTitle'],
             'eventPoints'     => (int) $calculatedPoints,
             'eventStart'      => $input['eventStart'],
@@ -297,52 +315,56 @@ class EventController extends Controller
             'country'          => $request->input('country'),
             'eventMaximum'     => $request->input('eventMaximum') ?? $request->input('event_maximum') ?? $request->input('max_attendees'),
             'category_id'      => $request->input('category_id') ?? $request->input('category') ?? $request->input('event_category_id'),
+            'custom_category'  => $request->input('custom_category'),
             'requirements'     => $request->input('requirements') ?? $request->input('requirements_text') ?? null,
         ];
 
         // Validation rules (eventPoints optional, we'll recalculate below)
-       // --- validation rules for update() ---
-$rules = [
-    'eventTitle'       => 'required|string|max:255',
-    'eventPoints'      => 'nullable|integer|min:0',
-     'eventStart' => 'required|date|after_or_equal:now',
-    'eventEnd'   => 'required|date|after_or_equal:eventStart',
+        // --- validation rules for update() ---
+        $rules = [
+            'eventTitle'       => 'required|string|max:255',
+            'eventPoints'      => 'nullable|integer|min:0',
+            'eventStart'       => 'required|date|after_or_equal:now',
+            'eventEnd'         => 'required|date|after_or_equal:eventStart',
 
-    'eventSummary'     => 'nullable|string|max:500',
-    'eventDescription' => 'required|string',
-    'venueName'        => 'required|string|max:255',
-    'zipCode'          => 'nullable|string|max:20',
-    'city'             => 'required|string|max:100',
-    'state'            => 'required|string|max:100',
-    'country'          => 'required|string|max:100',
-    // eventMaximum now REQUIRED on edit
-    'eventMaximum'     => 'required|integer|min:1',
-    'category_id'      => 'nullable|exists:event_categories,eventCategory_id',
-    'sdgs'             => 'nullable|array',
-    'sdgs.*'           => 'exists:sdgs,sdg_id',
-    'skills'           => 'nullable|array',
-    'skills.*'         => 'exists:skills,skill_id',
-    'requirements'     => 'nullable|string|max:2000',
-];
+            'eventSummary'     => 'nullable|string|max:500',
+            'eventDescription' => 'required|string',
+            'venueName'        => 'required|string|max:255',
+            'zipCode'          => 'nullable|string|max:20',
+            'city'             => 'required|string|max:100',
+            'state'            => 'required|string|max:100',
+            'country'          => 'required|string|max:100',
+            // eventMaximum now REQUIRED on edit
+            'eventMaximum'     => 'required|integer|min:1',
 
-// Conditional image rule: required only if the event currently has no image
-if ($event->eventImage) {
-    // optional on edit, but validate if provided
-    $rules['eventImage'] = 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120';
-} else {
-    // no existing image — require upload on edit
-    $rules['eventImage'] = 'required|image|mimes:jpeg,png,jpg,webp|max:5120';
-}
+            // UPDATED: allow "other" + custom
+            'category_id'      => 'nullable|string',
+            'custom_category'  => 'required_if:category_id,other|string|max:255',
 
-// Create validator (keep your custom messages/attributes if you have them)
-$validator = Validator::make(array_merge($input, $request->only('sdgs', 'skills')), $rules);
+            'sdgs'             => 'nullable|array',
+            'sdgs.*'           => 'exists:sdgs,sdg_id',
+            'skills'           => 'nullable|array',
+            'skills.*'         => 'exists:skills,skill_id',
+            'requirements'     => 'nullable|string|max:2000',
+        ];
 
-if ($validator->fails()) {
-    return redirect()->back()
-        ->withErrors($validator)
-        ->withInput($request->all());
-}
+        // Conditional image rule: required only if the event currently has no image
+        if ($event->eventImage) {
+            // optional on edit, but validate if provided
+            $rules['eventImage'] = 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120';
+        } else {
+            // no existing image — require upload on edit
+            $rules['eventImage'] = 'required|image|mimes:jpeg,png,jpg,webp|max:5120';
+        }
 
+        // Create validator (keep your custom messages/attributes if you have them)
+        $validator = Validator::make(array_merge($input, $request->only('sdgs', 'skills')), $rules);
+
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput($request->all());
+        }
 
         // Image handling (replace if new uploaded)
         $defaultEventImage = 'default-event.jpg';
@@ -372,10 +394,22 @@ if ($validator->fails()) {
 
         // --- AUTO-CALCULATE points for update as well ---
         $categoryIdToUse = $input['category_id'] ?? $event->category_id;
-        $category = EventCategory::find($categoryIdToUse);
-        if (! $category) {
-            $category = EventCategory::where('eventCategory_id', $categoryIdToUse)->first();
+        $customCategoryToStore = null;
+
+        if ($input['category_id'] === 'other') {
+            $categoryIdToUse = null;
+            $customCategoryToStore = $input['custom_category'];
         }
+
+        if ($categoryIdToUse !== null) {
+            $category = EventCategory::find($categoryIdToUse);
+            if (! $category) {
+                $category = EventCategory::where('eventCategory_id', $categoryIdToUse)->first();
+            }
+        } else {
+            $category = null;
+        }
+
         $categoryBase = $category ? (int) $category->basePoints : 10;
 
         $calculatedPoints = $this->calculateEventPoints(
@@ -387,6 +421,7 @@ if ($validator->fails()) {
 
         // Update model fields
         $event->category_id      = $categoryIdToUse;
+        $event->custom_category  = $customCategoryToStore;
         $event->eventTitle       = $input['eventTitle'];
         $event->eventPoints      = (int) $calculatedPoints;
         $event->eventStart       = $input['eventStart'];
@@ -407,124 +442,122 @@ if ($validator->fails()) {
         // Sync SDGs and Skills (attach / detach to match selection)
         $event->sdgs()->sync($request->input('sdgs', []));
         $event->skills()->sync($request->input('skills', []));
-
         return redirect()->route('ngo.events.index')->with('success', 'Event updated successfully. Points: ' . $calculatedPoints);
     }
 
-  private function calculateEventPoints($categoryBasePoints, $eventStart, $eventEnd, $eventMaximum)
-{
-    $base = (int) ($categoryBasePoints ?? 10);
-    $eventMaximum = (int) ($eventMaximum ?? 0);
+    private function calculateEventPoints($categoryBasePoints, $eventStart, $eventEnd, $eventMaximum)
+    {
+        $base = (int) ($categoryBasePoints ?? 10);
+        $eventMaximum = (int) ($eventMaximum ?? 0);
 
-    try {
-        // App timezone
-        $tz = config('app.timezone') ?? 'UTC';
+        try {
+            // App timezone
+            $tz = config('app.timezone') ?? 'UTC';
 
-        // Normalize common input formats:
-        // - "2025-11-01 18:06:00"
-        // - "2025-11-01T18:06" (from datetime-local)
-        // - "2025-11-01T18:06:00"
-        $normalize = function ($s) {
-            if ($s === null) return null;
-            $s = trim($s);
-            // If contains 'T' and no seconds, convert to space and add :00
-            if (strpos($s, 'T') !== false) {
-                // examples: 2025-11-01T18:06  or 2025-11-01T18:06:00
-                $s = str_replace('T', ' ', $s);
-                // ensure seconds exist
-                if (! preg_match('/:\d{2}:\d{2}$/', $s)) {
-                    $s = preg_replace('/(:\d{2})$/', '$1:00', $s);
+            // Normalize common input formats:
+            // - "2025-11-01 18:06:00"
+            // - "2025-11-01T18:06" (from datetime-local)
+            // - "2025-11-01T18:06:00"
+            $normalize = function ($s) {
+                if ($s === null) return null;
+                $s = trim($s);
+                // If contains 'T' and no seconds, convert to space and add :00
+                if (strpos($s, 'T') !== false) {
+                    // examples: 2025-11-01T18:06  or 2025-11-01T18:06:00
+                    $s = str_replace('T', ' ', $s);
+                    // ensure seconds exist
+                    if (! preg_match('/:\d{2}:\d{2}$/', $s)) {
+                        $s = preg_replace('/(:\d{2})$/', '$1:00', $s);
+                    }
+                }
+                // If input has only date and time without seconds but with space (e.g. "Y-m-d H:i"), add seconds
+                if (preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/', $s)) {
+                    $s .= ':00';
+                }
+                return $s;
+            };
+
+            $sRaw = $normalize($eventStart);
+            $eRaw = $normalize($eventEnd);
+
+            $start = null; $end = null;
+
+            // Try createFromFormat first (most deterministic)
+            if ($sRaw) {
+                try {
+                    $start = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $sRaw, $tz);
+                } catch (\Throwable $ex) {
+                    // fallback to parse
+                    try { $start = \Carbon\Carbon::parse($sRaw, $tz); } catch (\Throwable $ie) { $start = null; }
                 }
             }
-            // If input has only date and time without seconds but with space (e.g. "Y-m-d H:i"), add seconds
-            if (preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/', $s)) {
-                $s .= ':00';
+
+            if ($eRaw) {
+                try {
+                    $end = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $eRaw, $tz);
+                } catch (\Throwable $ex) {
+                    try { $end = \Carbon\Carbon::parse($eRaw, $tz); } catch (\Throwable $ie) { $end = null; }
+                }
             }
-            return $s;
-        };
 
-        $sRaw = $normalize($eventStart);
-        $eRaw = $normalize($eventEnd);
-
-        $start = null; $end = null;
-
-        // Try createFromFormat first (most deterministic)
-        if ($sRaw) {
-            try {
-                $start = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $sRaw, $tz);
-            } catch (\Throwable $ex) {
-                // fallback to parse
-                try { $start = \Carbon\Carbon::parse($sRaw, $tz); } catch (\Throwable $ie) { $start = null; }
+            // If either failed, try generic parse (best-effort)
+            if (! $start) {
+                $start = Carbon::parse($eventStart, $tz);
             }
-        }
-
-        if ($eRaw) {
-            try {
-                $end = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $eRaw, $tz);
-            } catch (\Throwable $ex) {
-                try { $end = \Carbon\Carbon::parse($eRaw, $tz); } catch (\Throwable $ie) { $end = null; }
+            if (! $end) {
+                $end = Carbon::parse($eventEnd, $tz);
             }
-        }
 
-        // If either failed, try generic parse (best-effort)
-        if (! $start) {
-            $start = Carbon::parse($eventStart, $tz);
-        }
-        if (! $end) {
-            $end = Carbon::parse($eventEnd, $tz);
-        }
+            // If still missing, return base and log
+            if (! $start || ! $end) {
+                Log::warning('calculateEventPoints: could not parse start/end', [
+                    'raw_start' => $eventStart, 'raw_end' => $eventEnd, 'normalized_start' => $sRaw, 'normalized_end' => $eRaw
+                ]);
+                return $base;
+            }
 
-        // If still missing, return base and log
-        if (! $start || ! $end) {
-            Log::warning('calculateEventPoints: could not parse start/end', [
-                'raw_start' => $eventStart, 'raw_end' => $eventEnd, 'normalized_start' => $sRaw, 'normalized_end' => $eRaw
+            // Ensure start <= end (swap if necessary)
+            if ($end->lt($start)) {
+                [$start, $end] = [$end, $start];
+            }
+
+            // Compute duration in minutes and convert to hours (ceil partial hours)
+            $minutes = $start->diffInMinutes($end); // start -> end
+            $durationHours = max(1, (int) ceil($minutes / 60));
+
+            // Scaling factors (tweakable)
+            $durationFactor = min($durationHours / 1, 80);   // every 2 hours ~ 1 unit, capped
+            $attendeeFactor = min($eventMaximum / 5, 80);   // every 10 attendees ~ 1 unit, capped
+
+            // Coefficients
+            $durationCoef = 1.5;
+            $attendeeCoef = 1.2;
+
+            $points = $base
+                    + (int) round($durationFactor * $durationCoef)
+                    + (int) round($attendeeFactor * $attendeeCoef);
+
+            // Debug log (optional — remove in production if noisy)
+            Log::debug('calculateEventPoints debug', [
+                'base' => $base,
+                'start' => $start->toDateTimeString(),
+                'end' => $end->toDateTimeString(),
+                'minutes' => $minutes,
+                'durationHours' => $durationHours,
+                'durationFactor' => $durationFactor,
+                'attendeeFactor' => $attendeeFactor,
+                'points' => $points,
+                'eventMaximum' => $eventMaximum,
+            ]);
+
+            return max($points, $base);
+        } catch (\Exception $e) {
+            Log::error('calculateEventPoints error: '.$e->getMessage(), [
+                'start' => $eventStart, 'end' => $eventEnd, 'max' => $eventMaximum
             ]);
             return $base;
         }
-
-        // Ensure start <= end (swap if necessary)
-        if ($end->lt($start)) {
-            [$start, $end] = [$end, $start];
-        }
-
-        // Compute duration in minutes and convert to hours (ceil partial hours)
-        $minutes = $start->diffInMinutes($end); // start -> end
-        $durationHours = max(1, (int) ceil($minutes / 60));
-
-        // Scaling factors (tweakable)
-        $durationFactor = min($durationHours / 1, 80);   // every 2 hours ~ 1 unit, capped
-        $attendeeFactor = min($eventMaximum / 5, 80);   // every 10 attendees ~ 1 unit, capped
-
-        // Coefficients
-        $durationCoef = 1.5;
-        $attendeeCoef = 1.2;
-
-        $points = $base
-                + (int) round($durationFactor * $durationCoef)
-                + (int) round($attendeeFactor * $attendeeCoef);
-
-        // Debug log (optional — remove in production if noisy)
-        Log::debug('calculateEventPoints debug', [
-            'base' => $base,
-            'start' => $start->toDateTimeString(),
-            'end' => $end->toDateTimeString(),
-            'minutes' => $minutes,
-            'durationHours' => $durationHours,
-            'durationFactor' => $durationFactor,
-            'attendeeFactor' => $attendeeFactor,
-            'points' => $points,
-            'eventMaximum' => $eventMaximum,
-        ]);
-
-        return max($points, $base);
-    } catch (\Exception $e) {
-        Log::error('calculateEventPoints error: '.$e->getMessage(), [
-            'start' => $eventStart, 'end' => $eventEnd, 'max' => $eventMaximum
-        ]);
-        return $base;
     }
-}
-
 
     // Delete own event
     public function destroy(Event $event)
