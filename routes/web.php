@@ -50,6 +50,7 @@ use App\Http\Controllers\Admin\AdminDashboardBlogsController;
 use App\Http\Controllers\Events\NGOEventManagementController;
 use App\Http\Controllers\Admin\AdminDashboardEventsController;
 use App\Http\Controllers\Events\AdminEventDiscoveryController;
+use App\Http\Controllers\Events\AdminEventManagementController;
 
 /*authenticated user routes*/   
 Route::middleware(['auth'])->group(function () {
@@ -291,6 +292,10 @@ Route::middleware(['auth', 'isAdmin'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
+
+        Route::get('/events/{event_id}/management', [AdminEventManagementController::class, 'view'])->name('events.view');
+        Route::get('/blogs/drafts', [AdminBlogPostController::class, 'draftList'])->name('blogs.drafts');
+        
         Route::get('dashboard', [AdminDashboardController::class, 'index'])->name('dashboard.index');
         Route::get('dashboard/chart-data', [AdminDashboardController::class, 'chartData'])->name('dashboard.chartData');
         Route::get('dashboard/volunteer-trend', [AdminDashboardController::class, 'volunteerTrendData'])->name('dashboard.volunteerTrend');
@@ -386,11 +391,10 @@ Route::get('dashboard/blogs/avg-comments', [AdminDashboardBlogsController::class
         Route::get('/blogs/{id}', [AdminBlogPostController::class, 'show'])->name('blogs.show');
         Route::get('/blogs/{id}/edit', [AdminBlogPostController::class, 'edit'])->name('blogs.edit');
         Route::put('/blogs/{id}', [AdminBlogPostController::class, 'update'])->name('blogs.update');
-
         // Admin-only force delete any blog
         Route::delete('/blogs/{id}/force', [AdminBlogPostController::class, 'adminDestroy'])->name('blogs.adminDestroy');
-
         // Admin deleting own post (optional)
         Route::delete('/blogs/{id}', [AdminBlogPostController::class, 'destroy'])->name('blogs.destroy');
+         
 
     });

@@ -2,12 +2,12 @@
     {{-- We already filtered to future events in the controller --}}
     <div class="event-card">
         <div class="image-container">
-            <img src="{{ asset('images/events/' . ($event->eventImage ?? 'default-event.jpg')) }}"
+            <img src="{{ asset('images/events/' . ($event->eventImage ?? 'default_event.jpg')) }}"
                 alt="{{ $event->eventTitle }}" class="event-image">
 
             <span class="category-tag">
                 @if (!empty($event->custom_category))
-                    {{ $event->custom_category }} 
+                    {{ $event->custom_category }}
                 @elseif ($event->category)
                     {{ $event->category->eventCategoryName }}
                 @else
@@ -21,13 +21,25 @@
 
 
         <div class="event-details">
-            <div class="event-meta">
-                <div class="event-date">
-                    <i class="far fa-calendar-alt"></i>
-                    <span>{{ \Carbon\Carbon::parse($event->eventStart)->format('l, j F Y g:i A') }}</span>
-                </div>
-                <div class="event-points">{{ $event->eventPoints ?? 0 }} Points</div>
-            </div>
+           <div class="event-meta">
+    <div class="event-date">
+        <i class="far fa-calendar-alt"></i>
+
+        {{-- Desktop / large screen --}}
+        <span class="date-full">
+            {{ \Carbon\Carbon::parse($event->eventStart)->format('l, j F Y g:i A') }}
+        </span>
+
+        {{-- Mobile / small screen --}}
+        <span class="date-mobile">
+            {{ \Carbon\Carbon::parse($event->eventStart)->format('d/m/Y - g:i A') }}
+        </span>
+    </div>
+
+    <div class="event-points">
+        {{ $event->eventPoints ?? 0 }} Points
+    </div>
+</div>
 
             <h3 class="event-title">{{ $event->eventTitle }}</h3>
 

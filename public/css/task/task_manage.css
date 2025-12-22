@@ -1,10 +1,249 @@
-/* small polish for manage tasks */
-.task-manage-card .table thead { background: #004aad; color: #fff; }
-.task-manage-card .assigned-users .badge { display: inline-flex; align-items:center; gap: .4rem; padding:.35rem .5rem; }
-.task-manage-card .assigned-users .btn-close { transform: translateY(-1px); border-radius: 4px; }
+/* =====================================================
+   MANAGE TASKS — CARD LAYOUT (Screenshot Look)
+   ===================================================== */
+
+/* Container */
+.manage-task-card-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+/* Individual task card */
+.manage-task-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 18px 20px;
+    transition: box-shadow .18s ease, transform .12s ease;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, .06);
+}
+
+.manage-task-card:hover,
+.manage-task-card:focus-within {
+    box-shadow: 0 25px 50px rgba(0,0,0,.07);
+    transform: translateY(-1px);
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .manage-task-card,
+  .manage-task-card:hover,
+  .manage-task-card:focus-within {
+    transition: none;
+    transform: none;
+  }
+}
+
+/* Header */
+.manage-task-card .task-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0;
+    letter-spacing: .2px;
+}
+
+.manage-task-card p {
+    font-size: 0.95rem;
+    color: #4b5563;
+    margin: 6px 0 0;
+    line-height: 1.45;
+}
+
+/* Assign button */
+.manage-task-card .assign-btn {
+    white-space: nowrap;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    min-height: 36px;
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    cursor: pointer;
+    transition: background .12s ease, box-shadow .12s ease;
+}
+
+/* Outline-success styling (custom primary feel) */
+.btn-outline-success.assign-btn {
+    background: #fff;
+    border: 1px solid rgba(16,124,235,0.12);
+    color: #0a58ff;
+}
+
+.btn-outline-success.assign-btn:hover,
+.btn-outline-success.assign-btn:focus {
+    background: rgba(0,74,173,0.06);
+    box-shadow: 0 2px 8px rgba(0,74,173,0.06);
+}
+
+/* Accessibility ring */
+.assign-btn:focus-visible,
+.manage-task-card .btn-close:focus-visible,
+.list-group-item:focus-within {
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(0,74,173,0.12);
+    border-radius: 8px;
+}
+
+/* Disabled assign */
+.manage-task-card .assign-btn.is-disabled,
+.manage-task-card .assign-btn[disabled] {
+    opacity: .6;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* Assigned users wrapper */
+.manage-task-card .assigned-users {
+    margin-top: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+/* Assigned Badge — matches screenshot look */
+.manage-task-card .assigned-users .assigned-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    padding: .45rem .70rem;
+    font-size: 0.88rem;
+    border-radius: 999px;
+    background: #f1f3ff;
+    color:white;
+    font-weight: 600;
+    line-height: 1;
+    box-shadow: 0 1px 3px rgba(0,0,0,.05);
+    cursor: default;
+}
+
+/* Close button inside badge */
+.manage-task-card .assigned-users .btn-close {
+    width: 10px;
+    height: 10px;
+    opacity: .9;
+    transform: rotate(0deg);
+    transition: transform .2s ease, opacity .15s ease;
+    background-color: transparent !important;
+
+    --bs-btn-close-color: #0f172a;
+    --bs-btn-close-opacity: 1;
+}
+
+/* Rotate on hover — DOES NOT disappear */
+.manage-task-card .assigned-users .btn-close:hover
+ {
+    opacity: 1;
+    transform: rotate(90deg);
+    background: rgba(0,0,0,0.07);
+    border-radius: 50%;
+    
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .manage-task-card .assigned-users .btn-close,
+  .manage-task-card .assigned-users .btn-close:hover,
+  .manage-task-card .assigned-users .btn-close:focus {
+      transition: none;
+      transform: none;
+  }
+}
+
+/* Disabled unassign */
+.manage-task-card .assigned-users .btn-close.is-disabled {
+    opacity: .45;
+    pointer-events: none;
+}
+
+/* Empty text */
+.manage-task-card-list .text-muted {
+    font-size: 14px;
+}
+
+/* Modal */
 .assign-modal-search { margin-bottom: .75rem; }
-.list-group-item { display:flex; align-items:center; gap:.75rem; }
-.list-group-item .form-check-input { margin-top: 0; }
-.modal .list-group { max-height: 320px; overflow:auto; }
-/* highlight assigned count */
-.assigned-count { font-weight:600; margin-left:.4rem; color:#0b5ed7; }
+
+.modal .list-group {
+    max-height: 360px;
+    overflow-y: auto;
+    border-radius: 8px;
+    padding: 6px;
+}
+
+/* List group items */
+.list-group-item {
+    display: flex;
+    align-items: flex-start;
+    gap: .75rem;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    margin-bottom: 8px;
+    padding: 10px;
+    background: #fff;
+    cursor: pointer;
+    transition: background .12s ease, transform .08s ease;
+}
+
+.list-group-item:hover,
+.list-group-item:focus-within {
+    background: #fbfdff;
+    transform: translateY(-1px);
+}
+
+.list-group-item .form-check-input {
+    margin-top: 4px;
+    width: 18px;
+    height: 18px;
+}
+
+/* Assigned state in modal */
+.list-group-item.hidden-assigned { display: none !important; }
+.list-group-item.already-assigned { opacity: .7; }
+
+.list-group-item .fw-semibold { font-weight: 600; color: #0f172a; }
+.list-group-item .text-muted.small { color: #6b7280; font-size: 0.9rem; }
+
+/* Assign button in modal */
+#assign-submit {
+    min-width: 86px;
+    padding: 8px 14px;
+    font-weight: 700;
+    border-radius: 8px;
+}
+
+#assign-submit[disabled] {
+    opacity: .6;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* Section disabled */
+#section-manage-tasks.is-disabled {
+    opacity: .92;
+    pointer-events: none;
+}
+
+#section-manage-tasks.is-disabled .manage-task-card {
+    background: #f9fafb;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    .manage-task-card { padding: 14px; }
+    .manage-task-card .assign-btn {
+        min-width: 84px;
+        padding: 8px 10px;
+        font-size: 0.92rem;
+    }
+    .manage-task-card .task-title { font-size: 1rem; }
+    .manage-task-card p { font-size: 0.92rem; }
+}
+
+/* Hide ugly browser ring unless keyboard */
+:focus:not(:focus-visible) {
+  outline: none;
+}

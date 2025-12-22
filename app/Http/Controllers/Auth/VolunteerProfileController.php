@@ -49,7 +49,8 @@ public function show($id = null)
         ->orderByDesc('eventStart')
         ->paginate(3, ['*'], 'past_page');
 
-    $totalPoints = Attendance::where('user_id', $user->id)->sum('pointEarned');
+    //$totalPoints = Attendance::where('user_id', $user->id)->sum('pointEarned'); calculate from attendace table
+$totalPoints = (int) UserPoint::where('user_id', $user->id)->sum('points');
 
     // paginate user badges, 5 per page. named page param 'earned_page'
     $userBadges = UserBadge::with('badge')

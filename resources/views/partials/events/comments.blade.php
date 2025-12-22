@@ -265,6 +265,14 @@
         function confirmDeleteEventComment(form) {
             return confirm('Are you sure you want to delete this comment?');
         }
+        function updateEventCommentHeadingCount() {
+    const list = document.querySelector('#event-comments .comments-list');
+    const count = list ? list.querySelectorAll('.comment-card').length : 0;
+
+    const badge = document.getElementById('event-comment-count');
+    if (badge) badge.textContent = count;
+}
+
 
         /* Load more reveal (kept same) */
         (function() {
@@ -377,7 +385,7 @@
         if (fragment !== null) {
           const container = document.querySelector(containerSel);
           if (container) container.innerHTML = fragment;
-          // no client-side success flash: server-rendered flash will appear inside replaced fragment
+          updateEventCommentHeadingCount();
         } else {
           // fallback: replace entire container with raw response
           const container = document.querySelector(containerSel);

@@ -203,6 +203,19 @@ body {
     align-items: center;
     gap: 6px;
 }
+.date-mobile {
+    display: none;
+}
+
+@media (max-width: 576px) {  /* phone size */
+    .date-full {
+        display: none;
+    }
+    .date-mobile {
+        display: inline;
+    }
+}
+
 
 /* Event points - more visible pill that stands out in the meta */
 .event-points {
@@ -249,7 +262,7 @@ body {
     align-items: center;
     gap: 6px;
     color: #666;
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     margin-bottom: 15px;
 }
 

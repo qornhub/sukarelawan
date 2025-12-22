@@ -25,7 +25,7 @@
       this.style.boxShadow = '';
     });
   });
-
+  
   // Activate correct tab on load when paginating (keeps correct tab open after clicking pagination)
   document.addEventListener('DOMContentLoaded', function () {
     try {

@@ -31,15 +31,20 @@
             --muted: #6c757d;
 
             /* Layout */
-            --sidebar-width-expanded: 260px; /* slight increase for comfort */
-            --sidebar-width-collapsed: 70px; /* from first for better centering */
+            --sidebar-width-expanded: 260px;
+            /* slight increase for comfort */
+            --sidebar-width-collapsed: 70px;
+            /* from first for better centering */
             --transition-time: 0.26s;
             --shadow: 0 6px 18px rgba(2, 6, 23, 0.06);
 
             /* icon / spacing */
-            --icon-size: 18px; /* base icon size */
-            --icon-container-width: 26px; /* from first, tighter */
-            --row-height: 48px; /* fixed row height for vertical center */
+            --icon-size: 18px;
+            /* base icon size */
+            --icon-container-width: 26px;
+            /* from first, tighter */
+            --row-height: 48px;
+            /* fixed row height for vertical center */
             --submenu-width: 240px;
             --radius: 10px;
             --z-submenu: 1100;
@@ -67,7 +72,8 @@
             width: var(--sidebar-width-collapsed);
             background: linear-gradient(180deg, var(--light-gray), #ffffff);
             color: var(--text-color);
-            overflow: visible; /* allow floating popouts */
+            overflow: visible;
+            /* allow floating popouts */
             transition: width var(--transition-time) ease;
             z-index: 1000;
             display: flex;
@@ -127,7 +133,8 @@
         .nav-links {
             flex: 1;
             overflow-y: auto;
-            overflow-x: hidden; /* no horizontal scroll */
+            overflow-x: hidden;
+            /* no horizontal scroll */
             padding: 8px 4px;
         }
 
@@ -141,28 +148,29 @@
         }
 
         /* primary clickable areas: either <a> or .dropdown-toggle */
-       /* primary clickable areas: either <a> or .dropdown-toggle */
-.nav-link,
-.dropdown-toggle {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    height: var(--row-height);
-    padding: 0 13px;
-    border-radius: 8px;
-    color: var(--text-color);
-    text-decoration: none;
-    white-space: nowrap;
-    cursor: pointer;
-    transition: background var(--transition-time) ease, color var(--transition-time) ease, padding var(--transition-time) ease;
-    justify-content: flex-start;
-    width: 100%; /* Ensure it takes full width */
-}
+        /* primary clickable areas: either <a> or .dropdown-toggle */
+        .nav-link,
+        .dropdown-toggle {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            height: var(--row-height);
+            padding: 0 13px;
+            border-radius: 8px;
+            color: var(--text-color);
+            text-decoration: none;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: background var(--transition-time) ease, color var(--transition-time) ease, padding var(--transition-time) ease;
+            justify-content: flex-start;
+            width: 100%;
+            /* Ensure it takes full width */
+        }
 
-/* Ensure nav text takes available space, pushing dropdown icon to the right */
-.dropdown-toggle .nav-text {
-    flex: 1;
-}
+        /* Ensure nav text takes available space, pushing dropdown icon to the right */
+        .dropdown-toggle .nav-text {
+            flex: 1;
+        }
 
         /* icon container: guaranteed square => perfect centering */
         .nav-link i,
@@ -174,7 +182,7 @@
         }
 
         /* smaller home icon to match visual weight */
-        .nav-links > a.nav-link > i.fas.fa-home {
+        .nav-links>a.nav-link>i.fas.fa-home {
             font-size: 16px;
         }
 
@@ -196,25 +204,26 @@
         }
 
         /* dropdown chevron */
-.nav-item .fa-chevron-down {
-    display: none;
-}
+        .nav-item .fa-chevron-down {
+            display: none;
+        }
 
-/* make chevron hidden by default and only show when sidebar is expanded */
-.dropdown-icon {
-    display: none;              /* hidden by default (collapsed sidebar) */
-    margin-left: auto;
-    margin-right: 8px;
-    transition: transform 0.22s ease;
-    color: var(--muted);
-    /* don't set opacity here; we control visibility with display */
-}
+        /* make chevron hidden by default and only show when sidebar is expanded */
+        .dropdown-icon {
+            display: none;
+            /* hidden by default (collapsed sidebar) */
+            margin-left: auto;
+            margin-right: 8px;
+            transition: transform 0.22s ease;
+            color: var(--muted);
+            /* don't set opacity here; we control visibility with display */
+        }
 
-/* show chevron when sidebar is expanded (hover on desktop OR .active for mobile toggle) */
-.admin-sidebar:hover .dropdown-icon,
-.admin-sidebar.active .dropdown-icon {
-    display: inline-block;
-}
+        /* show chevron when sidebar is expanded (hover on desktop OR .active for mobile toggle) */
+        .admin-sidebar:hover .dropdown-icon,
+        .admin-sidebar.active .dropdown-icon {
+            display: inline-block;
+        }
 
 
         /* hover/active styles */
@@ -223,14 +232,14 @@
             background: rgba(0, 0, 0, 0.03);
         }
 
-        .nav-item.active > .nav-link,
-        .nav-item.active > .dropdown-toggle {
+        .nav-item.active>.nav-link,
+        .nav-item.active>.dropdown-toggle {
             background: linear-gradient(90deg, rgba(0, 74, 173, 0.08), rgba(0, 74, 173, 0.03));
             color: var(--primary-color);
         }
 
-        .nav-item.active > .nav-link i,
-        .nav-item.active > .dropdown-toggle i {
+        .nav-item.active>.nav-link i,
+        .nav-item.active>.dropdown-toggle i {
             color: var(--primary-color);
         }
 
@@ -251,15 +260,15 @@
         }
 
         /* When parent has .open class, show submenu */
-        .has-submenu.open > .submenu {
+        .has-submenu.open>.submenu {
             display: block;
             opacity: 1;
             transform: translateY(0);
         }
 
         /* Submenu styles for expanded sidebar */
-        .admin-sidebar:hover .has-submenu.open > .submenu,
-        .admin-sidebar.active .has-submenu.open > .submenu {
+        .admin-sidebar:hover .has-submenu.open>.submenu,
+        .admin-sidebar.active .has-submenu.open>.submenu {
             position: relative;
             left: 0;
             min-width: 0;
@@ -276,7 +285,8 @@
         .submenu a {
             display: block;
             padding: 10px 16px;
-            padding-left: 56px; /* indent under icon + spacing */
+            padding-left: 56px;
+            /* indent under icon + spacing */
             text-decoration: none;
             color: var(--muted);
             font-size: 13px;
@@ -299,7 +309,7 @@
         /* ---------- floating popout submenu (only when collapsed) ---------- */
         /* Use popout only when sidebar is collapsed (desktop only). */
         @media (hover: hover) and (pointer: fine) {
-            .admin-sidebar:not(:hover) .has-submenu.open > .submenu {
+            .admin-sidebar:not(:hover) .has-submenu.open>.submenu {
                 display: block;
                 position: absolute;
                 left: calc(var(--sidebar-width-collapsed) + 12px);
@@ -316,13 +326,13 @@
             }
 
             /* In collapsed mode make popout submenu links use the popout colors */
-            .admin-sidebar:not(:hover) .has-submenu.open > .submenu a {
+            .admin-sidebar:not(:hover) .has-submenu.open>.submenu a {
                 color: var(--text-color);
                 background: transparent;
                 padding-left: 12px;
             }
 
-            .admin-sidebar:not(:hover) .has-submenu.open > .submenu a:hover {
+            .admin-sidebar:not(:hover) .has-submenu.open>.submenu a:hover {
                 background: rgba(0, 74, 173, 0.06);
                 color: var(--primary-color);
             }
@@ -442,15 +452,15 @@
             }
         }
 
-       
+
 
         /* ensure collapsed items hide text (chevrons handled above) */
-.admin-sidebar:not(:hover) .nav-text,
-.admin-sidebar:not(:hover) .logo-text,
-.admin-sidebar:not(:hover) .logout-btn span,
-.admin-sidebar:not(:hover) .user-details {
-    display: none;
-}
+        .admin-sidebar:not(:hover) .nav-text,
+        .admin-sidebar:not(:hover) .logo-text,
+        .admin-sidebar:not(:hover) .logout-btn span,
+        .admin-sidebar:not(:hover) .user-details {
+            display: none;
+        }
 
 
         /* Mobile toggle button styling */
@@ -479,30 +489,30 @@
         }
 
         /* Remove any framework-added caret from dropdown-toggle used in the sidebar */
-.admin-sidebar .dropdown-toggle::after {
-    content: none !important;
-    display: none !important;
-    width: 0 !important;
-    height: 0 !important;
-}
+        .admin-sidebar .dropdown-toggle::after {
+            content: none !important;
+            display: none !important;
+            width: 0 !important;
+            height: 0 !important;
+        }
 
-/* Smooth rotate and origin for the dropdown chevron */
-.dropdown-icon {
-    transition: transform 0.22s ease, opacity 0.18s ease;
-    transform-origin: center;
-}
+        /* Smooth rotate and origin for the dropdown chevron */
+        .dropdown-icon {
+            transition: transform 0.22s ease, opacity 0.18s ease;
+            transform-origin: center;
+        }
 
-/* Flip the chevron when the parent .has-submenu is open */
-.has-submenu.open > .dropdown-toggle .dropdown-icon {
-    transform: rotate(-180deg); /* rotate -180 so chevron points up when open */
-}
+        /* Flip the chevron when the parent .has-submenu is open */
+        .has-submenu.open>.dropdown-toggle .dropdown-icon {
+            transform: rotate(-180deg);
+            /* rotate -180 so chevron points up when open */
+        }
 
-/* If you want a small visual 'nudge' when chevron appears, keep opacity rule (optional) */
-.admin-sidebar:hover .dropdown-icon,
-.admin-sidebar.active .dropdown-icon {
-    opacity: 1;
-}
-
+        /* If you want a small visual 'nudge' when chevron appears, keep opacity rule (optional) */
+        .admin-sidebar:hover .dropdown-icon,
+        .admin-sidebar.active .dropdown-icon {
+            opacity: 1;
+        }
     </style>
 </head>
 
@@ -528,17 +538,21 @@
 
             <!-- Event dropdown -->
             <div class="nav-item has-submenu" data-key="event">
-                <div class="dropdown-toggle nav-link" role="button" aria-expanded="false" aria-controls="event-submenu">
+                <div class="dropdown-toggle nav-link" role="button" aria-expanded="false"
+                    aria-controls="event-submenu">
                     <i class="fas fa-calendar-alt"></i>
                     <span class="nav-text">Event</span>
                     <i class="fas fa-chevron-down dropdown-icon" aria-hidden="true"></i>
                 </div>
 
                 <div class="submenu" id="event-submenu" role="menu" aria-label="Event submenu">
-                    <a href="{{ route('admin.events.index') }}" role="menuitem" data-key="event-discovery">Event Discovery</a>
-                    <a href="{{ route('admin.eventCategory.eventCategory-list') }}" role="menuitem" data-key="event-category">Event Category</a>
+                    <a href="{{ route('admin.events.index') }}" role="menuitem" data-key="event-discovery">Event
+                        Discovery</a>
+                    <a href="{{ route('admin.eventCategory.eventCategory-list') }}" role="menuitem"
+                        data-key="event-category">Event Category</a>
                     <a href="{{ route('admin.sdg.sdg-list') }}" role="menuitem" data-key="event-sdg">Event SDG</a>
-                    <a href="{{ route('admin.skill.skill-list') }}" role="menuitem" data-key="event-skill">Event Skill</a>
+                    <a href="{{ route('admin.skill.skill-list') }}" role="menuitem" data-key="event-skill">Event
+                        Skill</a>
                 </div>
             </div>
 
@@ -551,28 +565,44 @@
                 </div>
 
                 <div class="submenu" id="blog-submenu" role="menu" aria-label="blog submenu">
-                    <a href="{{ route('admin.blogs.index') }}" role="menuitem" data-key="event-discovery">Blog Post</a>
-                    <a href="{{ route('admin.blogcategory.category-list') }}" role="menuitem" data-key="event-category">Blog Category</a>
+
+                    <a href="{{ route('admin.blogs.index') }}" role="menuitem" data-key="blog-post">
+                        Blog Post
+                    </a>
+
+                    <a href="{{ route('admin.blogcategory.category-list') }}" role="menuitem" data-key="blog-category">
+                        Blog Category
+                    </a>
+
+                    <a href="{{ route('admin.blogs.drafts') }}" role="menuitem" data-key="blog-drafts">
+                        Draft Blogs
+                    </a>
+
                 </div>
+
             </div>
 
             <!-- Reward dropdown -->
             <div class="nav-item has-submenu" data-key="reward">
-                <div class="dropdown-toggle nav-link" role="button" aria-expanded="false" aria-controls="reward-submenu">
+                <div class="dropdown-toggle nav-link" role="button" aria-expanded="false"
+                    aria-controls="reward-submenu">
                     <i class="fas fa-gift"></i>
                     <span class="nav-text">Reward</span>
                     <i class="fas fa-chevron-down dropdown-icon" aria-hidden="true"></i>
                 </div>
 
                 <div class="submenu" id="reward-submenu" role="menu" aria-label="reward submenu">
-                    <a href="{{ route('admin.badges.index') }}" role="menuitem" data-key="reward-manage">manage reward</a>
-                    <a href="{{ route('admin.badge_categories.badgeCategory-list') }}" role="menuitem" data-key="reward-category">reward Category</a>
+                    <a href="{{ route('admin.badges.index') }}" role="menuitem" data-key="reward-manage">Manage
+                        Reward</a>
+                    <a href="{{ route('admin.badge_categories.badgeCategory-list') }}" role="menuitem"
+                        data-key="reward-category">Reward Category</a>
                 </div>
             </div>
 
             <!-- Users dropdown -->
             <div class="nav-item has-submenu" data-key="users">
-                <div class="dropdown-toggle nav-link" role="button" aria-expanded="false" aria-controls="users-submenu">
+                <div class="dropdown-toggle nav-link" role="button" aria-expanded="false"
+                    aria-controls="users-submenu">
                     <i class="fas fa-users"></i>
                     <span class="nav-text">Users</span>
                     <i class="fas fa-chevron-down dropdown-icon" aria-hidden="true"></i>
@@ -596,17 +626,17 @@
         @php
             $user = Auth::user();
             // prefer adminProfile, then volunteerProfile, then ngoProfile for display in admin area
-            $profile = $user ? ($user->adminProfile ?? $user->volunteerProfile ?? $user->ngoProfile ?? null) : null;
-            
+            $profile = $user ? $user->adminProfile ?? ($user->volunteerProfile ?? ($user->ngoProfile ?? null)) : null;
+
             // profile photo (could be null)
             $photoFile = optional($profile)->profilePhoto ?? null;
-            
+
             // default image
             $profileImageUrl = asset('images/default-profile.png');
-            
+
             if ($photoFile) {
                 $basename = trim(basename($photoFile));
-            
+
                 // check common public image locations first
                 if ($basename && file_exists(public_path("images/profiles/{$basename}"))) {
                     $profileImageUrl = asset("images/profiles/{$basename}");
@@ -616,7 +646,10 @@
                 // then check storage disk 'public'
                 elseif (\Illuminate\Support\Facades\Storage::disk('public')->exists($photoFile)) {
                     $profileImageUrl = \Illuminate\Support\Facades\Storage::disk('public')->url($photoFile);
-                } elseif ($basename && \Illuminate\Support\Facades\Storage::disk('public')->exists("profiles/{$basename}")) {
+                } elseif (
+                    $basename &&
+                    \Illuminate\Support\Facades\Storage::disk('public')->exists("profiles/{$basename}")
+                ) {
                     $profileImageUrl = \Illuminate\Support\Facades\Storage::disk('public')->url("profiles/{$basename}");
                 }
             }
@@ -625,12 +658,12 @@
         <div class="user-section">
             <div class="user-info">
                 <div class="user-avatar" aria-hidden="true">
-                    <img src="{{ $profileImageUrl }}" alt="{{ $profile->name ?? $user->name ?? 'Admin' }}">
+                    <img src="{{ $profileImageUrl }}" alt="{{ $profile->name ?? ($user->name ?? 'Admin') }}">
                 </div>
 
                 <div class="user-details" aria-hidden="false">
                     <div class="user-name">
-                        {{ $profile->name ?? $user->name ?? 'Admin' }}
+                        {{ $profile->name ?? ($user->name ?? 'Admin') }}
                     </div>
                     <div class="user-email">
                         {{ $user->email ?? '' }}
@@ -640,161 +673,165 @@
         </div>
     </aside>
 
-   <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const sidebar = document.getElementById('adminSidebar');
-    const mobileToggle = document.getElementById('mobileToggle');
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('adminSidebar');
+            const mobileToggle = document.getElementById('mobileToggle');
 
-    function isSidebarExpanded() {
-        const isActive = sidebar.classList.contains('active');
-        const isHovered = window.innerWidth > 768 && sidebar.matches(':hover');
-        return isActive || isHovered;
-    }
-
-    function updateChevronsVisibility() {
-        const expanded = isSidebarExpanded();
-        document.querySelectorAll('.dropdown-icon').forEach(d => {
-            d.setAttribute('aria-hidden', (!expanded).toString());
-        });
-    }
-
-    // Utility: close all open submenus except `exceptEl` (if provided)
-    function closeAllSubmenus(exceptEl = null) {
-        document.querySelectorAll('.has-submenu.open').forEach(el => {
-            if (exceptEl && el.isSameNode(exceptEl)) return;
-            el.classList.remove('open');
-            const toggle = el.querySelector('.dropdown-toggle');
-            if (toggle) toggle.setAttribute('aria-expanded', 'false');
-        });
-    }
-
-    // Top-level nav item active logic (ignore has-submenu containers)
-    const topNavItems = Array.from(document.querySelectorAll('.nav-links > .nav-item'))
-        .filter(el => !el.classList.contains('has-submenu') || el.classList.contains('nav-link'));
-
-    topNavItems.forEach(item => {
-        item.addEventListener('click', function(e) {
-            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-            document.querySelectorAll('.submenu a.active').forEach(s => s.classList.remove('active'));
-            this.classList.add('active');
-            closeAllSubmenus();
-            updateChevronsVisibility();
-        });
-    });
-
-    // Dropdown toggles - only one open at a time, toggle chevron rotation via CSS
-    document.querySelectorAll('.has-submenu .dropdown-toggle').forEach(toggle => {
-        toggle.addEventListener('click', function(e) {
-            e.stopPropagation();
-            const parent = this.parentElement;
-
-            // Close other open submenus first (so only one remains open)
-            closeAllSubmenus(parent);
-
-            // Toggle this one
-            const willOpen = !parent.classList.contains('open');
-            if (willOpen) {
-                parent.classList.add('open');
-            } else {
-                parent.classList.remove('open');
+            function isSidebarExpanded() {
+                const isActive = sidebar.classList.contains('active');
+                const isHovered = window.innerWidth > 768 && sidebar.matches(':hover');
+                return isActive || isHovered;
             }
 
-            // aria-expanded for screen readers
-            this.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
-
-            // Visual active state: make this top-level active
-            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-            parent.classList.add('active');
-
-            // Keep chevrons in sync
-            updateChevronsVisibility();
-        });
-    });
-
-    // Submenu link click: open its parent and close others
-    document.querySelectorAll('.submenu a').forEach(link => {
-        link.addEventListener('click', function(e) {
-            e.stopPropagation();
-
-            document.querySelectorAll('.submenu a.active').forEach(s => s.classList.remove('active'));
-            this.classList.add('active');
-
-            const parent = this.closest('.has-submenu');
-            if (parent) {
-                // close all others then open this one
-                closeAllSubmenus(parent);
-                parent.classList.add('open');
-
-                // set aria-expanded on its toggle
-                const toggle = parent.querySelector('.dropdown-toggle');
-                if (toggle) toggle.setAttribute('aria-expanded', 'true');
-
-                // mark top-level active
-                document.querySelectorAll('.nav-item').forEach(i => {
-                    if (!parent.isSameNode(i)) i.classList.remove('active');
+            function updateChevronsVisibility() {
+                const expanded = isSidebarExpanded();
+                document.querySelectorAll('.dropdown-icon').forEach(d => {
+                    d.setAttribute('aria-hidden', (!expanded).toString());
                 });
-                parent.classList.add('active');
             }
 
-            updateChevronsVisibility();
-        });
-    });
-
-    // Auto-collapse open submenus when sidebar is hovered out (desktop only)
-    sidebar.addEventListener('mouseleave', () => {
-        if (window.innerWidth > 768) {
-            closeAllSubmenus();
-            updateChevronsVisibility();
-        }
-    });
-
-    sidebar.addEventListener('mouseenter', () => {
-        updateChevronsVisibility();
-    });
-
-    // Close submenus when clicking outside on desktop
-    window.addEventListener('click', (e) => {
-        if (window.innerWidth > 768 && !sidebar.contains(e.target)) {
-            closeAllSubmenus();
-            updateChevronsVisibility();
-        }
-    });
-
-    // Mobile toggle functionality
-    if (mobileToggle) {
-        mobileToggle.addEventListener('click', function() {
-            sidebar.classList.toggle('active');
-            const icon = this.querySelector('i');
-            icon.classList.toggle('fa-bars');
-            icon.classList.toggle('fa-times');
-
-            // When toggling mobile, close other open submenus to keep UI tidy
-            if (!sidebar.classList.contains('active')) {
-                closeAllSubmenus();
+            // Utility: close all open submenus except `exceptEl` (if provided)
+            function closeAllSubmenus(exceptEl = null) {
+                document.querySelectorAll('.has-submenu.open').forEach(el => {
+                    if (exceptEl && el.isSameNode(exceptEl)) return;
+                    el.classList.remove('open');
+                    const toggle = el.querySelector('.dropdown-toggle');
+                    if (toggle) toggle.setAttribute('aria-expanded', 'false');
+                });
             }
+
+            // Top-level nav item active logic (ignore has-submenu containers)
+            const topNavItems = Array.from(document.querySelectorAll('.nav-links > .nav-item'))
+                .filter(el => !el.classList.contains('has-submenu') || el.classList.contains('nav-link'));
+
+            topNavItems.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove(
+                        'active'));
+                    document.querySelectorAll('.submenu a.active').forEach(s => s.classList.remove(
+                        'active'));
+                    this.classList.add('active');
+                    closeAllSubmenus();
+                    updateChevronsVisibility();
+                });
+            });
+
+            // Dropdown toggles - only one open at a time, toggle chevron rotation via CSS
+            document.querySelectorAll('.has-submenu .dropdown-toggle').forEach(toggle => {
+                toggle.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const parent = this.parentElement;
+
+                    // Close other open submenus first (so only one remains open)
+                    closeAllSubmenus(parent);
+
+                    // Toggle this one
+                    const willOpen = !parent.classList.contains('open');
+                    if (willOpen) {
+                        parent.classList.add('open');
+                    } else {
+                        parent.classList.remove('open');
+                    }
+
+                    // aria-expanded for screen readers
+                    this.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+
+                    // Visual active state: make this top-level active
+                    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove(
+                        'active'));
+                    parent.classList.add('active');
+
+                    // Keep chevrons in sync
+                    updateChevronsVisibility();
+                });
+            });
+
+            // Submenu link click: open its parent and close others
+            document.querySelectorAll('.submenu a').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.stopPropagation();
+
+                    document.querySelectorAll('.submenu a.active').forEach(s => s.classList.remove(
+                        'active'));
+                    this.classList.add('active');
+
+                    const parent = this.closest('.has-submenu');
+                    if (parent) {
+                        // close all others then open this one
+                        closeAllSubmenus(parent);
+                        parent.classList.add('open');
+
+                        // set aria-expanded on its toggle
+                        const toggle = parent.querySelector('.dropdown-toggle');
+                        if (toggle) toggle.setAttribute('aria-expanded', 'true');
+
+                        // mark top-level active
+                        document.querySelectorAll('.nav-item').forEach(i => {
+                            if (!parent.isSameNode(i)) i.classList.remove('active');
+                        });
+                        parent.classList.add('active');
+                    }
+
+                    updateChevronsVisibility();
+                });
+            });
+
+            // Auto-collapse open submenus when sidebar is hovered out (desktop only)
+            sidebar.addEventListener('mouseleave', () => {
+                if (window.innerWidth > 768) {
+                    closeAllSubmenus();
+                    updateChevronsVisibility();
+                }
+            });
+
+            sidebar.addEventListener('mouseenter', () => {
+                updateChevronsVisibility();
+            });
+
+            // Close submenus when clicking outside on desktop
+            window.addEventListener('click', (e) => {
+                if (window.innerWidth > 768 && !sidebar.contains(e.target)) {
+                    closeAllSubmenus();
+                    updateChevronsVisibility();
+                }
+            });
+
+            // Mobile toggle functionality
+            if (mobileToggle) {
+                mobileToggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('active');
+                    const icon = this.querySelector('i');
+                    icon.classList.toggle('fa-bars');
+                    icon.classList.toggle('fa-times');
+
+                    // When toggling mobile, close other open submenus to keep UI tidy
+                    if (!sidebar.classList.contains('active')) {
+                        closeAllSubmenus();
+                    }
+                    updateChevronsVisibility();
+                });
+            }
+
+            // Handle responsiveness & behavior differences
+            function handleResize() {
+                if (window.innerWidth <= 768) {
+                    if (mobileToggle) mobileToggle.style.display = 'flex';
+                } else {
+                    if (mobileToggle) mobileToggle.style.display = 'none';
+                    // remove mobile active state when switching back to desktop
+                    sidebar.classList.remove('active');
+                    closeAllSubmenus();
+                }
+                updateChevronsVisibility();
+            }
+            handleResize();
+            window.addEventListener('resize', handleResize);
+
+            // Initialize chevrons state on load
             updateChevronsVisibility();
         });
-    }
-
-    // Handle responsiveness & behavior differences
-    function handleResize() {
-        if (window.innerWidth <= 768) {
-            if (mobileToggle) mobileToggle.style.display = 'flex';
-        } else {
-            if (mobileToggle) mobileToggle.style.display = 'none';
-            // remove mobile active state when switching back to desktop
-            sidebar.classList.remove('active');
-            closeAllSubmenus();
-        }
-        updateChevronsVisibility();
-    }
-    handleResize();
-    window.addEventListener('resize', handleResize);
-
-    // Initialize chevrons state on load
-    updateChevronsVisibility();
-});
-</script>
+    </script>
 
 </body>
 

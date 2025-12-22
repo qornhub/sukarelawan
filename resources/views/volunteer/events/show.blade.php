@@ -1,6 +1,7 @@
 {{-- resources/views/ngo/events/show.blade.php --}}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -15,19 +16,20 @@
     <link rel="stylesheet" href="{{ asset('css/blogs/comment.css') }}">
     <style>
         /* event_show.css */
-.sidebar-card .detail-value .badge {
-  display: inline-block; /* ensures badge width is respected when text-end used */
-}
-
+        .sidebar-card .detail-value .badge {
+            display: inline-block;
+            /* ensures badge width is respected when text-end used */
+        }
     </style>
 </head>
+
 <body>
     @include('layouts.volunteer_header')
 
     @php
         // image helpers
         $eventImage = $event->eventImage ?? null;
-        $eventHeroUrl = $eventImage ? asset('images/events/' . $eventImage) : asset('images/events/default-event.jpg');
+        $eventHeroUrl = $eventImage ? asset('images/events/' . $eventImage) : asset('images/events/default_event.jpg');
 
         // dates
         $start = $event->eventStart ? \Carbon\Carbon::parse($event->eventStart) : null;
@@ -65,7 +67,8 @@
     <main class="container page-body">
         <div class="row gx-4 gy-4">
             {{-- LEFT MAIN --}}
-            <div class="col-lg-8 left-col">
+            <div class="col-12 col-lg-8 left-col order-2 order-lg-1">
+
                 {{-- Mission Description --}}
                 <section class="content-card">
                     <h4 class="section-heading">
@@ -178,8 +181,10 @@
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h4 class="section-heading mb-0">
                             <i class="fas fa-comments icon"></i>
-                            Comments ({{ $comments->total() ?? count($comments) }})
+                            Comments (<span
+                                id="event-comment-count">{{ $comments->total()??count($comments) }}</span>)
                         </h4>
+
                     </div>
 
                     @include('partials.events.comments', [
@@ -194,7 +199,8 @@
             </div>
 
             {{-- RIGHT SIDEBAR --}}
-            <aside class="col-lg-4">
+            <aside class="col-12 col-lg-4 order-1 order-lg-2 sidebar-col">
+
                 {{-- Share --}}
                 <div class="sidebar-card">
                     <h6 class="sidebar-heading">
@@ -345,7 +351,7 @@
 
                             // Try to get profile photo from organizer->ngoProfile or volunteerProfile
                             $file =
-                                optional($organizer->ngoProfile)->profilePhoto ?? 
+                                optional($organizer->ngoProfile)->profilePhoto ??
                                 (optional($organizer->volunteerProfile)->profilePhoto ?? null);
 
                             $profileImageUrl = $default;
@@ -413,4 +419,5 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     @stack('scripts')
 </body>
+
 </html>

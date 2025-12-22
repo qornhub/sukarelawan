@@ -201,6 +201,14 @@
     font-size: 0.875rem;
 }
 
+.user-name-link {
+    text-decoration: none;
+    color: inherit;
+}
+
+.user-name-link:hover .user-name {
+    text-decoration: underline;
+}
 /* Badges */
 .badge {
     font-size: 0.75rem;
@@ -296,7 +304,7 @@
 }
 
 .pagination-info {
-    color: var(--admin-gray-600);
+    color: white;
     font-size: 0.875rem;
 }
 

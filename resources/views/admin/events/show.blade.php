@@ -87,7 +87,7 @@
     @php
         // image helpers
         $eventImage = $event->eventImage ?? null;
-        $eventHeroUrl = $eventImage ? asset('images/events/' . $eventImage) : asset('images/events/default-event.jpg');
+        $eventHeroUrl = $eventImage ? asset('images/events/' . $eventImage) : asset('images/events/default_event.jpg');
 
         // dates
         $start = $event->eventStart ? \Carbon\Carbon::parse($event->eventStart) : null;
@@ -115,31 +115,48 @@
                 </div>
             </div>
         </header>
+     
 
         @include('layouts.messages')
 
         {{-- SETTINGS ICON (replaces register button). right-aligned under hero --}}
         <div class="container">
-            <div class="post-settings" style="margin-top:18px;">
-                <div class="btn-group">
-                    <button type="button" class="btn btn-settings btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="Event settings">
-                        <i class="fa fa-cog"></i>
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end">
-                        {{-- Admin can delete any event (no edit option) --}}
-                        <li>
-                            <form action="{{ route('admin.events.destroy', $event->event_id) }}" method="POST" onsubmit="return confirm('Are you sure you want to permanently delete this event? This action cannot be undone.');" class="m-0 p-0">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="dropdown-item text-danger">
-                                    <i class="fa fa-trash me-2"></i> Delete event
-                                </button>
-                            </form>
-                        </li>
-                    </ul>
-                </div>
-            </div>
+    <div class="post-settings" style="margin-top:18px;">
+        <div class="btn-group">
+            <button type="button" class="btn btn-settings btn-sm dropdown-toggle"
+                    data-bs-toggle="dropdown" aria-expanded="false" title="Event settings">
+                <i class="fa fa-cog"></i>
+            </button>
+
+            <ul class="dropdown-menu dropdown-menu-end">
+
+                {{-- MANAGE EVENT (View Only) --}}
+                <li>
+                    <a href="{{ route('admin.events.view', $event->event_id) }}" class="dropdown-item">
+                        <i class="fas fa-tasks me-2"></i> Manage Event
+                    </a>
+                </li>
+
+                <li><hr class="dropdown-divider"></li>
+
+                {{-- DELETE EVENT --}}
+                <li>
+                    <form action="{{ route('admin.events.destroy', $event->event_id) }}" method="POST"
+                        onsubmit="return confirm('Are you sure you want to permanently delete this event? This action cannot be undone.');"
+                        class="m-0 p-0">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="dropdown-item text-danger">
+                            <i class="fa fa-trash me-2"></i> Delete event
+                        </button>
+                    </form>
+                </li>
+
+            </ul>
         </div>
+    </div>
+</div>
+
 
         <main class="container page-body">
             <div class="row gx-4 gy-4">

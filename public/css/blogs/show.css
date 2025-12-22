@@ -264,20 +264,22 @@
         }
 
         @media (max-width: 767px) {
-            .blog-header {
-                padding: 80px 0 50px;
-            }
             
-            .blog-header .title {
-                font-size: 1.6rem;
-            }
-            
-            .content-left, .content-right {
-                padding: 25px;
-            }
 
-            .blog-info-grid {
-                grid-template-columns: 1fr;
-                gap: 15px;
-            }
+             .blog-info-grid {
+        gap: 15px; /* slightly smaller gap */
+    }
+
+    .info-label {
+        font-size: 0.8rem; /* smaller label font */
+    }
+
+    .info-value {
+        font-size: 0.85rem; /* smaller value font */
+    }
+
+    /* Optional: adjust padding inside the info items */
+    .info-item {
+        padding: 5px 0;
+    }
         }

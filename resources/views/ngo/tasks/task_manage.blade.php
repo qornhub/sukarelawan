@@ -5,6 +5,8 @@
     $confirmedParticipants = $confirmedParticipants ?? collect();
     // $disabled expected to be passed from parent (true when event ended)
     $disabled = $disabled ?? false;
+    $isAdminReadonly = $isAdminReadonly ?? false;
+
 @endphp
 
 <div class="card mt-4 participant-section {{ $disabled ? 'is-disabled' : '' }}"
@@ -17,88 +19,91 @@
         <h3 class="mb-3">Manage Tasks</h3>
          @include('layouts/messages')
 
-        @if($disabled)
-            <div class="alert alert-warning mb-3">
-                Task management is disabled — this event has ended.
+       @if ($disabled && !$isAdminReadonly)
+    <div class="alert alert-warning">
+        Task management is disabled — this event has ended.
+    </div>
+@endif
+
+
+        <div class="manage-task-card-list">
+
+    @forelse ($tasks as $task)
+        <div class="manage-task-card"
+             data-task-id="{{ (string) $task->task_id }}"
+             data-assigned="{{ $task->assignments->pluck('user_id')->map(fn($v) => (string) $v)->implode(',') }}">
+
+            {{-- HEADER --}}
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <div>
+                    <h5 class="task-title mb-1">{{ $task->title }}</h5>
+                    <p class="text-muted mb-0">
+                        {{ \Illuminate\Support\Str::limit($task->description, 100) }}
+                    </p>
+                </div>
+
+                {{-- ACTION --}}
+                @if($disabled)
+                    <button type="button"
+                            class="btn btn-sm btn-outline-success assign-btn is-disabled"
+                            data-task-id="{{ (string) $task->task_id }}"
+                            aria-disabled="true"
+                            tabindex="-1"
+                            title="Assigning disabled — event has ended">
+                        Assign To
+                    </button>
+                @else
+                    <button type="button"
+                            class="btn btn-sm btn-outline-success assign-btn"
+                            data-task-id="{{ (string) $task->task_id }}">
+                        Assign To
+                    </button>
+                @endif
             </div>
-        @endif
 
-        <div class="table-responsive">
-            <table class="table table-striped align-middle">
-                <thead class="table-primary">
-                    <tr>
-                        <th>Task</th>
-                        <th>Description</th>
-                        <th>Assigned To <small class="text-muted assigned-count"></small></th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse ($tasks as $task)
-                        <tr data-task-id="{{ (string) $task->task_id }}"
-                            data-assigned="{{ $task->assignments->pluck('user_id')->map(fn($v) => (string) $v)->implode(',') }}">
-                            <td class="task-title">{{ $task->title }}</td>
-                            <td>{{ \Illuminate\Support\Str::limit($task->description, 100) }}</td>
+            {{-- ASSIGNED USERS --}}
+            <div class="assigned-users mt-2">
 
-                            <td class="assigned-users">
-                                @forelse($task->assignments as $a)
-                                    <span class="badge bg-primary me-1 assigned-badge"
-                                        data-user-id="{{ (string) $a->user_id }}">
-                                        {{ optional($a->user)->name ?? 'User ' . $a->user_id }}
+                @forelse($task->assignments as $a)
+                    <span class="badge bg-primary me-1 assigned-badge"
+                          data-user-id="{{ (string) $a->user_id }}">
 
-                                        {{-- Unassign button: disabled when $disabled --}}
-                                        @if($disabled)
-                                            <button type="button"
-                                                class="btn-close btn-close-white btn-sm ms-1 unassign-btn is-disabled"
-                                                aria-label="Remove"
-                                                data-task-id="{{ (string) $task->task_id }}"
-                                                data-user-id="{{ (string) $a->user_id }}"
-                                                aria-disabled="true"
-                                                tabindex="-1"
-                                                title="Unassign disabled — event ended">
-                                            </button>
-                                        @else
-                                            <button type="button"
-                                                class="btn-close btn-close-white btn-sm ms-1 unassign-btn"
-                                                aria-label="Remove"
-                                                data-task-id="{{ (string) $task->task_id }}"
-                                                data-user-id="{{ (string) $a->user_id }}">
-                                            </button>
-                                        @endif
-                                    </span>
-                                @empty
-                                    <span class="text-muted">—</span>
-                                @endforelse
-                            </td>
+                        {{ optional($a->user)->name ?? 'User ' . $a->user_id }}
 
-                            <td>
-                                {{-- Assign button: disabled when $disabled --}}
-                                @if($disabled)
-                                    <button type="button"
-                                            class="btn btn-sm btn-outline-success assign-btn is-disabled"
-                                            data-task-id="{{ (string) $task->task_id }}"
-                                            aria-disabled="true"
-                                            tabindex="-1"
-                                            title="Assigning disabled — event has ended">
-                                        Assign To
-                                    </button>
-                                @else
-                                    <button type="button"
-                                            class="btn btn-sm btn-outline-success assign-btn"
-                                            data-task-id="{{ (string) $task->task_id }}">
-                                        Assign To
-                                    </button>
-                                @endif
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="4" class="text-center text-muted">No tasks found.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
+                        @if($disabled)
+                            <button type="button"
+                                class="btn-close btn-close-white btn-sm ms-1 unassign-btn is-disabled"
+                                aria-label="Remove"
+                                data-task-id="{{ (string) $task->task_id }}"
+                                data-user-id="{{ (string) $a->user_id }}"
+                                aria-disabled="true"
+                                tabindex="-1"
+                                title="Unassign disabled — event ended">
+                            </button>
+                        @else
+                            <button type="button"
+                                class="btn-close btn-close-white btn-sm ms-1 unassign-btn"
+                                aria-label="Remove"
+                                data-task-id="{{ (string) $task->task_id }}"
+                                data-user-id="{{ (string) $a->user_id }}">
+                            </button>
+                        @endif
+                    </span>
+                @empty
+                    <span class="text-muted">—</span>
+                @endforelse
+
+            </div>
         </div>
+
+    @empty
+        <div class="text-center text-muted py-4">
+            No tasks found.
+        </div>
+    @endforelse
+
+</div>
+
     </div>
 </div>
 
@@ -223,12 +228,15 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // ⭐ Only look inside #section-manage-tasks so we don't touch the Task List table
-    function getAllRowsByTaskId(taskId) {
-        const t = toS(taskId);
-        if (!t || !manageSection) return [];
-        return Array.from(manageSection.querySelectorAll('tr[data-task-id]'))
-            .filter(r => toS(r.getAttribute('data-task-id')) === t);
-    }
+   function getAllRowsByTaskId(taskId) {
+    const t = toS(taskId);
+    if (!t || !manageSection) return [];
+
+    return Array.from(
+        manageSection.querySelectorAll('[data-task-id]')
+    ).filter(el => toS(el.getAttribute('data-task-id')) === t);
+}
+
 
     function getRowByTaskId(taskId) {
         const rows = getAllRowsByTaskId(taskId);
@@ -585,79 +593,58 @@ document.addEventListener('DOMContentLoaded', function() {
     // ----------------------------------------------------
     // Update badges in manage tasks table rows
     // ----------------------------------------------------
-    function updateAssignedBadges(taskId, assignedIds) {
-        try {
-            const rows = getAllRowsByTaskId(taskId);
-            if (!rows.length) {
-                console.warn('[assign] updateAssignedBadges: no rows for', taskId);
-                return;
-            }
+   function updateAssignedBadges(taskId, assignedIds) {
+    const cards = getAllRowsByTaskId(taskId);
+    if (!cards.length) return;
 
-            const nameById = {};
-            if (participants) {
-                Array.from(participants.querySelectorAll('.list-group-item')).forEach(labelEl => {
-                    const cb   = labelEl.querySelector('.participant-checkbox');
-                    if (!cb) return;
-                    const id   = toS(cb.value || labelEl.dataset.userId || '');
-                    const name = (labelEl.querySelector('.fw-semibold')?.textContent
-                                 || labelEl.textContent || '').trim();
-                    if (id) nameById[id] = name;
-                });
-            }
+    const nameById = {};
 
-            rows.forEach(row => {
-                let cell = row.querySelector('.assigned-users') ||
-                           row.querySelector('[data-assigned-cell]');
+    // Build name map from modal
+    if (participants) {
+        participants.querySelectorAll('.list-group-item').forEach(label => {
+            const cb = label.querySelector('.participant-checkbox');
+            if (!cb) return;
 
-                if (!cell) {
-                    const tds = row.querySelectorAll('td');
-                    if (tds && tds[2]) {
-                        const newTd = document.createElement('td');
-                        newTd.className = 'assigned-users';
-                        row.insertBefore(newTd, tds[2]);
-                        cell = newTd;
-                    } else {
-                        const newTd = document.createElement('td');
-                        newTd.className = 'assigned-users';
-                        row.appendChild(newTd);
-                        cell = newTd;
-                    }
-                }
-
-                cell.innerHTML = '';
-
-                if (!assignedIds || !assignedIds.length) {
-                    cell.innerHTML = '<span class="text-muted">—</span>';
-                } else {
-                    assignedIds.forEach(uid => {
-                        const span = document.createElement('span');
-                        span.className = 'badge bg-primary me-1 assigned-badge';
-                        span.setAttribute('data-user-id', String(uid));
-
-                        const labelHtml = escapeHtml(nameById[String(uid)] || ('User ' + uid));
-
-                        span.innerHTML =
-                            `${labelHtml}` +
-                            `<button type="button"
-                                     class="btn-close btn-close-white btn-sm ms-1 unassign-btn"
-                                     aria-label="Remove"
-                                     data-task-id="${escapeHtml(String(taskId))}"
-                                     data-user-id="${escapeHtml(String(uid))}"></button>`;
-
-                        cell.appendChild(span);
-                    });
-                }
-
-                try {
-                    row.setAttribute('data-assigned', (assignedIds || []).map(String).join(','));
-                } catch (err) {
-                    console.warn('[assign] updateAssignedBadges: failed to set data-assigned', err);
-                }
-            });
-        } catch (err) {
-            console.error('[assign] updateAssignedBadges: unexpected error', err);
-        }
+            const id = toS(cb.value || label.dataset.userId);
+            const name = label.querySelector('.fw-semibold')?.textContent?.trim();
+            if (id && name) nameById[id] = name;
+        });
     }
+
+    cards.forEach(card => {
+        const container = card.querySelector('.assigned-users');
+        if (!container) return;
+
+        container.innerHTML = '';
+
+        if (!assignedIds || !assignedIds.length) {
+            container.innerHTML = '<span class="text-muted">—</span>';
+            card.setAttribute('data-assigned', '');
+            return;
+        }
+
+        assignedIds.forEach(uid => {
+            const span = document.createElement('span');
+            span.className = 'badge bg-primary me-1 assigned-badge';
+            span.dataset.userId = uid;
+
+            span.innerHTML = `
+                ${escapeHtml(nameById[uid] || 'User ' + uid)}
+                <button type="button"
+                    class="btn-close btn-close-white btn-sm ms-1 unassign-btn"
+                    aria-label="Remove"
+                    data-task-id="${escapeHtml(taskId)}"
+                    data-user-id="${escapeHtml(uid)}">
+                </button>
+            `;
+
+            container.appendChild(span);
+        });
+
+        card.setAttribute('data-assigned', assignedIds.join(','));
+    });
+}
+
 
     function decrementAssignedCount(taskId, userId) {
         const rows = getAllRowsByTaskId(taskId);

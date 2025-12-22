@@ -20,7 +20,6 @@ class AdminBlogPostController extends Controller
     {
         $query = BlogPost::where('status', 'published');
 
-        // Optional search
         if ($search = $request->input('q')) {
             $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
@@ -62,70 +61,85 @@ class AdminBlogPostController extends Controller
     /**
      * Store new post
      */
-    public function store(Request $request)
-    {
-        $rules = [
-            'title'           => 'required|string|max:255',
-            'blogSummary'     => 'nullable|string|max:500',
-            'content'         => 'required|string',
-            'category_id'     => 'required',
-            'custom_category' => 'required_if:category_id,other|string|max:255',
-            'status'          => 'required|in:draft,published',
-            'published_at'    => 'nullable|date',
-            'image'           => 'nullable|image|max:5120',
-        ];
+   public function store(Request $request)
+{
+    $rules = [
+        'title'           => 'required|string|max:255',
+        'blogSummary'     => 'nullable|string|max:500',
+        'content'         => 'required|string',
 
-        $validator = Validator::make($request->all() + $request->only('image'), $rules);
+        'category_id'     => 'required',
+        'custom_category' => 'nullable|string|max:255|required_if:category_id,other',
 
-        if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
-        }
+        'status'          => 'required|in:draft,published',
+        'published_at'    => 'nullable|date',
+        'image'           => 'nullable|image|max:5120',
+    ];
 
-        /**
-         * PRIVATE CATEGORY LOGIC
-         */
-        if ($request->category_id === 'other') {
-            $categoryId = null; // NO DB CATEGORY CREATED
-            $customCategory = $request->custom_category;
-        } else {
-            $categoryId = $request->category_id;
-            $customCategory = null;
-        }
+    $validator = Validator::make($request->all(), $rules);
 
-        // Publish date
-        $publishedAt =
-            ($request->status === 'published')
-                ? ($request->published_at ?: now())
-                : null;
-
-        // Image handling
-        $imageFileName = null;
-        if ($request->hasFile('image')) {
-            $file = $request->file('image');
-            $safeOriginal = preg_replace('/\s+/', '_', $file->getClientOriginalName());
-            $imageFileName = time() . '_blog_' . $safeOriginal;
-
-            $dest = public_path('images/Blog');
-            if (!is_dir($dest)) mkdir($dest, 0755, true);
-
-            $file->move($dest, $imageFileName);
-        }
-
-        BlogPost::create([
-            'blogPost_id'     => (string) Str::uuid(),
-            'user_id'         => Auth::id(),
-            'category_id'     => $categoryId,
-            'custom_category' => $customCategory,
-            'title'           => $request->title,
-            'blogSummary'     => $request->blogSummary,
-            'content'         => $request->content,
-            'image'           => $imageFileName,
-            'status'          => $request->status,
-            'published_at'    => $publishedAt,
-        ]);
-
-        return redirect()->route('admin.blogs.index')->with('success', 'Blog post created.');
+    if ($validator->fails()) {
+        return back()->withErrors($validator)->withInput();
     }
+
+    /* ============================
+       CATEGORY LOGIC (FK SAFE)
+       ============================ */
+   // CATEGORY LOGIC (FK SAFE)
+if ($request->category_id === 'other') {
+    $categoryId     = null;
+    $customCategory = $request->custom_category;
+} else {
+    // ONLY look up blogCategory_id — your table has no "id"
+    $category = BlogCategory::where('blogCategory_id', $request->category_id)->first();
+
+    if ($category) {
+        $categoryId     = $category->blogCategory_id;
+        $customCategory = null;
+    } else {
+        // Safety fallback to avoid FK error
+        $categoryId     = null;
+        $customCategory = null;
+    }
+}
+
+
+    // Publish logic
+    $publishedAt = ($request->status === 'published')
+        ? ($request->published_at ?: now())
+        : null;
+
+    // DEFAULT IMAGE
+    $imageFileName = "default_blog.jpg";
+
+    if ($request->hasFile('image')) {
+        $file = $request->file('image');
+        $safeName = time() . '_blog_' . preg_replace('/\s+/', '_', $file->getClientOriginalName());
+
+        $dest = public_path('images/Blog');
+        if (!is_dir($dest)) mkdir($dest, 0755, true);
+
+        $file->move($dest, $safeName);
+        $imageFileName = $safeName;
+    }
+
+    BlogPost::create([
+        'blogPost_id'     => (string) Str::uuid(),
+        'user_id'         => Auth::id(),
+        'category_id'     => $categoryId,
+        'custom_category' => $customCategory,
+        'title'           => $request->title,
+        'blogSummary'     => $request->blogSummary,
+        'content'         => $request->content,
+        'image'           => $imageFileName,
+        'status'          => $request->status,
+        'published_at'    => $publishedAt,
+    ]);
+
+    return redirect()->route('admin.blogs.drafts')->with('success', 'Blog post created.');
+
+}
+
 
     /**
      * Edit form
@@ -141,112 +155,151 @@ class AdminBlogPostController extends Controller
     /**
      * Update post
      */
-    public function update(Request $request, $id)
-    {
-        $post = BlogPost::where('blogPost_id', $id)->firstOrFail();
+  public function update(Request $request, $id)
+{
+    $post = BlogPost::where('blogPost_id', $id)->firstOrFail();
 
-        $rules = [
-            'title'           => 'required|string|max:255',
-            'blogSummary'     => 'nullable|string|max:500',
-            'content'         => 'required|string',
-            'category_id'     => 'required',
-            'custom_category' => 'required_if:category_id,other|string|max:255',
-            'status'          => 'required|in:draft,published',
-            'published_at'    => 'nullable|date',
-            'image'           => 'nullable|image|max:5120',
-        ];
+    $rules = [
+        'title'           => 'required|string|max:255',
+        'blogSummary'     => 'nullable|string|max:500',
+        'content'         => 'required|string',
 
-        $validator = Validator::make($request->all() + $request->only('image'), $rules);
+        'category_id'     => 'required',
+        'custom_category' => 'nullable|string|max:255|required_if:category_id,other',
 
-        if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
-        }
+        'status'          => 'required|in:draft,published',
+        'published_at'    => 'nullable|date',
+        'image'           => 'nullable|image|max:5120',
+    ];
 
-        /**
-         * PRIVATE CATEGORY LOGIC
-         */
-        if ($request->category_id === 'other') {
-            $post->category_id = null;
-            $post->custom_category = $request->custom_category;
-        } else {
-            $post->category_id = $request->category_id;
-            $post->custom_category = null;
-        }
+    $validator = Validator::make($request->all(), $rules);
 
-        // Image replacement
-        if ($request->hasFile('image')) {
-            if ($post->image) {
-                $old = public_path('images/Blog/' . basename($post->image));
-                if (file_exists($old) && basename($post->image) !== 'default-blog.jpg') {
-                    unlink($old);
-                }
-            }
-
-            $file = $request->file('image');
-            $safeOriginal = preg_replace('/\s+/', '_', $file->getClientOriginalName());
-            $imageFileName = time() . '_blog_' . $safeOriginal;
-
-            $dest = public_path('images/Blog');
-            if (!is_dir($dest)) mkdir($dest, 0755, true);
-
-            $file->move($dest, $imageFileName);
-            $post->image = $imageFileName;
-        }
-
-        // Update fields
-        $post->title       = $request->title;
-        $post->blogSummary = $request->blogSummary;
-        $post->content     = $request->content;
-        $post->status      = $request->status;
-
-        // Publish/draft timing
-        if ($post->status === 'published' && empty($request->published_at)) {
-            if (empty($post->published_at)) {
-                $post->published_at = now();
-            }
-        } elseif ($post->status === 'draft') {
-            $post->published_at = null;
-        } else {
-            $post->published_at = $request->published_at;
-        }
-
-        $post->save();
-
-        return redirect()->route('admin.blogs.show', $post->blogPost_id)
-            ->with('success', 'Blog post updated.');
+    if ($validator->fails()) {
+        return back()->withErrors($validator)->withInput();
     }
 
+ 
+if ($request->category_id === 'other') {
+    $post->category_id     = null;
+    $post->custom_category = $request->custom_category;
+} else {
+    // ONLY lookup using blogCategory_id
+    $category = BlogCategory::where('blogCategory_id', $request->category_id)->first();
+
+    if ($category) {
+        $post->category_id     = $category->blogCategory_id;
+        $post->custom_category = null;
+    } else {
+        $post->category_id     = null;
+        $post->custom_category = null;
+    }
+}
+
+
+    /* ============================
+       IMAGE REPLACEMENT
+       ============================ */
+    if ($request->hasFile('image')) {
+        if ($post->image && $post->image !== "default_blog.jpg") {
+            $oldPath = public_path("images/Blog/" . $post->image);
+            if (file_exists($oldPath)) unlink($oldPath);
+        }
+
+        $file = $request->file('image');
+        $safeName = time() . '_blog_' . preg_replace('/\s+/', '_', $file->getClientOriginalName());
+
+        $dest = public_path('images/Blog');
+        if (!is_dir($dest)) mkdir($dest, 0755, true);
+
+        $file->move($dest, $safeName);
+        $post->image = $safeName;
+    }
+
+    if (!$post->image) {
+        $post->image = "default_blog.jpg";
+    }
+
+    // Normal fields
+    $post->title       = $request->title;
+    $post->blogSummary = $request->blogSummary;
+    $post->content     = $request->content;
+    $post->status      = $request->status;
+
+    // Publish logic
+    if ($post->status === 'published' && empty($request->published_at)) {
+        if (empty($post->published_at)) {
+            $post->published_at = now();
+        }
+    } elseif ($post->status === 'draft') {
+        $post->published_at = null;
+    } else {
+        $post->published_at = $request->published_at;
+    }
+
+    $post->save();
+
+return redirect()->route('admin.blogs.drafts')->with('success', 'Blog post updated.');
+
+}
+
+
+
+  public function draftList()
+{
+    $drafts = BlogPost::where('user_id', Auth::id())
+        ->orderBy('updated_at', 'desc')
+        ->paginate(10);
+
+    return view('admin.blogs.drafts', compact('drafts'));
+}
+
     /**
-     * Admin delete permanently
+     * Admin permanent delete
      */
-    public function adminDestroy($id)
-    {
-        $post = BlogPost::where('blogPost_id', $id)->firstOrFail();
+  /**
+ * Admin permanent delete
+ */
+public function adminDestroy($id)
+{
+    $post = BlogPost::where('blogPost_id', $id)->firstOrFail();
 
-        if ($post->image) {
-            $path = public_path('images/Blog/' . basename($post->image));
-            if (file_exists($path) && basename($post->image) !== 'default-blog.jpg') {
-                unlink($path);
-            }
+    // Check if this post belongs to the admin
+    $isOwner = Auth::check() && Auth::id() === $post->user_id;
+
+    // Delete image if not default
+    if ($post->image && $post->image !== "default_blog.jpg") {
+        $path = public_path("images/Blog/" . $post->image);
+        if (file_exists($path)) {
+            @unlink($path);
         }
-
-        $post->delete();
-
-        return redirect()->route('admin.blogs.index')->with('success', 'Blog post removed by Admin.');
     }
 
+    // Delete the post
+    $post->delete();
+
+    // Redirect based on ownership
+    if ($isOwner) {
+        // Admin deleted their OWN blog post → return to drafts page
+        return redirect()->route('admin.blogs.drafts')
+            ->with('success', 'Your blog post has been deleted.');
+    }
+
+    // Admin deleted someone else's blog post → return to blog index
+    return redirect()->route('admin.blogs.index')
+        ->with('success', 'Blog post removed by Admin.');
+}
+
+
     /**
-     * Delete for non-admin context
+     * Normal delete (non-admin context)
      */
     public function destroy($id)
     {
         $post = BlogPost::where('blogPost_id', $id)->firstOrFail();
 
-        if ($post->image) {
-            $path = public_path('images/Blog/' . basename($post->image));
-            if (file_exists($path) && basename($post->image) !== 'default-blog.jpg') {
-                unlink($path);
-            }
+        if ($post->image && $post->image !== "default_blog.jpg") {
+            $path = public_path("images/Blog/" . $post->image);
+            if (file_exists($path)) unlink($path);
         }
 
         $post->delete();

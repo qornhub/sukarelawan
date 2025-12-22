@@ -58,23 +58,47 @@ class DashboardController extends Controller
             ? round(($totalAttended / $totalRegistrations) * 100, 2)
             : 0;
 
-        // 5️⃣ Category Distribution
-        $categoryData = [];
-        if (!empty($eventIds)) {
-            $catRows = Event::select('category_id', DB::raw('count(*) as cnt'))
-                ->whereIn('event_id', $eventIds)
-                ->groupBy('category_id')
-                ->get();
+      // 5️⃣ Category Distribution (admin-defined + Other)
+$categoryData = [];
 
-            foreach ($catRows as $row) {
-                $cat = EventCategory::where('eventCategory_id', $row->category_id)->first();
-                $label = $cat->name ?? $cat->eventCategoryName ?? 'Uncategorized';
-                $categoryData[] = [
-                    'label' => $label,
-                    'count' => (int)$row->cnt,
-                ];
-            }
+if (!empty($eventIds)) {
+
+    // Admin-defined categories (same source as volunteer index)
+    $systemCategories = EventCategory::pluck('eventCategoryName', 'eventCategory_id')->toArray();
+
+    // Count events by category_id
+    $catRows = Event::select('category_id', DB::raw('count(*) as cnt'))
+        ->whereIn('event_id', $eventIds)
+        ->groupBy('category_id')
+        ->get();
+
+    $otherCount = 0;
+
+    foreach ($catRows as $row) {
+
+        // If category_id matches admin-defined category
+        if ($row->category_id && isset($systemCategories[$row->category_id])) {
+
+            $categoryData[] = [
+                'label' => $systemCategories[$row->category_id],
+                'count' => (int) $row->cnt,
+            ];
+
+        } else {
+            // Custom / deleted / null category → Other
+            $otherCount += (int) $row->cnt;
         }
+    }
+
+    // Append Other if exists
+    if ($otherCount > 0) {
+        $categoryData[] = [
+            'label' => 'Other',
+            'count' => $otherCount,
+        ];
+    }
+}
+
 
         // 6️⃣ Event Participation Trends (daily, monthly, yearly)
         [$eventTrendDailyLabels, $eventTrendDailyCounts] = $this->registrationsByDays($eventIds, 30);

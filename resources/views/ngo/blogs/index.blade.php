@@ -131,7 +131,7 @@
                                         @php
                                             $img = $post->image
                                                 ? asset('images/Blog/' . $post->image)
-                                                : asset('images/Blog/default-blog.jpg');
+                                                : asset('images/Blog/default_blog.jpg');
                                         @endphp
                                         <div class="ratio ratio-16x9 rounded" style="overflow:hidden;">
                                             <img src="{{ $img }}" alt="{{ $post->title }}" class="img-left">

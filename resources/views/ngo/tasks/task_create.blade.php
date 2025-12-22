@@ -53,6 +53,19 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+
+    /* =====================================================
+     * HTML ESCAPE HELPER (🔥 REQUIRED)
+     * ===================================================== */
+    function escapeHtml(str) {
+        return String(str ?? '')
+            .replaceAll('&', '&amp;')
+            .replaceAll('<', '&lt;')
+            .replaceAll('>', '&gt;')
+            .replaceAll('"', '&quot;')
+            .replaceAll("'", '&#039;');
+    }
+
     // selectors
     const sectionTasks = document.getElementById('section-tasks');
     const sectionCreate = document.getElementById('section-create');
@@ -74,11 +87,13 @@ document.addEventListener('DOMContentLoaded', function() {
     cancelButtons.forEach(btn => btn.addEventListener('click', function() {
         if (sectionCreate) sectionCreate.style.display = 'none';
         if (sectionTasks) sectionTasks.style.display = 'block';
+
         const errBox = document.getElementById('create-form-errors');
         if (errBox) {
             errBox.style.display = 'none';
             errBox.innerHTML = '';
         }
+
         const frm = document.getElementById('create-task-form');
         if (frm) frm.reset();
     }));
@@ -94,54 +109,44 @@ document.addEventListener('DOMContentLoaded', function() {
             errBox.style.display = 'none';
             errBox.innerHTML = '';
 
-            const url = form.action;
-            const formData = new FormData(form);
-
             submitBtn.disabled = true;
             submitBtn.textContent = 'Creating...';
 
             try {
                 const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
-                const resp = await fetch(url, {
+                const resp = await fetch(form.action, {
                     method: 'POST',
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest',
                         'X-CSRF-TOKEN': token
                     },
-                    body: formData,
+                    body: new FormData(form),
                 });
 
                 if (resp.status === 422) {
                     const json = await resp.json();
-                    const errors = json.errors || json;
                     let html = '<ul style="margin:0;padding-left:18px">';
-                    for (const key in errors) {
-                        (errors[key] || []).forEach(msg => html += `<li>${msg}</li>`);
+                    for (const key in json.errors) {
+                        json.errors[key].forEach(msg => html += `<li>${msg}</li>`);
                     }
                     html += '</ul>';
                     errBox.innerHTML = html;
                     errBox.style.display = 'block';
-                    sectionCreate.style.display = 'block';
-                    sectionTasks.style.display = 'none';
                     return;
                 }
 
-                if (!resp.ok) throw new Error('Server error: ' + resp.status);
+                if (!resp.ok) throw new Error('Server error');
 
-                const data = await resp.json(); // expected new task object
+                const data = await resp.json();
+                const task = data.task || data;
 
-                if (data && data.task) {
-                    const task = data.task;
-                    insertTaskRow(task);         // existing list insert
-                    insertManageTaskRow(task);   // 🔥 NEW CODE
-                } else if (data && data.task_id) {
-                    insertTaskRow(data);
-                    insertManageTaskRow(data);   // 🔥 NEW CODE
-                }
+                insertTaskCard(task);
+                insertManageTaskRow(task);
+
 
                 form.reset();
                 sectionCreate.style.display = 'none';
-                if (sectionTasks) sectionTasks.style.display = 'block';
+                sectionTasks.style.display = 'block';
 
                 flashMessage('Task created', 'success');
 
@@ -151,136 +156,117 @@ document.addEventListener('DOMContentLoaded', function() {
                 errBox.style.display = 'block';
             } finally {
                 submitBtn.disabled = false;
-                submitBtn.innerHTML = 'Create Task';
+                submitBtn.textContent = 'Create Task';
             }
         });
     }
 
-    // flash message util
+    /* =====================================================
+     * FLASH MESSAGE
+     * ===================================================== */
     function flashMessage(text, type = 'success', opts = { duration: 2200 }) {
-        let container = document.querySelector('#task-list-flash');
-        const useFloating = !container;
-        if (useFloating) container = document.body;
+        let container = document.querySelector('#task-list-flash') || document.body;
         const el = document.createElement('div');
-        el.className = 'task-flash ' + (type === 'success' ? 'success' : (type === 'error' ? 'error' : 'info'));
-        el.setAttribute('role', 'status');
+        el.className = 'task-flash ' + type;
         el.textContent = text;
-        if (useFloating) {
-            el.style.position = 'fixed';
-            el.style.right = '20px';
-            el.style.top = '20px';
-            el.style.zIndex = 9999;
-        }
-        if (useFloating) container.appendChild(el);
-        else container.prepend(el);
-        const duration = opts.duration ?? 2200;
-        setTimeout(() => {
-            el.classList.add('hidden');
-            setTimeout(() => el.remove(), 360);
-        }, duration);
+        container.prepend(el);
+        setTimeout(() => el.remove(), opts.duration);
     }
 
-    // helper to remove placeholder rows from a tbody
-// helper to remove placeholder rows from a tbody
-function removePlaceholderRowsFrom(tbody) {
-    if (!tbody) return;
-    const rows = Array.from(tbody.querySelectorAll('tr'));
-    rows.forEach(tr => {
-        if (tr.classList.contains('empty-row')) {
-            tr.remove();
-            return;
-        }
-        const txt = (tr.textContent || '').trim();
-        if (/No tasks found\./i.test(txt)) {
-            tr.remove();
-            return;
-        }
-    });
-}
+    /* =====================================================
+     * TABLE HELPERS
+     * ===================================================== */
+    function removePlaceholderRowsFrom(tbody) {
+        if (!tbody) return;
+        tbody.querySelectorAll('.empty-row').forEach(r => r.remove());
+    }
 
-// INSERT NEW TASK ROW INTO MAIN TASK TABLE (same structure as Blade)
-function insertTaskRow(task) {
-    const tbody =
-        document.querySelector('#section-tasks table.task-table tbody') ||
-        document.querySelector('#section-tasks table tbody');
-    if (!tbody) return;
+    function insertTaskCard(task) {
+    const list = document.getElementById('task-card-list');
+    if (!list) return;
 
-    removePlaceholderRowsFrom(tbody);
+    // remove empty placeholder if exists
+    const empty = list.querySelector('.task-empty');
+    if (empty) empty.remove();
 
-    const taskId   = task.task_id || task.id;
-    const title    = task.title || '';
-    const descFull = task.description || '';
-    const descShort =
-        descFull.length > 160 ? descFull.slice(0, 160) + '...' : descFull;
-    const eventId  = (task.event && task.event.event_id) || task.event_id || '{{ $event->event_id }}';
-    const eventTitle = (task.event && task.event.eventTitle) || (task.eventTitle || 'N/A');
+    const taskId = task.task_id || task.id;
 
-    const row = document.createElement('tr');
-    row.setAttribute('data-task-id', taskId);
+    const eventId =
+        (task.event && task.event.event_id) ||
+        task.event_id ||
+        '';
 
-    row.innerHTML = `
-        <td class="task-title-cell">${escapeHtml(title)}</td>
-        <td class="task-desc">${escapeHtml(descShort)}</td>
-        <td class="text-nowrap">
+    const eventTitle =
+        (task.event && task.event.eventTitle) ||
+        task.eventTitle ||
+        'N/A';
+
+    const card = document.createElement('div');
+    card.className = 'task-card';
+    card.setAttribute('data-task-id', taskId);
+
+    card.innerHTML = `
+        <div class="d-flex justify-content-between align-items-center mb-1">
+            <h5 class="mb-0">${escapeHtml(task.title)}</h5>
             <span class="badge-event">${escapeHtml(eventTitle)}</span>
-        </td>
-        <td class="text-center">
-            <div class="task-actions">
-                <button type="button"
-                        class="btn btn-outline-secondary btn-sm btn-edit-task"
-                        data-task-id="${escapeHtml(String(taskId))}"
-                        data-title="${escapeHtml(title)}"
-                        data-description="${escapeHtml(descFull)}"
-                        data-event-id="${escapeHtml(String(eventId))}">
-                    Edit
-                </button>
+        </div>
 
-                <button type="button"
-                        class="btn btn-outline-danger btn-sm btn-delete-task"
-                        data-event-id="${escapeHtml(String(eventId))}"
-                        data-task-id="${escapeHtml(String(taskId))}">
-                    Delete
-                </button>
-            </div>
-        </td>
-    `;
+        <p class="mb-2">
+            ${escapeHtml(task.description)}
+        </p>
 
-    // prepend or append as you like; here we append
-    tbody.appendChild(row);
-}
-
-
-// helper to insert new row into Manage Tasks table (appending)
-function insertManageTaskRow(task) {
-    const tbody = document.querySelector('#section-manage-tasks table tbody');
-    if (!tbody) return;
-
-    // remove "No tasks found" placeholders before inserting
-    removePlaceholderRowsFrom(tbody);
-
-    const row = document.createElement('tr');
-    row.setAttribute('data-task-id', task.task_id);
-    row.setAttribute('data-assigned', '');
-
-    row.innerHTML = `
-        <td class="task-title">${task.title || ''}</td>
-        <td>${task.description || ''}</td>
-        <td class="assigned-users"><span class="text-muted">—</span></td>
-        <td>
-            <button type="button" class="btn btn-sm btn-outline-success assign-btn"
-                data-task-id="${task.task_id}">
-                Assign To
+        <div class="d-flex gap-2">
+            <button type="button"
+                class="btn btn-outline-secondary btn-sm btn-edit-task"
+                data-task-id="${escapeHtml(taskId)}"
+                data-title="${escapeHtml(task.title)}"
+                data-description="${escapeHtml(task.description)}"
+                data-event-id="${escapeHtml(eventId)}">
+                Edit
             </button>
-        </td>
+
+            <button type="button"
+                class="btn btn-outline-danger btn-sm btn-delete-task"
+                data-task-id="${escapeHtml(taskId)}"
+                data-event-id="${escapeHtml(eventId)}">
+                Delete
+            </button>
+        </div>
     `;
 
-    // append to manage table
-    tbody.appendChild(row);
+    // prepend so newest task appears on top (optional)
+    list.prepend(card);
 }
 
 
-   
+    function insertManageTaskRow(task) {
+        const tbody = document.querySelector('#section-manage-tasks table tbody');
+        if (!tbody) return;
+
+        removePlaceholderRowsFrom(tbody);
+
+        const taskId = task.task_id || task.id;
+
+        const row = document.createElement('tr');
+        row.dataset.taskId = taskId;
+
+        row.innerHTML = `
+            <td class="task-title">${escapeHtml(task.title)}</td>
+            <td>${escapeHtml(task.description)}</td>
+            <td class="assigned-users"><span class="text-muted">—</span></td>
+            <td>
+                <button class="btn btn-sm btn-outline-success assign-btn"
+                    data-task-id="${escapeHtml(taskId)}">
+                    Assign To
+                </button>
+            </td>
+        `;
+
+        tbody.appendChild(row);
+    }
+
 });
 </script>
+
 
 @endpush

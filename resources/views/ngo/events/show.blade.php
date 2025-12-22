@@ -20,22 +20,26 @@
     @include('layouts.ngo_header')
     @include('layouts.messages')
 
-    @php
-        // image helpers
-        $eventImage = $event->eventImage ?? null;
-        $eventHeroUrl = $eventImage ? asset('images/events/' . $eventImage) : asset('images/events/default-event.jpg');
+   @php
+    // Normalize event image
+    $imageFile = trim($event->eventImage ?? '');
 
-        // dates
-        $start = $event->eventStart ? \Carbon\Carbon::parse($event->eventStart) : null;
-        $end = $event->eventEnd ? \Carbon\Carbon::parse($event->eventEnd) : null;
+    $eventHeroUrl = $imageFile !== ''
+        ? asset('images/events/' . $imageFile)
+        : asset('images/events/default_event.jpg');
 
-        // registrations & sdgs & skills
-        $registrations = $event->registrations ?? collect();
-        $sdgs = $event->sdgs ?? collect();
-        $skills = $event->skills ?? collect();
-        $registeredCount = $registrations->count();
-        $max = $event->eventMaximum ?? 0;
-    @endphp
+    // dates
+    $start = $event->eventStart ? \Carbon\Carbon::parse($event->eventStart) : null;
+    $end   = $event->eventEnd ? \Carbon\Carbon::parse($event->eventEnd) : null;
+
+    // relations
+    $registrations   = $event->registrations ?? collect();
+    $sdgs            = $event->sdgs ?? collect();
+    $skills          = $event->skills ?? collect();
+    $registeredCount = $registrations->count();
+    $max             = $event->eventMaximum ?? 0;
+@endphp
+
 
     {{-- HERO --}}
     <header class="hero mb-5" style="background-image: url('{{ $eventHeroUrl }}');">

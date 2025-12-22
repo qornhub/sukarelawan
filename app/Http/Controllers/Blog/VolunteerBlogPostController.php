@@ -23,13 +23,15 @@ class VolunteerBlogPostController extends Controller
     // Store new blog post (volunteer)
     public function store(Request $request)
     {
-        // Validation (fixed)
+        // VALIDATION FIXED
         $validated = $request->validate([
             'title'            => 'required|string|max:255',
             'blogSummary'      => 'nullable|string|max:300',
             'content'          => 'required|string',
-            'category_id'      => 'required|string',
-            'custom_category'  => 'required_if:category_id,other|string|max:255',
+
+            'category_id'      => 'required',
+            'custom_category'  => 'nullable|string|max:255|required_if:category_id,other',
+
             'status'           => 'required|in:draft,published',
             'published_at'     => 'nullable|date',
             'image'            => 'nullable|image|max:5120',
@@ -41,8 +43,9 @@ class VolunteerBlogPostController extends Controller
             ? Carbon::parse($request->published_at)->toDateTimeString()
             : null;
 
-        // Handle image upload
-        $imageFileName = null;
+        // DEFAULT IMAGE
+        $imageFileName = 'default_blog.jpg';
+
         if ($request->hasFile('image')) {
             $file = $request->file('image');
             $safeOriginal = preg_replace('/\s+/', '_', $file->getClientOriginalName());
@@ -50,33 +53,44 @@ class VolunteerBlogPostController extends Controller
 
             $destFolder = public_path('images/Blog');
             if (!is_dir($destFolder)) mkdir($destFolder, 0755, true);
+
             $file->move($destFolder, $imageFileName);
         }
 
-        // Build payload (PRIVATE CATEGORY LOGIC)
-        $payload = [
-            'blogPost_id'   => (string) Str::uuid(),
-            'user_id'       => Auth::id(),
-            'title'         => $validated['title'],
-            'blogSummary'   => $validated['blogSummary'] ?? null,
-            'content'       => $validated['content'],
-            'image'         => $imageFileName,
-            'status'        => $validated['status'],
-        ];
-
+        // CATEGORY LOGIC (DB-SAFE)
         if ($validated['category_id'] === 'other') {
-            $payload['category_id'] = null;
-            $payload['custom_category'] = $validated['custom_category'];
+            $categoryId     = null;
+            $customCategory = $validated['custom_category'];
         } else {
-            $payload['category_id'] = $validated['category_id'];
-            $payload['custom_category'] = null;
+            // lookup by blogCategory_id ONLY
+            $category = BlogCategory::where('blogCategory_id', $validated['category_id'])->first();
+
+            if ($category) {
+                $categoryId     = $category->blogCategory_id;
+                $customCategory = null;
+            } else {
+                // fallback (avoid FK errors)
+                $categoryId     = null;
+                $customCategory = null;
+            }
         }
 
-        // Handle publish date
-        $payload['published_at'] =
-            ($validated['status'] === 'published' && empty($validated['published_at']))
-            ? now()
-            : $validated['published_at'];
+        // Build payload
+        $payload = [
+            'blogPost_id'     => (string) Str::uuid(),
+            'user_id'         => Auth::id(),
+            'title'           => $validated['title'],
+            'blogSummary'     => $validated['blogSummary'] ?? null,
+            'content'         => $validated['content'],
+            'image'           => $imageFileName,
+            'status'          => $validated['status'],
+            'category_id'     => $categoryId,
+            'custom_category' => $customCategory,
+            'published_at'    =>
+                ($validated['status'] === 'published' && empty($validated['published_at']))
+                ? now()
+                : $validated['published_at'],
+        ];
 
         BlogPost::create($payload);
 
@@ -105,26 +119,29 @@ class VolunteerBlogPostController extends Controller
             abort(403);
         }
 
-        // Validation
+        // VALIDATION FIXED
         $validated = $request->validate([
             'title'            => 'required|string|max:255',
             'blogSummary'      => 'nullable|string|max:300',
             'content'          => 'required|string',
-            'category_id'      => 'required|string',
-            'custom_category'  => 'required_if:category_id,other|string|max:255',
+
+            'category_id'      => 'required',
+            'custom_category'  => 'nullable|string|max:255|required_if:category_id,other',
+
             'status'           => 'required|in:draft,published',
             'published_at'     => 'nullable|date',
             'image'            => 'nullable|image|max:5120',
         ]);
 
-        // Normalize published_at
+        // Normalize publish date
         if ($request->filled('published_at')) {
-            $validated['published_at'] = Carbon::parse($request->published_at)->toDateTimeString();
+            $validated['published_at'] =
+                Carbon::parse($request->published_at)->toDateTimeString();
         }
 
-        // Handle image replacement
+        // IMAGE REPLACEMENT
         if ($request->hasFile('image')) {
-            if ($post->image) {
+            if ($post->image && $post->image !== 'default_blog.jpg') {
                 $old = public_path('images/Blog/' . basename($post->image));
                 if (file_exists($old)) unlink($old);
             }
@@ -140,20 +157,31 @@ class VolunteerBlogPostController extends Controller
             $post->image = $imageFileName;
         }
 
-        // Update normal fields
-        $post->title       = $validated['title'];
-        $post->blogSummary = $validated['blogSummary'];
-        $post->content     = $validated['content'];
-        $post->status      = $validated['status'];
+        if (!$post->image) {
+            $post->image = 'default_blog.jpg';
+        }
 
-        // CATEGORY LOGIC (PRIVATE)
+        // CATEGORY LOGIC (DB-SAFE)
         if ($validated['category_id'] === 'other') {
             $post->category_id     = null;
             $post->custom_category = $validated['custom_category'];
         } else {
-            $post->category_id     = $validated['category_id'];
-            $post->custom_category = null;
+            $category = BlogCategory::where('blogCategory_id', $validated['category_id'])->first();
+
+            if ($category) {
+                $post->category_id     = $category->blogCategory_id;
+                $post->custom_category = null;
+            } else {
+                $post->category_id     = null;
+                $post->custom_category = null;
+            }
         }
+
+        // Update remaining fields
+        $post->title       = $validated['title'];
+        $post->blogSummary = $validated['blogSummary'];
+        $post->content     = $validated['content'];
+        $post->status      = $validated['status'];
 
         // Publish logic
         if ($post->status === 'published' && empty($post->published_at)) {
@@ -166,10 +194,11 @@ class VolunteerBlogPostController extends Controller
 
         $post->save();
 
-        return redirect()->route('blogs.show', $post->blogPost_id)->with('success', 'Blog post updated.');
+        return redirect()->route('blogs.show', $post->blogPost_id)
+            ->with('success', 'Blog post updated.');
     }
 
-    // Delete
+    // Delete post
     public function destroy($id)
     {
         $post = BlogPost::where('blogPost_id', $id)->firstOrFail();
@@ -178,7 +207,7 @@ class VolunteerBlogPostController extends Controller
             abort(403);
         }
 
-        if ($post->image) {
+        if ($post->image && $post->image !== 'default_blog.jpg') {
             $path = public_path('images/Blog/' . basename($post->image));
             if (file_exists($path)) unlink($path);
         }

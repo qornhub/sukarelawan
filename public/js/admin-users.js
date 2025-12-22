@@ -30,11 +30,45 @@ class AdminUsersManager {
             );
         }
 
-        // Auto-submit on filter change (exclude sort controls)
-        document.querySelectorAll('.filter-control:not(.sort-controls *)')
+        // Auto-submit on filter change (role, dates, per_page) – keep sorting separate
+        document
+            .querySelectorAll('.filter-control:not(.sort-controls *)')
             .forEach(control =>
                 control.addEventListener('change', () => this.submitFilterForm())
             );
+
+        // ⭐ NEW: activity filter logic based on sort_by text
+        const sortBySelect   = document.querySelector('select[name="sort_by"]');
+        const sortDirSelect  = document.querySelector('select[name="sort_dir"]');
+        const activityInput  = document.querySelector('input[name="activity"]');
+
+        if (sortBySelect) {
+            sortBySelect.addEventListener('change', () => {
+                const selectedOption = sortBySelect.options[sortBySelect.selectedIndex];
+                const text = selectedOption.text.toLowerCase().trim();
+
+                if (!activityInput) {
+                    this.submitFilterForm();
+                    return;
+                }
+
+                if (text === 'active users') {
+                    activityInput.value = 'active';
+                    sortBySelect.value  = 'activity';
+                    this.submitFilterForm();
+
+                } else if (text === 'inactive users') {
+                    activityInput.value = 'inactive';
+                    sortBySelect.value  = 'activity';
+                    this.submitFilterForm();
+
+                } else {
+                    // When switching back to Joined Date / Name / Role
+                    activityInput.value = '';
+                    this.submitFilterForm();
+                }
+            });
+        }
 
         // Confirm delete
         document.getElementById('confirmDelete')?.addEventListener('click', () => this.confirmDelete());
@@ -55,13 +89,20 @@ class AdminUsersManager {
     submitFilterForm() {
         const filterForm = document.getElementById('filterForm');
         const searchInput = document.querySelector('.search-input');
-        if (!filterForm || !searchInput) return;
+        if (!filterForm) return;
 
-        // Reuse or create hidden field for search query
-        const hiddenSearch = filterForm.querySelector('input[name="q"]') 
-            || filterForm.appendChild(Object.assign(document.createElement('input'), { type: 'hidden', name: 'q' }));
+        // Ensure search query is included
+        if (searchInput) {
+            let hiddenSearch = filterForm.querySelector('input[name="q"]');
+            if (!hiddenSearch) {
+                hiddenSearch = document.createElement('input');
+                hiddenSearch.type = 'hidden';
+                hiddenSearch.name = 'q';
+                filterForm.appendChild(hiddenSearch);
+            }
+            hiddenSearch.value = searchInput.value;
+        }
 
-        hiddenSearch.value = searchInput.value;
         filterForm.submit();
     }
 

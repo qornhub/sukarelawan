@@ -123,24 +123,24 @@
                             style="padding: 1rem 1.25rem; font-weight: 600;">
                             <i class="fas fa-chart-line me-2"></i>Volunteer Stats
                         </div>
-                       <div class="card-body" style="padding: 1.25rem;">
-    <div class="d-flex flex-column">
-        <div class="stat-card text-center py-3 border-bottom">
-            <div class="stat-number">{{ count($upcomingEvents) + count($pastEvents) }}</div>
-            <div class="stat-label">Events</div>
-        </div>
+                        <div class="card-body" style="padding: 1.25rem;">
+                            <div class="d-flex flex-column">
+                                <div class="stat-card text-center py-3 border-bottom">
+                                    <div class="stat-number">{{ count($upcomingEvents) + count($pastEvents) }}</div>
+                                    <div class="stat-label">Events</div>
+                                </div>
 
-        <div class="stat-card text-center py-3 border-bottom">
-            <div class="stat-number">{{ count($blogPosts) }}</div>
-            <div class="stat-label">Blogs</div>
-        </div>
+                                <div class="stat-card text-center py-3 border-bottom">
+                                    <div class="stat-number">{{ count($blogPosts) }}</div>
+                                    <div class="stat-label">Blogs</div>
+                                </div>
 
-        <div class="stat-card text-center py-3">
-            <div class="stat-number">{{ $userBadges->count() }}</div>
-            <div class="stat-label">Badges</div>
-        </div>
-    </div>
-</div>
+                                <div class="stat-card text-center py-3">
+                                    <div class="stat-number">{{ $userBadges->count() }}</div>
+                                    <div class="stat-label">Badges</div>
+                                </div>
+                            </div>
+                        </div>
 
                     </div>
                 </div>
@@ -184,7 +184,7 @@
                                     @php
                                         $eventImage = $event->eventImage
                                             ? asset('images/events/' . $event->eventImage)
-                                            : asset('images/events/default-event.jpg');
+                                            : asset('images/events/default_event.jpg');
                                         $start = $event->eventStart ? \Carbon\Carbon::parse($event->eventStart) : null;
                                         $end = $event->eventEnd ? \Carbon\Carbon::parse($event->eventEnd) : null;
                                     @endphp
@@ -247,7 +247,7 @@
                                     @php
                                         $eventImage = $event->eventImage
                                             ? asset('images/events/' . $event->eventImage)
-                                            : asset('images/events/default-event.jpg');
+                                            : asset('images/events/default_event.jpg');
                                         $start = $event->eventStart ? \Carbon\Carbon::parse($event->eventStart) : null;
                                         $end = $event->eventEnd ? \Carbon\Carbon::parse($event->eventEnd) : null;
                                         $attendance = optional($event->attendances)->first();
@@ -324,41 +324,55 @@
                                 @forelse($blogPosts as $post)
                                     @php
                                         $isOwner = auth()->check() && auth()->id() === $profile->user_id;
-                                        $canView = $post->status === 'published' || $isOwner;
 
-                                        // excerpt: prefer summary, fallback to stripped content
-                                        $excerpt = $post->summary
-                                            ? $post->summary
-                                            : \Illuminate\Support\Str::limit(strip_tags($post->content), 120, '...');
+                                        // ===== CLEAN EXCERPT LOGIC (summary > content) =====
+                                        if (!empty($post->blogSummary)) {
+                                            $excerpt = \Illuminate\Support\Str::limit(
+                                                trim(
+                                                    preg_replace(
+                                                        '/\s+/u',
+                                                        ' ',
+                                                        html_entity_decode(strip_tags($post->blogSummary)),
+                                                    ),
+                                                ),
+                                                120,
+                                                '...',
+                                            );
+                                        } else {
+                                            $excerpt = \Illuminate\Support\Str::limit(
+                                                trim(
+                                                    preg_replace(
+                                                        '/\s+/u',
+                                                        ' ',
+                                                        html_entity_decode(strip_tags($post->content)),
+                                                    ),
+                                                ),
+                                                120,
+                                                '...',
+                                            );
+                                        }
 
+                                        // Image
                                         $imageUrl = $post->image
                                             ? asset('images/Blog/' . $post->image)
-                                            : asset('images/Blog/default-blog.jpg');
+                                            : asset('images/Blog/default_blog.jpg');
 
-                                        // published display date: prefer published_at then created_at
+                                        // Date
                                         $displayDate = $post->published_at
                                             ? \Carbon\Carbon::parse($post->published_at)->format('j M Y')
                                             : ($post->created_at
                                                 ? \Carbon\Carbon::parse($post->created_at)->format('j M Y')
                                                 : '-');
 
-                                        // routes: owner uses manage route so it redirects correctly for draft/published
+                                        // Routes
                                         $publicRoute = route('blogs.show', $post->blogPost_id);
                                         $ownerManageRoute = $isOwner
                                             ? route('volunteer.blogs.manage', $post->blogPost_id)
                                             : null;
 
-                                        // quick action routes for owner (direct)
-                                        $ownerEditRoute = $isOwner
-                                            ? route('volunteer.blogs.edit', $post->blogPost_id)
-                                            : null;
-                                        $ownerDeleteRoute = $isOwner
-                                            ? route('volunteer.blogs.destroy', $post->blogPost_id)
-                                            : null;
-
-                                        // Link target for whole card
                                         $cardLink = $ownerManageRoute ?? $publicRoute;
                                     @endphp
+
 
                                     {{-- Card wrapper: clickable --}}
                                     <a href="{{ $cardLink }}" class="text-decoration-none text-reset">
@@ -384,7 +398,10 @@
                                                     @endif
                                                 </div>
 
-                                                <p class="text-muted small mb-2 mt-2">{{ $excerpt }}</p>
+                                                <p class="text-muted small mb-2 mt-2">
+                                                    {{ $excerpt }}
+                                                </p>
+
 
                                                 <div class="d-flex flex-wrap gap-3 mt-3 small text-muted">
                                                     <div>
@@ -393,15 +410,16 @@
                                                     </div>
                                                     <div>
                                                         <i class="fas fa-folder text-primary me-1"></i>
-                                                        {{ optional($post->category)->categoryName ?? 'Uncategorized' }}
+                                                        {{ $post->custom_category ?: optional($post->category)->categoryName ?? 'Uncategorized' }}
                                                     </div>
+
                                                     <div>
                                                         <i class="fas fa-user text-primary me-1"></i>
                                                         {{ optional($post->user)->name ?? $profile->name }}
                                                     </div>
                                                 </div>
 
-                                               
+
                                             </div>
                                         </div>
                                     </a>

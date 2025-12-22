@@ -42,6 +42,7 @@
     <link rel="stylesheet" href="{{ asset('css/task/task_edit.css') }}">
     <link rel="stylesheet" href="{{ asset('css/task/task_manage.css') }}">
     <link rel="stylesheet" href="{{ asset('css/events/email.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/attendance/attendanceList.css') }}">
     <style>
         /* make the form behave like the anchor nav tabs */
         .nav-tabs .delete-tab {

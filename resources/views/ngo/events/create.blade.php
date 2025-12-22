@@ -617,245 +617,170 @@
         });
     </script>
 
-    <!-- ====== Add right before </body> ====== -->
-    <script>
-        (function() {
-            const form = document.querySelector('form[action="{{ route('ngo.events.store') }}"]');
-            if (!form) return;
+   <script>
+(function() {
+    const form = document.querySelector('form[action="{{ route('ngo.events.store') }}"]');
+    if (!form) return;
 
-            // Map of field selectors to friendly labels (used in client messages)
-            const fields = [{
-                    sel: '#event_title',
-                    name: 'Event title'
-                },
-                {
-                    sel: '#category_id',
-                    name: 'Category'
-                },
-                {
-                    sel: '#start_date',
-                    name: 'Start date/time'
-                },
-                {
-                    sel: '#end_date',
-                    name: 'End date/time'
-                },
-                {
-                    sel: '#event_description',
-                    name: 'Description'
-                },
-                {
-                    sel: '#venue_name',
-                    name: 'Venue'
-                },
-                {
-                    sel: '#city',
-                    name: 'City'
-                },
-                {
-                    sel: '#state',
-                    name: 'State'
-                },
-                {
-                    sel: '#country',
-                    name: 'Country'
-                },
-                // event_maximum is visually required in your form, so validate it client-side too
-                {
-                    sel: '#event_maximum',
-                    name: 'Maximum participants',
-                    numeric: true,
-                    min: 1
-                },
-            ];
+    // Map of field selectors to friendly labels (used in client messages)
+    const fields = [
+        { sel: '#event_title', name: 'Event title' },
+        { sel: '#category_id', name: 'Category' },
+        { sel: '#start_date', name: 'Start date/time' },
+        { sel: '#end_date', name: 'End date/time' },
+        { sel: '#event_description', name: 'Description' },
+        { sel: '#venue_name', name: 'Venue' },
+        { sel: '#city', name: 'City' },
+        { sel: '#state', name: 'State' },
+        { sel: '#country', name: 'Country' },
+        { sel: '#event_maximum', name: 'Maximum participants', numeric: true, min: 1 }
+    ];
 
-            // special: file input is hidden, UI is the selectImageBtn; validate file exists
-            const fileInput = document.getElementById('event_image');
-            const fileUIbtn = document.getElementById('selectImageBtn');
-            const fileContainer = fileUIbtn ? fileUIbtn.closest('.d-flex') : null; // place error after this
+    const fileInput = document.getElementById('event_image');
+    const fileUIbtn = document.getElementById('selectImageBtn');
+    const fileContainer = fileUIbtn ? fileUIbtn.closest('.d-flex') : null;
 
-            // helper: remove any client-side error nodes we added earlier
-            function clearClientErrors() {
-                // remove client-added invalid-feedback blocks
-                document.querySelectorAll('.invalid-feedback.client-error').forEach(n => n.remove());
-                // remove is-invalid class we added
-                document.querySelectorAll('.is-invalid.client-added').forEach(el => {
-                    el.classList.remove('is-invalid', 'client-added');
-                });
+    function clearClientErrors() {
+        document.querySelectorAll('.invalid-feedback.client-error').forEach(n => n.remove());
+        document.querySelectorAll('.is-invalid.client-added').forEach(el => {
+            el.classList.remove('is-invalid', 'client-added');
+        });
+    }
+
+    function showClientError(el, message, options = {}) {
+        if (!el) return;
+        el.classList.add('is-invalid', 'client-added');
+
+        const fb = document.createElement('div');
+        fb.className = 'invalid-feedback client-error';
+        fb.textContent = message;
+
+        const anchor = options.afterEl || el;
+        if (anchor.nextSibling) anchor.parentNode.insertBefore(fb, anchor.nextSibling);
+        else anchor.parentNode.appendChild(fb);
+    }
+
+    function validateFormClientSide() {
+        clearClientErrors();
+        const errors = [];
+
+        // Validate normal fields
+        fields.forEach(field => {
+            const el = document.querySelector(field.sel);
+            if (!el) return;
+
+            const value = (el.value || '').toString().trim();
+            const isRequired = el.hasAttribute('required') || field.required === true;
+
+            if (isRequired && value === '') {
+                errors.push({ el, msg: `${field.name} is required.` });
+                return;
             }
 
-            function showClientError(el, message, options = {}) {
-                // el: DOM element to attach invalid state to (input/select/button)
-                if (!el) return;
-                // mark as invalid (but keep server-side is-invalid untouched)
-                el.classList.add('is-invalid', 'client-added');
-
-                // create feedback block
-                const fb = document.createElement('div');
-                fb.className = 'invalid-feedback client-error';
-                fb.textContent = message;
-
-                // insertion: if options.afterEl provided, insert after that; otherwise after el
-                const anchor = options.afterEl || el;
-                if (anchor.nextSibling) anchor.parentNode.insertBefore(fb, anchor.nextSibling);
-                else anchor.parentNode.appendChild(fb);
-            }
-
-            function validateFormClientSide() {
-                clearClientErrors();
-                const errors = [];
-
-                // Validate normal fields
-                fields.forEach(field => {
-                    const el = document.querySelector(field.sel);
-                    if (!el) {
-                        // skip if element not present
-                        return;
-                    }
-                    const value = (el.value || '').toString().trim();
-
-                    // required: your markup uses required attribute for many fields;
-                    // we'll treat a field as required if it has required attribute OR it's in our fields list.
-                    const isRequired = el.hasAttribute('required') || field.required === true;
-
-                    if (isRequired && value === '') {
-                        errors.push({
-                            el,
-                            msg: `${field.name} is required.`
-                        });
-                        return;
-                    }
-
-                    if (field.numeric && value !== '') {
-                        const num = Number(value);
-                        if (isNaN(num) || (field.min !== undefined && num < field.min)) {
-                            errors.push({
-                                el,
-                                msg: `${field.name} must be a number${field.min !== undefined ? ' ≥ ' + field.min : ''}.`
-                            });
-                        }
-                    }
-                });
-
-                // Validate start/end logical order (client-side helpful rule)
-                const sEl = document.querySelector('#start_date');
-                const eEl = document.querySelector('#end_date');
-                if (sEl && eEl && sEl.value && eEl.value) {
-                    const s = new Date(sEl.value);
-                    const e = new Date(eEl.value);
-                    if (isNaN(s) || isNaN(e) || e < s) {
-                        errors.push({
-                            el: (eEl || sEl),
-                            msg: 'End date/time must be the same as or later than start date/time.'
-                        });
-                    }
-                }
-
-                // Validate file (treat image as required on frontend — remove this block if you don't want it)
-                // If user wants image optional, comment out the file block below.
-                if (fileInput) {
-                    const hasFile = fileInput.files && fileInput.files.length > 0;
-                    if (!hasFile) {
-                        // show error on the file UI button area (or file input if visible)
-                        const targetEl = fileUIbtn || fileInput;
-                        errors.push({
-                            el: targetEl,
-                            msg: 'Please select an event image.',
-                            file: false
-                        });
-                    } else {
-                        // optional: validate file type/size client-side
-                        const file = fileInput.files[0];
-                        const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
-                        if (allowedTypes.indexOf(file.type) === -1) {
-                            errors.push({
-                                el: (fileUIbtn || fileInput),
-                                msg: 'Image must be JPG/PNG/WebP.'
-                            });
-                        } else if (file.size > 5 * 1024 * 1024) { // 5MB
-                            errors.push({
-                                el: (fileUIbtn || fileInput),
-                                msg: 'Image must be ≤ 5 MB.'
-                            });
-                        }
-                    }
-                }
-
-                // Attach errors visually
-                errors.forEach(err => {
-                    // If target is our selectImageBtn, place the message after the button container
-                    if (err.el === fileUIbtn && fileContainer) {
-                        showClientError(fileUIbtn, err.msg, {
-                            afterEl: fileContainer
-                        });
-                    } else {
-                        showClientError(err.el, err.msg);
-                    }
-                });
-
-                return errors.length === 0;
-            }
-
-            // Wire up form submit
-            form.addEventListener('submit', function(ev) {
-                // If there are server-side errors already rendered by Blade, we still run client-side check on fresh submit.
-                if (!validateFormClientSide()) {
-                    ev.preventDefault();
-                    // scroll to first client error
-                    const first = document.querySelector('.invalid-feedback.client-error');
-                    if (first) {
-                        first.scrollIntoView({
-                            behavior: 'smooth',
-                            block: 'center'
-                        });
-                        // give focus to the associated input if possible
-                        const prev = first.previousElementSibling;
-                        if (prev && typeof prev.focus === 'function') prev.focus();
-                    }
-                    return false;
-                }
-                // else let the form submit normally
-            }, {
-                passive: false
-            });
-
-            // Remove client-side invalid state on user edits
-            const inputs = form.querySelectorAll('input, select, textarea, button');
-            inputs.forEach(i => {
-                i.addEventListener('input', () => {
-                    if (i.classList.contains('client-added')) {
-                        i.classList.remove('is-invalid', 'client-added');
-                    }
-                    // remove immediate adjacent client-error if exists
-                    const next = i.nextElementSibling;
-                    if (next && next.classList && next.classList.contains('client-error')) next
-                        .remove();
-                });
-                i.addEventListener('change', () => {
-                    if (i.classList.contains('client-added')) {
-                        i.classList.remove('is-invalid', 'client-added');
-                    }
-                    const next = i.nextElementSibling;
-                    if (next && next.classList && next.classList.contains('client-error')) next
-                        .remove();
-                });
-            });
-
-            // If server has passed validation errors and they are already rendered by Blade,
-            // we want to ensure they are scrolled into view on page load so the user sees them.
-            window.addEventListener('load', function() {
-                const serverError = document.querySelector('.invalid-feedback:not(.client-error)');
-                if (serverError) {
-                    // scroll to server error (first one)
-                    serverError.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'center'
+            if (field.numeric && value !== '') {
+                const num = Number(value);
+                if (isNaN(num) || (field.min !== undefined && num < field.min)) {
+                    errors.push({
+                        el,
+                        msg: `${field.name} must be a number${field.min !== undefined ? ' ≥ ' + field.min : ''}.`
                     });
                 }
-            });
+            }
+        });
 
-        })();
-    </script>
+        // Validate start/end logical order
+        const sEl = document.querySelector('#start_date');
+        const eEl = document.querySelector('#end_date');
+        if (sEl && eEl && sEl.value && eEl.value) {
+            const s = new Date(sEl.value);
+            const e = new Date(eEl.value);
+            if (isNaN(s) || isNaN(e) || e < s) {
+                errors.push({
+                    el: (eEl || sEl),
+                    msg: 'End date/time must be the same as or later than start date/time.'
+                });
+            }
+        }
+
+        // -----------------------------------------
+        // FIXED IMAGE VALIDATION (OPTIONAL IMAGE)
+        // -----------------------------------------
+        if (fileInput && fileInput.files.length > 0) {
+            const file = fileInput.files[0];
+            const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
+
+            if (!allowedTypes.includes(file.type)) {
+                errors.push({
+                    el: (fileUIbtn || fileInput),
+                    msg: 'Image must be JPG/PNG/WebP.'
+                });
+            }
+
+            if (file.size > 5 * 1024 * 1024) {
+                errors.push({
+                    el: (fileUIbtn || fileInput),
+                    msg: 'Image must be ≤ 5 MB.'
+                });
+            }
+        }
+        // END OF FIX — NO MORE "IMAGE REQUIRED"
+        // -----------------------------------------
+
+        // Attach errors visually
+        errors.forEach(err => {
+            if (err.el === fileUIbtn && fileContainer) {
+                showClientError(fileUIbtn, err.msg, { afterEl: fileContainer });
+            } else {
+                showClientError(err.el, err.msg);
+            }
+        });
+
+        return errors.length === 0;
+    }
+
+    // Wire up form submit
+    form.addEventListener('submit', function(ev) {
+        if (!validateFormClientSide()) {
+            ev.preventDefault();
+            const first = document.querySelector('.invalid-feedback.client-error');
+            if (first) {
+                first.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                const prev = first.previousElementSibling;
+                if (prev && typeof prev.focus === 'function') prev.focus();
+            }
+            return false;
+        }
+    }, { passive: false });
+
+    const inputs = form.querySelectorAll('input, select, textarea, button');
+    inputs.forEach(i => {
+        i.addEventListener('input', () => {
+            if (i.classList.contains('client-added')) {
+                i.classList.remove('is-invalid', 'client-added');
+            }
+            const next = i.nextElementSibling;
+            if (next && next.classList && next.classList.contains('client-error')) next.remove();
+        });
+
+        i.addEventListener('change', () => {
+            if (i.classList.contains('client-added')) {
+                i.classList.remove('is-invalid', 'client-added');
+            }
+            const next = i.nextElementSibling;
+            if (next && next.classList && next.classList.contains('client-error')) next.remove();
+        });
+    });
+
+    window.addEventListener('load', function() {
+        const serverError = document.querySelector('.invalid-feedback:not(.client-error)');
+        if (serverError) {
+            serverError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    });
+
+})();
+</script>
+
 
 </body>
 

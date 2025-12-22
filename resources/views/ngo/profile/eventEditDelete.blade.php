@@ -172,7 +172,7 @@
     @php
         // image helpers
         $eventImage = $event->eventImage ?? null;
-        $eventHeroUrl = $eventImage ? asset('images/events/' . $eventImage) : asset('images/events/default-event.jpg');
+        $eventHeroUrl = $eventImage ? asset('images/events/' . $eventImage) : asset('images/events/default_event.jpg');
 
         // dates
         $start = $event->eventStart ? \Carbon\Carbon::parse($event->eventStart) : null;

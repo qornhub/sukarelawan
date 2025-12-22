@@ -29,3 +29,138 @@
 .task-flash.enter-active { transform: translateY(0) scale(1); opacity: 1; }
 .task-flash.exit { transform: translateY(-6px) scale(0.98); opacity: 0; }
 
+/* ================================
+   TASK SECTION CARD (WRAPPER)
+================================ */
+#section-tasks {
+    border-radius: 16px;
+    border: 1px solid #e5e7eb;
+    background: #f9fafb;
+}
+
+/* Disabled section overlay */
+#section-tasks.is-disabled {
+    opacity: 0.65;
+    pointer-events: none;
+}
+
+/* ================================
+   TASK LIST CONTAINER
+================================ */
+#task-card-list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+}
+
+/* ================================
+   TASK CARD
+================================ */
+.task-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 16px 18px;
+    transition: box-shadow 0.2s ease, transform 0.15s ease;
+    position: relative;
+}
+
+.task-card:hover {
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+    transform: translateY(-2px);
+}
+
+/* ================================
+   TASK TITLE
+================================ */
+.task-card h5 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #111827;
+}
+
+/* ================================
+   TASK DESCRIPTION
+================================ */
+.task-card p {
+    font-size: 0.875rem;
+    color: #4b5563;
+    line-height: 1.55;
+}
+
+/* ================================
+   EVENT BADGE
+================================ */
+.badge-event {
+    background: #eef2ff;
+    color: #4338ca;
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: 999px;
+    white-space: nowrap;
+}
+
+/* ================================
+   ACTION BUTTONS
+================================ */
+.task-card .btn {
+    border-radius: 8px;
+    font-size: 0.8rem;
+    padding: 4px 10px;
+}
+
+/* Softer outline buttons */
+.task-card .btn-outline-secondary {
+    border-color: #d1d5db;
+    color: #374151;
+}
+
+.task-card .btn-outline-secondary:hover {
+    background: #f3f4f6;
+}
+
+.task-card .btn-outline-danger {
+    border-color: #fecaca;
+    color: #b91c1c;
+}
+
+.task-card .btn-outline-danger:hover {
+    background: #fee2e2;
+}
+
+/* ================================
+   DISABLED BUTTON STATE
+================================ */
+.task-card .is-disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* ================================
+   FLASH MESSAGE AREA
+================================ */
+.task-flash-area {
+    margin: 12px 0;
+}
+
+.task-flash {
+    display: inline-block;
+    padding: 0.5rem 0.9rem;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+}
+
+/* ================================
+   EMPTY STATE
+================================ */
+.task-empty {
+    background: #ffffff;
+    border: 1px dashed #d1d5db;
+    border-radius: 14px;
+    padding: 36px 20px;
+    text-align: center;
+    color: #6b7280;
+    font-size: 0.9rem;
+}

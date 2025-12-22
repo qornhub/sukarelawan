@@ -20,20 +20,24 @@
 
         <!-- Desktop Navigation and Profile -->
         <nav class="volunteer-nav-section">
-            <a href="{{ route('volunteer.index.public') }}"
-                class="volunteer-nav-link {{ request()->routeIs('volunteer.index.public') ? 'active' : '' }}">
-                <i class="fas fa-home"></i> Home
-            </a>
+           <a href="{{ route('volunteer.index.public') }}"
+   class="volunteer-nav-link {{ request()->routeIs('volunteer.index.public') ? 'active' : '' }}">
+   <i class="fas fa-home"></i>
+   <span class="nav-text">Home</span>
+</a>
 
-            <a href="{{ route('blogs.index') }}"
-                class="volunteer-nav-link {{ request()->routeIs('blogs.index') ? 'active' : '' }}">
-                <i class="fas fa-blog"></i> Blog
-            </a>
+<a href="{{ route('blogs.index') }}"
+   class="volunteer-nav-link {{ request()->routeIs('blogs.index') ? 'active' : '' }}">
+   <i class="fas fa-blog"></i>
+   <span class="nav-text">Blog</span>
+</a>
 
-            <a href="{{ route('volunteer.rewards.index') }}"
-                class="volunteer-nav-link {{ request()->routeIs('volunteer.rewards.index') ? 'active' : '' }}">
-                <i class="fas fa-award"></i> Reward
-            </a>
+<a href="{{ route('volunteer.rewards.index') }}"
+   class="volunteer-nav-link {{ request()->routeIs('volunteer.rewards.index') ? 'active' : '' }}">
+   <i class="fas fa-award"></i>
+   <span class="nav-text">Reward</span>
+</a>
+
 
         </nav>
 
@@ -80,9 +84,21 @@
     <!-- Mobile Menu Container -->
     <div class="volunteer-mobile-menu-container" id="volunteerMobileMenuContainer">
         <nav class="volunteer-nav-section">
-            <a href="{{ route('volunteer.index.public') }}" class="volunteer-nav-link active"><i class="fas fa-home"></i> Home</a>
-            <a href="{{ route('blogs.index') }}" class="volunteer-nav-link"><i class="fas fa-blog"></i> Blog</a>
-            <a href="{{ route('volunteer.rewards.index') }}" class="volunteer-nav-link"><i class="fas fa-award"></i> Reward</a>
+           <a href="{{ route('volunteer.index.public') }}" class="volunteer-nav-link active">
+    <i class="fas fa-home"></i>
+    <span class="nav-text">Home</span>
+</a>
+
+<a href="{{ route('blogs.index') }}" class="volunteer-nav-link">
+    <i class="fas fa-blog"></i>
+    <span class="nav-text">Blog</span>
+</a>
+
+<a href="{{ route('volunteer.rewards.index') }}" class="volunteer-nav-link">
+    <i class="fas fa-award"></i>
+    <span class="nav-text">Reward</span>
+</a>
+
         </nav>
 
 
@@ -128,339 +144,263 @@
 </div>
 
 <style>
-    .volunteer-header-component {
-        --vol-header-primary-color: #004AAD;
-        --vol-header-primary-light: #3a506b;
-        --vol-header-accent-color: #3498db;
-        --vol-header-text-light: #f8f9fa;
-        --vol-header-text-gray: #6c757d;
-        --vol-header-border-color: #e0e0e0;
-        --vol-header-hover-bg: rgba(255, 255, 255, 0.1);
-        --vol-header-transition: all 0.3s ease;
-        --vol-header-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+.volunteer-header-component {
+    --vol-header-primary-color: #004AAD;
+    --vol-header-primary-light: #3a506b;
+    --vol-header-accent-color: #3498db;
+    --vol-header-text-light: #f8f9fa;
+    --vol-header-text-gray: #6c757d;
+    --vol-header-border-color: #e0e0e0;
+    --vol-header-hover-bg: rgba(255,255,255,.1);
+    --vol-header-transition: all .3s ease;
+    --vol-header-shadow: 0 4px 12px rgba(0,0,0,.05);
+}
+
+/* HEADER */
+.volunteer-header-component .volunteer-header{
+    background:#fff;
+    padding:.75rem 2rem;
+    box-shadow:var(--vol-header-shadow);
+    border-bottom:1px solid var(--vol-header-border-color);
+    position:sticky;top:0;z-index:1000;
+    display:flex;justify-content:space-between;align-items:center;
+    flex-wrap:wrap;margin:0
+}
+
+/* LOGO */
+.volunteer-header-component .volunteer-logo-section{
+    display:flex;align-items:center;gap:.75rem;
+    text-decoration:none;transition:var(--vol-header-transition)
+}
+.volunteer-header-component .volunteer-logo-section:hover{transform:translateY(-2px)}
+.volunteer-header-component .volunteer-logo-section img{height:40px;transition:var(--vol-header-transition)}
+.volunteer-header-component .volunteer-logo-title{
+    font-weight:700;font-size:1.35rem;
+    color:var(--vol-header-primary-color);margin:0
+}
+
+/* NAV */
+.volunteer-header-component .volunteer-nav-section{display:flex;gap:4rem}
+.volunteer-header-component .volunteer-nav-link{
+    position:relative;display:flex;align-items:center;gap:.5rem;
+    color:var(--vol-header-text-gray);font-weight:500;
+    text-decoration:none;padding:.5rem 0;transition:var(--vol-header-transition)
+}
+.volunteer-header-component .volunteer-nav-link i{font-size:.9rem;opacity:.8}
+.volunteer-header-component .volunteer-nav-link:hover,
+.volunteer-header-component .volunteer-nav-link.active{
+    color:var(--vol-header-primary-color)
+}
+.volunteer-header-component .volunteer-nav-link:hover::after,
+.volunteer-header-component .volunteer-nav-link.active::after{
+    content:'';position:absolute;bottom:0;left:0;width:100%;height:3px;
+    border-radius:2px;background:var(--vol-header-accent-color)
+}
+
+/* PROFILE */
+.volunteer-header-component .volunteer-profile-section{
+    display:flex;align-items:center;gap:1rem;
+    position:relative;cursor:pointer
+}
+.volunteer-header-component .volunteer-profile-img{
+    height:40px;width:40px;border-radius:50%;object-fit:cover;
+    border:2px solid #e0e0e0;transition:var(--vol-header-transition)
+}
+.volunteer-header-component .volunteer-profile-section:hover .volunteer-profile-img{
+    border-color:var(--vol-header-accent-color);transform:scale(1.05)
+}
+.volunteer-header-component .volunteer-profile-info{text-align:right}
+.volunteer-header-component .volunteer-profile-name{
+    font-weight:600;font-size:.95rem;margin:0;
+    color:var(--vol-header-primary-color)
+}
+.volunteer-header-component .volunteer-profile-role{
+    font-size:.8rem;margin:0;color:var(--vol-header-text-gray)
+}
+
+/* DROPDOWN */
+.volunteer-header-component .volunteer-profile-dropdown{
+    position:absolute;top:100%;right:-1rem;width:200px;
+    background:#fff;border-radius:8px;box-shadow:var(--vol-header-shadow);
+    padding:.5rem 0;margin-top:1rem;
+    opacity:0;visibility:hidden;transform:translateY(10px);
+    transition:var(--vol-header-transition);
+    display:flex;flex-direction:column;gap:.25rem;z-index:1000
+}
+.volunteer-header-component .volunteer-profile-section:hover .volunteer-profile-dropdown{
+    opacity:1;visibility:visible;transform:translateY(0)
+}
+
+/* DROPDOWN ITEMS — unified for <a> + <button> */
+.volunteer-header-component .volunteer-dropdown-item{
+    -webkit-appearance:none;appearance:none;
+    background:none;border:none;
+    width:100%;margin:0;
+    padding:.75rem 1.5rem;
+    display:flex;align-items:center;gap:.75rem;
+    text-align:left;cursor:pointer;
+    text-decoration:none;
+    color:var(--vol-header-text-gray);
+    font:inherit;font-weight:500;font-size:.95rem;
+    letter-spacing:.2px;
+    transition:var(--vol-header-transition)
+}
+.volunteer-header-component .volunteer-dropdown-item:hover{
+    background:#f8f9fa;color:var(--vol-header-primary-color)
+}
+.volunteer-header-component .volunteer-dropdown-divider{
+    height:1px;background:var(--vol-header-border-color);margin:.5rem 0
+}
+
+/* MOBILE MENU TOGGLER */
+.volunteer-header-component .volunteer-mobile-menu-btn{
+    display:none;background:none;border:none;
+    font-size:1.5rem;color:var(--vol-header-primary-color);
+    cursor:pointer;position:absolute;right:1.5rem;top:1rem
+}
+
+/* MOBILE PANEL */
+.volunteer-header-component .volunteer-mobile-menu-container{
+    display:none;position:fixed;
+    top:70px;left:0;right:0;bottom:0;
+    background:rgba(255,255,255,.95);
+    z-index:999;padding:1.5rem;
+    overflow-y:auto;
+    transform:translateX(100%);
+    transition:transform .3s ease
+}
+.volunteer-header-component .volunteer-mobile-menu-container.active{
+    transform:translateX(0)
+}
+
+/* Mobile nav inside panel */
+.volunteer-header-component .volunteer-mobile-menu-container .volunteer-nav-section{
+    flex-direction:column;gap:0;margin-bottom:.3rem
+}
+.volunteer-header-component .volunteer-mobile-menu-container .volunteer-nav-link{
+    padding:1.1rem 0;
+    border-bottom:1px solid #f0f0f0
+}
+
+/* Mobile dropdown links */
+.volunteer-header-component .volunteer-mobile-menu-actions .volunteer-dropdown-item{
+    padding:1.1rem 0;
+    border-bottom:1px solid #f0f0f0
+}
+.volunteer-header-component .volunteer-mobile-menu-actions .volunteer-dropdown-item:last-child{
+    border-bottom:none
+}
+
+/* NOTIFICATION BADGE */
+.profile-notif-badge{
+    position:absolute;top:-6px;right:-6px;
+    min-width:20px;height:20px;line-height:18px;padding:0 6px;
+    background:#dc3545;color:#fff;
+    border-radius:999px;font-size:.7rem;font-weight:600;
+    text-align:center;
+    box-shadow:0 1px 3px rgba(0,0,0,.15);
+    pointer-events:none
+}
+
+/* RESPONSIVE */
+@media (max-width:992px){
+    .volunteer-header-component .volunteer-header{padding:.75rem 1.5rem}
+    .volunteer-header-component .volunteer-nav-section{gap:1rem}
+}
+
+@media (max-width:768px){
+    .volunteer-header-component .volunteer-header{
+        padding:.75rem 1rem;position:relative
     }
 
-    /* Header Styles */
-    .volunteer-header-component .volunteer-header {
-        background: white;
-        padding: 0.75rem 2rem;
-        box-shadow: var(--vol-header-shadow);
-        position: sticky;
-        top: 0;
-        z-index: 1000;
-        border-bottom: 1px solid var(--vol-header-border-color);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-wrap: wrap;
-        margin: 0;
+    .volunteer-header-component .volunteer-mobile-menu-btn{display:block}
+
+    .volunteer-header-component .volunteer-nav-section,
+    .volunteer-header-component .desktop-profile{display:none}
+
+    .volunteer-header-component .volunteer-mobile-menu-container{display:block}
+
+    .profile-notif-badge{
+        top:-4px;right:-4px;
+        min-width:18px;height:18px;font-size:.65rem
     }
 
-    .volunteer-header-component .volunteer-logo-section {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        text-decoration: none;
-        transition: var(--vol-header-transition);
-    }
+    
+}
+/* MOBILE — show text only, hide icons; slightly smaller font */
+@media (max-width:768px) {
 
-    .volunteer-header-component .volunteer-logo-section:hover {
-        transform: translateY(-2px);
-    }
+  /* hide icons in nav links (top + drawer) */
+  .volunteer-header-component .volunteer-nav-link i {
+    display: none !important;
+    width: 0;
+    margin: 0;
+    opacity: 0;
+  }
 
-    .volunteer-header-component .volunteer-logo-section img {
-        height: 40px;
-        transition: var(--vol-header-transition);
-    }
+  /* show the text span, slightly smaller */
+  .volunteer-header-component .volunteer-nav-link .nav-text {
+    display: inline-block !important;
+    font-size: 0.95rem;        /* adjust smaller if needed */
+    font-weight: 600;
+    letter-spacing: .2px;
+    line-height: 1;
+    padding: .45rem .35rem;   /* touchable area */
+  }
 
-    .volunteer-header-component .volunteer-logo-title {
-        font-weight: 700;
-        color: var(--vol-header-primary-color);
-        margin: 0;
-        font-size: 1.35rem;
-    }
+  /* keep links readable and left-aligned in the header */
+  .volunteer-header-component .volunteer-nav-section {
+    gap: .6rem;
+    align-items: center;
+  }
 
-    .volunteer-header-component .volunteer-nav-section {
-        display: flex;
-        gap: 4rem;
-    }
+  .volunteer-header-component .volunteer-nav-link {
+    gap: .4rem;
+    justify-content: flex-start;
+  }
 
-    .volunteer-header-component .volunteer-nav-link {
-        position: relative;
-        color: var(--vol-header-text-gray);
-        text-decoration: none;
-        font-weight: 500;
-        padding: 0.5rem 0;
-        transition: var(--vol-header-transition);
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
+  /* If you want the mobile drawer to keep icons, override only top header:
+     uncomment the rule below and comment the general icon-hide above:
+  .volunteer-header-component > .volunteer-mobile-menu-container .volunteer-nav-link i {
+    display: inline-block !important;
+    opacity: 1;
+    margin-right: .5rem;
+  }
+  */
 
-    .volunteer-header-component .volunteer-nav-link i {
-        font-size: 0.9rem;
-        opacity: 0.8;
-    }
+  /* shrink logo text */
+  .volunteer-header-component .volunteer-logo-title {
+    font-size: 1rem;
+  }
 
-    .volunteer-header-component .volunteer-nav-link:hover,
-    .volunteer-header-component .volunteer-nav-link.active {
-        color: var(--vol-header-primary-color);
-    }
+  /* adjust profile name size inside mobile panel */
+  .volunteer-header-component .volunteer-profile-name {
+    font-size: 0.95rem;
+  }
 
-    .volunteer-header-component .volunteer-nav-link:hover::after,
-    .volunteer-header-component .volunteer-nav-link.active::after {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        height: 3px;
-        background: var(--vol-header-accent-color);
-        border-radius: 2px;
-    }
+  /* notification badge smaller */
+  .profile-notif-badge {
+    min-width:18px;height:18px;line-height:18px;font-size:.65rem;
+    top:-4px; right:-4px;
+  }
+}
 
-    .volunteer-header-component .volunteer-profile-section {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        position: relative;
-        cursor: pointer;
-    }
+/* extra-tiny phones */
+@media (max-width:420px) {
+  .volunteer-header-component .volunteer-nav-link .nav-text {
+    font-size: 0.92rem;
+    padding: .35rem .25rem;
+  }
 
-    .volunteer-header-component .volunteer-profile-img {
-        height: 40px;
-        width: 40px;
-        border-radius: 50%;
-        object-fit: cover;
-        border: 2px solid #e0e0e0;
-        transition: var(--vol-header-transition);
-    }
-
-    .volunteer-header-component .volunteer-profile-section:hover .volunteer-profile-img {
-        border-color: var(--vol-header-accent-color);
-        transform: scale(1.05);
-    }
-
-    .volunteer-header-component .volunteer-profile-info {
-        text-align: right;
-    }
-
-    .volunteer-header-component .volunteer-profile-name {
-        font-weight: 600;
-        color: var(--vol-header-primary-color);
-        margin: 0;
-        font-size: 0.95rem;
-    }
-
-    .volunteer-header-component .volunteer-profile-role {
-        font-size: 0.8rem;
-        color: var(--vol-header-text-gray);
-        margin: 0;
-    }
-
-    .volunteer-header-component .volunteer-profile-dropdown {
-        position: absolute;
-        top: 100%;
-        right: -1rem;
-        width: 200px;
-        background: white;
-        border-radius: 8px;
-        box-shadow: var(--vol-header-shadow);
-        padding: 0.5rem 0;
-        margin-top: 1rem;
-        opacity: 0;
-        visibility: hidden;
-        transform: translateY(10px);
-        transition: var(--vol-header-transition);
-        z-index: 1000;
-        display: flex;
-        flex-direction: column;
-        gap: 0.25rem;
-    }
-
-    .volunteer-header-component .volunteer-profile-section:hover .volunteer-profile-dropdown {
-        opacity: 1;
-        visibility: visible;
-        transform: translateY(0);
-    }
-
-    /* dropdown item normalization for anchors & buttons */
-    .volunteer-header-component .volunteer-dropdown-item,
-    .volunteer-header-component button.volunteer-dropdown-item,
-    .volunteer-header-component .volunteer-mobile-menu-actions .volunteer-dropdown-item,
-    .volunteer-header-component .volunteer-mobile-menu-actions button.volunteer-dropdown-item {
-        /* remove native button chrome and match anchor layout */
-        -webkit-appearance: none;
-        -moz-appearance: none;
-        appearance: none;
-        background: none;
-        border: none;
-        padding: 0.75rem 1.5rem;
-        margin: 0;
-        width: 100%;
-        text-align: left;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        color: var(--vol-header-text-gray);
-        text-decoration: none;
-        transition: var(--vol-header-transition);
-        font: inherit;
-        /* match surrounding font */
-    }
-
-    .volunteer-header-component .volunteer-dropdown-item:hover,
-    .volunteer-header-component button.volunteer-dropdown-item:hover,
-    .volunteer-header-component .volunteer-mobile-menu-actions .volunteer-dropdown-item:hover {
-        background: #f8f9fa;
-        color: var(--vol-header-primary-color);
-    }
-
-    .volunteer-header-component .volunteer-dropdown-divider {
-        height: 1px;
-        background: var(--vol-header-border-color);
-        margin: 0.5rem 0;
-    }
-
-    /* Mobile menu */
-    .volunteer-header-component .volunteer-mobile-menu-btn {
-        display: none;
-        background: none;
-        border: none;
-        font-size: 1.5rem;
-        color: var(--vol-header-primary-color);
-        cursor: pointer;
-        position: absolute;
-        right: 1.5rem;
-        top: 1rem;
-    }
-
-    /* Mobile menu container */
-    .volunteer-header-component .volunteer-mobile-menu-container {
-        display: none;
-        position: fixed;
-        top: 70px;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(255, 255, 255, 0.95);
-        z-index: 999;
-        padding: 1.5rem;
-        overflow-y: auto;
-        transform: translateX(100%);
-        transition: transform 0.3s ease;
-    }
-
-    .volunteer-header-component .volunteer-mobile-menu-container.active {
-        transform: translateX(0);
-    }
-
-    .volunteer-header-component .volunteer-mobile-menu-container .volunteer-nav-section {
-        flex-direction: column;
-        gap: 0;
-        margin-bottom: 1.5rem;
-    }
-
-    .volunteer-header-component .volunteer-mobile-menu-container .volunteer-nav-link {
-        padding: 1.1rem 0;
-        border-bottom: 1px solid #f0f0f0;
-    }
-
-    .volunteer-header-component .volunteer-mobile-menu-container .volunteer-profile-section {
-        padding: 1rem;
-        background: #f8f9fa;
-        border-radius: 8px;
-        flex-direction: row;
-        align-items: center;
-        margin-bottom: 1.5rem;
-    }
-
-    .volunteer-header-component .volunteer-mobile-menu-container .volunteer-profile-info {
-        text-align: left;
-        flex-grow: 1;
-    }
-
-    .volunteer-header-component .volunteer-mobile-menu-actions .volunteer-dropdown-item {
-        padding: 1.1rem 0;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        color: var(--vol-header-text-gray);
-        text-decoration: none;
-        transition: var(--vol-header-transition);
-        border-bottom: 1px solid #f0f0f0;
-    }
-
-    .volunteer-header-component .volunteer-mobile-menu-actions .volunteer-dropdown-item:last-child {
-        border-bottom: none;
-    }
-
-    /* notification badge on profile image */
-    .profile-notif-badge {
-        position: absolute;
-        top: -6px;
-        right: -6px;
-        min-width: 20px;
-        height: 20px;
-        line-height: 18px;
-        padding: 0 6px;
-        border-radius: 999px;
-        background: #dc3545;
-        color: #fff;
-        font-size: 0.7rem;
-        font-weight: 600;
-        display: inline-block;
-        /* JS will toggle visibility */
-        text-align: center;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
-        pointer-events: none;
-        /* so it doesn't block hover */
-    }
-
-    /* slightly smaller / reposition for small screens */
-    @media (max-width: 768px) {
-        .profile-notif-badge {
-            top: -4px;
-            right: -4px;
-            min-width: 18px;
-            height: 18px;
-            font-size: 0.65rem;
-        }
-    }
+  .volunteer-header-component .volunteer-logo-title {
+    font-size: .95rem;
+  }
+}
 
 
-    /* Responsive styles */
-    @media (max-width: 992px) {
-        .volunteer-header-component .volunteer-header {
-            padding: 0.75rem 1.5rem;
-        }
 
-        .volunteer-header-component .volunteer-nav-section {
-            gap: 1rem;
-        }
-    }
-
-    @media (max-width: 768px) {
-        .volunteer-header-component .volunteer-header {
-            padding: 0.75rem 1rem;
-            position: relative;
-        }
-
-        .volunteer-header-component .volunteer-mobile-menu-btn {
-            display: block;
-        }
-
-        .volunteer-header-component .volunteer-nav-section,
-        .volunteer-header-component .desktop-profile {
-            display: none;
-        }
-
-        .volunteer-header-component .volunteer-mobile-menu-container {
-            display: block;
-        }
-    }
 </style>
+
 
 <!-- Pusher + Echo (already in your files, keep these) -->
 <script src="https://js.pusher.com/8.2/pusher.min.js"></script>

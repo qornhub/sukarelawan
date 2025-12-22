@@ -1,6 +1,7 @@
 @php
   // Defensive default: parent should pass $disabled (true when event ended)
   $disabled = $disabled ?? false;
+   $isAdminReadonly = $isAdminReadonly ?? false;
 @endphp
 
 @if (!empty($ajax) && $ajax)
@@ -76,12 +77,12 @@
         <h3 class="attendance-title mb-0">Attendance</h3>
       </div>
 
-      @if($disabled)
-        <div class="alert alert-warning">
-          <strong>Attendance closed</strong><br>
-          This event has ended — attendance management is disabled.
-        </div>
-      @endif
+      @if ($disabled && !$isAdminReadonly)
+    <div class="alert alert-warning">
+        Attendance management is disabled — this event has ended.
+    </div>
+@endif
+
 
       <div id="attendance-list-flash" class="attendance-flash-area" aria-live="polite" aria-atomic="true"></div>
       @include('layouts/messages')

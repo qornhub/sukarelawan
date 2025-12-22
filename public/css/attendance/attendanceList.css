@@ -1,0 +1,153 @@
+/* ===============================
+   Attendance Section Styling
+   Matches your provided design
+=================================*/
+
+/* Attendance Card */
+.participant-section {
+  border-radius: var(--rounded-sm);
+  box-shadow: var(--card-shadow);
+  border: 0;
+  background: #fff;
+}
+
+.participant-section .card-body {
+  padding: 18px 20px;
+}
+
+/* Header Title */
+.attendance-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: .2px;
+}
+
+/* Disabled State */
+.participant-section.is-disabled {
+  opacity: 0.75;
+  pointer-events: none;
+}
+
+.participant-section.is-disabled .alert-warning {
+  border-radius: var(--rounded-sm);
+}
+
+/* ===============================
+   Attendance Table
+=================================*/
+.attendance-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.95rem;
+}
+
+.attendance-table thead th {
+  background: var(--primary-color);
+  color: white;
+  font-weight: 700;
+  padding: 12px 14px;
+  border-bottom: none;
+  font-size: 1rem;
+}
+
+.attendance-table tbody td {
+  padding: 12px 14px;
+  vertical-align: middle;
+  border-bottom: 1px solid #f3f6fa;
+  color: #374151;
+}
+
+.attendance-table tbody tr:nth-child(even) td {
+  background: #fbfdff;
+}
+
+/* Volunteer Name + Skill styling */
+.attendance-table td small {
+  color: #6b7280 !important;
+  font-size: 0.8rem;
+}
+
+/* Status Dot */
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+/* Empty row */
+.empty-row td {
+  padding: 28px;
+  color: #94a3b8;
+  font-style: italic;
+}
+
+/* ===============================
+   Buttons
+=================================*/
+
+.btn-delete-attendance {
+  padding: 6px 10px;
+  border-radius: var(--rounded-sm);
+  font-size: 0.88rem;
+  line-height: 1;
+}
+
+.btn-delete-attendance.btn-outline-danger {
+  border: 1px solid rgba(220,53,69,0.08);
+  color: #b91c1c;
+  background: #fff;
+}
+
+.btn-delete-attendance.btn-outline-danger:hover {
+  background: rgba(220,53,69,0.06);
+}
+
+/* Disabled delete button visual */
+.btn-delete-attendance.is-disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ===============================
+   Flash Messages
+=================================*/
+.attendance-flash-area {
+  margin-bottom: 10px;
+}
+
+.task-flash {
+  padding: 10px 14px;
+  border-radius: var(--rounded-sm);
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+  box-shadow: var(--shadow);
+}
+
+.task-flash.success {
+  background: #e7f8ef;
+  color: #0f5132;
+}
+
+.task-flash.error {
+  background: var(--error-bg);
+  color: #842029;
+}
+
+/* subtle animation */
+.task-flash.enter {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+.task-flash.enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: .25s ease;
+}
+.task-flash.exit {
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: .25s ease;
+}

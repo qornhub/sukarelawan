@@ -23,26 +23,36 @@ class NGOBlogPostController extends Controller
     // Store new post
     public function store(Request $request)
     {
+        // FIXED VALIDATION
         $validated = $request->validate([
             'title'            => 'required|string|max:255',
             'blogSummary'      => 'nullable|string|max:300',
             'content'          => 'required|string',
-            'category_id'      => 'required|string',
-            'custom_category'  => 'required_if:category_id,other|string|max:255',
+
+            'category_id'      => 'required',
+            'custom_category'  => 'nullable|string|max:255|required_if:category_id,other',
+
             'status'           => 'required|in:draft,published',
             'published_at'     => 'nullable|date',
             'image'            => 'nullable|image|max:5120',
         ]);
 
-        /** 
-         * PRIVATE CATEGORY LOGIC
-         */
+        // CATEGORY LOGIC (FK SAFE)
         if ($validated['category_id'] === 'other') {
-            $categoryId = null;
+            $categoryId     = null;
             $customCategory = $validated['custom_category'];
         } else {
-            $categoryId = $validated['category_id'];
-            $customCategory = null;
+            // SAFELY CHECK DB using `blogCategory_id`
+            $category = BlogCategory::where('blogCategory_id', $validated['category_id'])->first();
+
+            if ($category) {
+                $categoryId     = $category->blogCategory_id;
+                $customCategory = null;
+            } else {
+                // fallback to prevent FK error
+                $categoryId     = null;
+                $customCategory = null;
+            }
         }
 
         // Normalize published_at
@@ -50,18 +60,18 @@ class NGOBlogPostController extends Controller
             ? Carbon::parse($request->published_at)->toDateTimeString()
             : null;
 
-        // Handle image upload
-        $imageFileName = null;
+        // DEFAULT IMAGE HANDLING
+        $imageFileName = "default_blog.jpg";
+
         if ($request->hasFile('image')) {
             $file = $request->file('image');
             $safeOriginal = preg_replace('/\s+/', '_', $file->getClientOriginalName());
             $imageFileName = time() . '_blog_' . $safeOriginal;
 
-            $destFolder = public_path('images/Blog');
-            if (!is_dir($destFolder)) {
-                mkdir($destFolder, 0755, true);
-            }
-            $file->move($destFolder, $imageFileName);
+            $dest = public_path('images/Blog');
+            if (!is_dir($dest)) mkdir($dest, 0755, true);
+
+            $file->move($dest, $imageFileName);
         }
 
         // Create post
@@ -105,26 +115,34 @@ class NGOBlogPostController extends Controller
             abort(403);
         }
 
+        // FIXED VALIDATION
         $validated = $request->validate([
             'title'            => 'required|string|max:255',
             'blogSummary'      => 'nullable|string|max:300',
             'content'          => 'required|string',
-            'category_id'      => 'required|string',
-            'custom_category'  => 'required_if:category_id,other|string|max:255',
+
+            'category_id'      => 'required',
+            'custom_category'  => 'nullable|string|max:255|required_if:category_id,other',
+
             'status'           => 'required|in:draft,published',
             'published_at'     => 'nullable|date',
             'image'            => 'nullable|image|max:5120',
         ]);
 
-        /**
-         * PRIVATE CATEGORY LOGIC
-         */
+        // CATEGORY LOGIC (FK SAFE)
         if ($validated['category_id'] === 'other') {
-            $post->category_id = null;
+            $post->category_id     = null;
             $post->custom_category = $validated['custom_category'];
         } else {
-            $post->category_id = $validated['category_id'];
-            $post->custom_category = null;
+            $category = BlogCategory::where('blogCategory_id', $validated['category_id'])->first();
+
+            if ($category) {
+                $post->category_id     = $category->blogCategory_id;
+                $post->custom_category = null;
+            } else {
+                $post->category_id     = null;
+                $post->custom_category = null;
+            }
         }
 
         // Normalize published_at
@@ -133,26 +151,27 @@ class NGOBlogPostController extends Controller
                 Carbon::parse($request->published_at)->toDateTimeString();
         }
 
-        // Image replacement
+        // IMAGE HANDLING
         if ($request->hasFile('image')) {
-            if ($post->image) {
-                $oldPath = public_path('images/Blog/' . basename($post->image));
-                if (file_exists($oldPath) && basename($post->image) !== 'default-blog.jpg') {
-                    unlink($oldPath);
-                }
+
+            if ($post->image && $post->image !== "default_blog.jpg") {
+                $oldPath = public_path('images/Blog/' . $post->image);
+                if (file_exists($oldPath)) unlink($oldPath);
             }
 
             $file = $request->file('image');
             $safeOriginal = preg_replace('/\s+/', '_', $file->getClientOriginalName());
             $imageFileName = time() . '_blog_' . $safeOriginal;
 
-            $destFolder = public_path('images/Blog');
-            if (!is_dir($destFolder)) {
-                mkdir($destFolder, 0755, true);
-            }
-            $file->move($destFolder, $imageFileName);
+            $dest = public_path('images/Blog');
+            if (!is_dir($dest)) mkdir($dest, 0755, true);
 
+            $file->move($dest, $imageFileName);
             $post->image = $imageFileName;
+        }
+
+        if (!$post->image) {
+            $post->image = "default_blog.jpg";
         }
 
         // Update normal fields
@@ -161,7 +180,7 @@ class NGOBlogPostController extends Controller
         $post->content     = $validated['content'];
         $post->status      = $validated['status'];
 
-        // Publish/draft logic
+        // Published/draft logic
         if ($post->status === 'published' && empty($validated['published_at'])) {
             if (empty($post->published_at)) {
                 $post->published_at = now();
@@ -187,11 +206,9 @@ class NGOBlogPostController extends Controller
             abort(403);
         }
 
-        if ($post->image) {
-            $path = public_path('images/Blog/' . basename($post->image));
-            if (file_exists($path) && basename($post->image) !== 'default-blog.jpg') {
-                unlink($path);
-            }
+        if ($post->image && $post->image !== "default_blog.jpg") {
+            $path = public_path('images/Blog/' . $post->image);
+            if (file_exists($path)) unlink($path);
         }
 
         $post->delete();
