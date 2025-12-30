@@ -1,3 +1,13 @@
 {
-  "phpExtensions": ["gd", "zip", "pdo_mysql"]
+  "aptPackages": [
+    "libpng-dev",
+    "libjpeg-dev",
+    "libfreetype6-dev",
+    "zlib1g-dev"
+  ],
+  "phpExtensions": [
+    "gd",
+    "zip",
+    "pdo_mysql"
+  ]
 }
