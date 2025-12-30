@@ -37,9 +37,9 @@ class BlogPostController extends Controller
             $this->ensureOwnerOnly($post);
         }
         $comments = BlogComment::where('blogPost_id', $post->blogPost_id)
-    ->orderBy('created_at', 'asc')
-    ->paginate(3, ['*'], 'comments_page')
-    ->withQueryString();
+    ->orderBy('created_at', 'desc')
+    ->paginate(3, ['*'], 'comments_page');
+    
 
         return view($this->viewForRole('blogs.show'), compact('post','comments'));
     }

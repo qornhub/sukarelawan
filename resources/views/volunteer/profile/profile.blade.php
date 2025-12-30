@@ -8,6 +8,112 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{{ asset('css/volunteer_profile.css') }}">
+    <style>
+        /* =====================================================
+   BLOG POSTS TAB ONLY
+   Scope: #blog
+===================================================== */
+
+/* Card wrapper */
+#blog .event-card {
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+#blog .event-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.12);
+}
+
+/* -----------------------------------------------------
+   Blog Image
+----------------------------------------------------- */
+#blog .event-card img {
+    transition: transform 0.35s ease;
+}
+
+#blog .event-card:hover img {
+    transform: scale(1.03);
+}
+
+/* -----------------------------------------------------
+   Category badge on image
+----------------------------------------------------- */
+#blog .event-card .position-absolute {
+    
+    letter-spacing: 0.02em;
+    text-transform: capitalize;
+}
+
+/* -----------------------------------------------------
+   Card body
+----------------------------------------------------- */
+#blog .card-body {
+    padding: 1rem 1.1rem 0.9rem;
+}
+
+/* -----------------------------------------------------
+   Title row
+----------------------------------------------------- */
+#blog .card-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    line-height: 1.25;
+    color: #1f2937;
+}
+
+
+
+/* -----------------------------------------------------
+   Excerpt
+----------------------------------------------------- */
+#blog .card-body p {
+    
+    line-height: 1.55;
+    color: #4b5563;
+}
+
+/* -----------------------------------------------------
+   Date footer (bottom-left) with primary icon
+----------------------------------------------------- */
+#blog .card-body .mt-auto {
+    margin-top: 0.75rem;
+}
+
+#blog .card-body .fa-calendar-alt {
+    font-size: 0.8rem;
+    color: #004aad; /* Primary color for the icon */
+    margin-right: 4px;
+}
+
+#blog .card-body span {
+    font-size: 0.75rem;
+    color: #454545; /* subtle text for the date */
+}
+
+
+/* -----------------------------------------------------
+   Pagination alignment
+----------------------------------------------------- */
+#blog .events-pagination {
+    margin-top: 1.5rem;
+}
+
+/* -----------------------------------------------------
+   Mobile polish
+----------------------------------------------------- */
+@media (max-width: 576px) {
+    #blog .card-title {
+        font-size: 1rem;
+    }
+
+    #blog .event-card img {
+        height: 160px !important;
+    }
+}
+
+    </style>
 </head>
 
 <body>
@@ -34,7 +140,6 @@
             <div class="cover-photo"
                 style="background: url('{{ $profile->coverPhoto ? asset('images/covers/' . $profile->coverPhoto) : asset('images/default-cover.jpg') }}') center/cover;">
             </div>
-
             <img src="{{ $profile->profilePhoto
                 ? asset('images/profiles/' . $profile->profilePhoto)
                 : asset('images/default-profile.png') }}"
@@ -374,55 +479,66 @@
                                     @endphp
 
 
-                                    {{-- Card wrapper: clickable --}}
                                     <a href="{{ $cardLink }}" class="text-decoration-none text-reset">
-                                        <div class="card event-card mb-3">
-                                            @if ($imageUrl)
-                                                <img src="{{ $imageUrl }}" class="card-img-top"
-                                                    alt="{{ $post->title }}"
-                                                    style="height: 180px; object-fit: cover; border-top-left-radius: 8px; border-top-right-radius: 8px;">
-                                            @endif
+    <div class="card event-card mb-3 border-0 shadow-sm h-100">
 
-                                            <div class="card-body">
-                                                <div class="d-flex justify-content-between align-items-start">
-                                                    <h5 class="card-title mb-1">{{ $post->title }}</h5>
+        {{-- Image + Category --}}
+        <div class="position-relative">
+            <img src="{{ $imageUrl }}"
+                 alt="{{ $post->title }}"
+                 class="w-100"
+                 style="height: 180px; object-fit: cover; border-radius: 10px 10px 0 0;">
 
-                                                    @if ($post->status !== 'published')
-                                                        @if ($isOwner)
-                                                            <span class="badge bg-warning text-dark p-2 mb-1">
-                                                                <i class="fas fa-edit me-1"></i> Draft
-                                                            </span>
-                                                        @else
-                                                            <span class="badge bg-secondary p-2 mb-1">Private</span>
-                                                        @endif
-                                                    @endif
-                                                </div>
+            {{-- Category badge --}}
+            <span class="position-absolute top-0 start-0 m-2 px-3 py-1 small fw-semibold text-white"
+                  style="background: rgba(0,0,0,0.65); border-radius: 18px; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
+                {{ $post->custom_category ?: optional($post->category)->categoryName ?? 'Uncategorized' }}
+            </span>
+        </div>
 
-                                                <p class="text-muted small mb-2 mt-2">
-                                                    {{ $excerpt }}
-                                                </p>
+        {{-- Card Body --}}
+      {{-- Card Body --}}
+<div class="card-body d-flex flex-column">
+
+    {{-- Title + Category + Draft (same row) --}}
+    <div class="d-flex align-items-start justify-content-between gap-2 mb-2">
+        <h5 class="card-title mb-0 flex-grow-1">
+            {{ $post->title }}
+        </h5>
+
+        <div class="d-flex align-items-center gap-2 flex-shrink-0">
+
+            {{-- Category --}}
+            
+
+            {{-- Draft --}}
+            @if ($post->status !== 'published' && $isOwner)
+                <span class="badge bg-warning text-dark fw-semibold">
+                    Draft
+                </span>
+            @endif
+        </div>
+    </div>
+
+    {{-- Excerpt --}}
+    <p class="text-muted small mb-3">
+        {{ $excerpt }}
+    </p>
+
+    {{-- Spacer --}}
+    <div class="mt-auto">
+        <div class="d-flex align-items-center gap-1 small text-secondary"
+             style="opacity: 0.85;">
+            <i class="fas fa-calendar-alt"></i>
+            <span>{{ $displayDate }}</span>
+        </div>
+    </div>
+</div>
+
+    </div>
+</a>
 
 
-                                                <div class="d-flex flex-wrap gap-3 mt-3 small text-muted">
-                                                    <div>
-                                                        <i class="fas fa-calendar text-primary me-1"></i>
-                                                        {{ $displayDate }}
-                                                    </div>
-                                                    <div>
-                                                        <i class="fas fa-folder text-primary me-1"></i>
-                                                        {{ $post->custom_category ?: optional($post->category)->categoryName ?? 'Uncategorized' }}
-                                                    </div>
-
-                                                    <div>
-                                                        <i class="fas fa-user text-primary me-1"></i>
-                                                        {{ optional($post->user)->name ?? $profile->name }}
-                                                    </div>
-                                                </div>
-
-
-                                            </div>
-                                        </div>
-                                    </a>
 
                                 @empty
                                     <div class="card">

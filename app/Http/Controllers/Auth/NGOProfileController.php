@@ -103,7 +103,7 @@ public function show($id = null)
         })
         ->orderBy('eventStart', 'asc');
 
-    $ongoingEvents = $ongoingQuery->paginate(3, ['*'], 'ongoing_page')->withQueryString();
+    $ongoingEvents = $ongoingQuery->paginate(3, ['*'], 'ongoing_page');
 
     // ----------------------
     // Paginate past events
@@ -119,7 +119,7 @@ public function show($id = null)
         })
         ->orderBy('eventEnd', 'desc');
 
-    $pastEvents = $pastQuery->paginate(3, ['*'], 'past_page')->withQueryString();
+    $pastEvents = $pastQuery->paginate(3, ['*'], 'past_page');
 
     $totalEvents = (clone $baseQuery)->count();
 
@@ -143,8 +143,7 @@ public function show($id = null)
         // order & paginate (keeps previous behaviour)
         $blogPosts = $blogQuery->orderBy('published_at', 'desc')
             ->orderBy('created_at', 'desc')
-            ->paginate(3)
-            ->withQueryString();
+            ->paginate(3);
     }
 
     return view('ngo.profile.show', compact(
