@@ -1,5 +1,3 @@
 {
-  "extensions": [
-    "gd"
-  ]
+  "phpExtensions": ["gd", "zip", "pdo_mysql"]
 }
