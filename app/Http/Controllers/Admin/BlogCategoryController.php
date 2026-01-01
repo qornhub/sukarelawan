@@ -31,7 +31,7 @@ class BlogCategoryController extends Controller
             'categoryName'    => $request->categoryName,
         ]);
 
-        return redirect()->route('admin.blogCategory.category-list')
+        return redirect()->route('admin.blogcategory.category-list')
             ->with('success', 'Blog category created successfully.');
     }
 
@@ -52,7 +52,7 @@ class BlogCategoryController extends Controller
         $category->categoryName = $request->categoryName;
         $category->save();
 
-        return redirect()->route('admin.blogCategory.category-list')
+        return redirect()->route('admin.blogcategory.category-list')
             ->with('success', 'Blog category updated successfully.');
     }
 
@@ -61,7 +61,7 @@ class BlogCategoryController extends Controller
         $category = BlogCategory::where('blogCategory_id', $id)->firstOrFail();
         $category->delete();
 
-        return redirect()->route('admin.blogCategory.category-list')
+        return redirect()->route('admin.blogcategory.category-list')
             ->with('success', 'Blog category deleted successfully.');
     }
 }
