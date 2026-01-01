@@ -92,110 +92,111 @@
             color: #fff;
         }
 
-         /* =====================================================
+        /* =====================================================
    BLOG POSTS TAB ONLY
    Scope: #blog
 ===================================================== */
 
-/* Card wrapper */
-#blog .event-card {
-    border-radius: 12px;
-    overflow: hidden;
-    transition: transform 0.25s ease, box-shadow 0.25s ease;
-}
+        /* Card wrapper */
+        #blog .event-card {
+            border-radius: 12px;
+            overflow: hidden;
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
 
-#blog .event-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.12);
-}
+        #blog .event-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.12);
+        }
 
-/* -----------------------------------------------------
+        /* -----------------------------------------------------
    Blog Image
 ----------------------------------------------------- */
-#blog .event-card img {
-    transition: transform 0.35s ease;
-}
+        #blog .event-card img {
+            transition: transform 0.35s ease;
+        }
 
-#blog .event-card:hover img {
-    transform: scale(1.03);
-}
+        #blog .event-card:hover img {
+            transform: scale(1.03);
+        }
 
-/* -----------------------------------------------------
+        /* -----------------------------------------------------
    Category badge on image
 ----------------------------------------------------- */
-#blog .event-card .position-absolute {
-    
-    letter-spacing: 0.02em;
-    text-transform: capitalize;
-}
+        #blog .event-card .position-absolute {
 
-/* -----------------------------------------------------
+            letter-spacing: 0.02em;
+            text-transform: capitalize;
+        }
+
+        /* -----------------------------------------------------
    Card body
 ----------------------------------------------------- */
-#blog .card-body {
-    padding: 1rem 1.1rem 0.9rem;
-}
+        #blog .card-body {
+            padding: 1rem 1.1rem 0.9rem;
+        }
 
-/* -----------------------------------------------------
+        /* -----------------------------------------------------
    Title row
 ----------------------------------------------------- */
-#blog .card-title {
-    font-size: 1.05rem;
-    font-weight: 700;
-    line-height: 1.25;
-    color: #1f2937;
-}
+        #blog .card-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            line-height: 1.25;
+            color: #1f2937;
+        }
 
 
 
-/* -----------------------------------------------------
+        /* -----------------------------------------------------
    Excerpt
 ----------------------------------------------------- */
-#blog .card-body p {
-    
-    line-height: 1.55;
-    color: #4b5563;
-}
+        #blog .card-body p {
 
-/* -----------------------------------------------------
+            line-height: 1.55;
+            color: #4b5563;
+        }
+
+        /* -----------------------------------------------------
    Date footer (bottom-left) with primary icon
 ----------------------------------------------------- */
-#blog .card-body .mt-auto {
-    margin-top: 0.75rem;
-}
+        #blog .card-body .mt-auto {
+            margin-top: 0.75rem;
+        }
 
-#blog .card-body .fa-calendar-alt {
-    font-size: 0.8rem;
-    color: #004aad; /* Primary color for the icon */
-    margin-right: 4px;
-}
+        #blog .card-body .fa-calendar-alt {
+            font-size: 0.8rem;
+            color: #004aad;
+            /* Primary color for the icon */
+            margin-right: 4px;
+        }
 
-#blog .card-body span {
-    font-size: 0.75rem;
-    color: #454545; /* subtle text for the date */
-}
+        #blog .card-body span {
+            font-size: 0.75rem;
+            color: #454545;
+            /* subtle text for the date */
+        }
 
 
-/* -----------------------------------------------------
+        /* -----------------------------------------------------
    Pagination alignment
 ----------------------------------------------------- */
-#blog .events-pagination {
-    margin-top: 1.5rem;
-}
+        #blog .events-pagination {
+            margin-top: 1.5rem;
+        }
 
-/* -----------------------------------------------------
+        /* -----------------------------------------------------
    Mobile polish
 ----------------------------------------------------- */
-@media (max-width: 576px) {
-    #blog .card-title {
-        font-size: 1rem;
-    }
+        @media (max-width: 576px) {
+            #blog .card-title {
+                font-size: 1rem;
+            }
 
-    #blog .event-card img {
-        height: 160px !important;
-    }
-}
-
+            #blog .event-card img {
+                height: 160px !important;
+            }
+        }
     </style>
 </head>
 
@@ -224,7 +225,7 @@
             </div>
 
             {{-- Avatar --}}
-            <img src="{{ $profile && $profile->profilePhoto ? asset('images/profiles/' . $profile->profilePhoto) : asset('images/default-profile.png') }}"
+            <img src="{{ $profile && $profile->profilePhoto ? asset('images/profiles/' . $profile->profilePhoto) : asset('assets/default-profile.png') }}"
                 class="profile-avatar rounded-circle" alt="{{ $profile->organizationName ?? 'NGO' }}">
 
 
@@ -362,7 +363,7 @@
                                     @php
                                         $eventImage = $event->eventImage
                                             ? asset('images/events/' . $event->eventImage)
-                                            : asset('images/events/default_event.jpg');
+                                            : asset('assets/default_event.jpg');
                                         $start = $event->eventStart ? \Carbon\Carbon::parse($event->eventStart) : null;
                                         $end = $event->eventEnd ? \Carbon\Carbon::parse($event->eventEnd) : null;
                                     @endphp
@@ -428,7 +429,7 @@
                                     @php
                                         $eventImage = $event->eventImage
                                             ? asset('images/events/' . $event->eventImage)
-                                            : asset('images/events/default_event.jpg');
+                                            : asset('assets/default_event.jpg');
                                         $start = $event->eventStart ? \Carbon\Carbon::parse($event->eventStart) : null;
                                         $end = $event->eventEnd ? \Carbon\Carbon::parse($event->eventEnd) : null;
                                     @endphp
@@ -487,116 +488,126 @@
 
 
                             <!-- Blog Posts Tab (NGO) -->
-<div class="tab-pane fade {{ request()->has('tab') && request('tab') == 'blog' ? 'show active' : '' }}"
-    id="blog" role="tabpanel" aria-labelledby="blog-tab">
+                            <div class="tab-pane fade {{ request()->has('tab') && request('tab') == 'blog' ? 'show active' : '' }}"
+                                id="blog" role="tabpanel" aria-labelledby="blog-tab">
 
-    @forelse($blogPosts as $post)
-        @php
-            $isOwner = auth()->check() && auth()->id() === $profile->user_id;
+                                @forelse($blogPosts as $post)
+                                    @php
+                                        $isOwner = auth()->check() && auth()->id() === $profile->user_id;
 
-            // Excerpt logic
-            if (!empty($post->blogSummary)) {
-                $excerpt = \Illuminate\Support\Str::limit(
-                    trim(
-                        preg_replace('/\s+/u', ' ', html_entity_decode(strip_tags($post->blogSummary)))
-                    ),
-                    120,
-                    '...'
-                );
-            } else {
-                $excerpt = \Illuminate\Support\Str::limit(
-                    trim(
-                        preg_replace('/\s+/u', ' ', html_entity_decode(strip_tags($post->content)))
-                    ),
-                    120,
-                    '...'
-                );
-            }
+                                        // Excerpt logic
+                                        if (!empty($post->blogSummary)) {
+                                            $excerpt = \Illuminate\Support\Str::limit(
+                                                trim(
+                                                    preg_replace(
+                                                        '/\s+/u',
+                                                        ' ',
+                                                        html_entity_decode(strip_tags($post->blogSummary)),
+                                                    ),
+                                                ),
+                                                120,
+                                                '...',
+                                            );
+                                        } else {
+                                            $excerpt = \Illuminate\Support\Str::limit(
+                                                trim(
+                                                    preg_replace(
+                                                        '/\s+/u',
+                                                        ' ',
+                                                        html_entity_decode(strip_tags($post->content)),
+                                                    ),
+                                                ),
+                                                120,
+                                                '...',
+                                            );
+                                        }
 
-            // Image
-            $imageUrl = $post->image
-                ? asset('images/Blog/' . $post->image)
-                : asset('images/Blog/default_blog.jpg');
+                                        // Image
+                                        $imageUrl = $post->image
+                                            ? asset('images/Blog/' . $post->image)
+                                            : asset('assets/default_blog.jpg');
 
-            // Date
-            $displayDate = $post->published_at
-                ? \Carbon\Carbon::parse($post->published_at)->format('j M Y')
-                : ($post->created_at
-                    ? \Carbon\Carbon::parse($post->created_at)->format('j M Y')
-                    : '-');
+                                        // Date
+                                        $displayDate = $post->published_at
+                                            ? \Carbon\Carbon::parse($post->published_at)->format('j M Y')
+                                            : ($post->created_at
+                                                ? \Carbon\Carbon::parse($post->created_at)->format('j M Y')
+                                                : '-');
 
-            // Card link
-            $cardLink = route('blogs.show', $post->blogPost_id);
-        @endphp
+                                        // Card link
+                                        $cardLink = route('blogs.show', $post->blogPost_id);
+                                    @endphp
 
-        <a href="{{ $cardLink }}" class="text-decoration-none text-reset">
-            <div class="card event-card mb-3 border-0 shadow-sm h-100">
+                                    <a href="{{ $cardLink }}" class="text-decoration-none text-reset">
+                                        <div class="card event-card mb-3 border-0 shadow-sm h-100">
 
-                {{-- Image + Category --}}
-                <div class="position-relative">
-                    <img src="{{ $imageUrl }}"
-                         alt="{{ $post->title }}"
-                         class="w-100"
-                         style="height: 180px; object-fit: cover; border-radius: 10px 10px 0 0;">
+                                            {{-- Image + Category --}}
+                                            <div class="position-relative">
+                                                <img src="{{ $imageUrl }}" alt="{{ $post->title }}"
+                                                    class="w-100"
+                                                    style="height: 180px; object-fit: cover; border-radius: 10px 10px 0 0;">
 
-                    {{-- Category badge --}}
-                    <span class="position-absolute top-0 start-0 m-2 px-3 py-1 small fw-semibold text-white"
-                          style="background: rgba(0,0,0,0.65); border-radius: 18px; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
-                        {{ $post->custom_category ?: optional($post->category)->categoryName ?? 'Uncategorized' }}
-                    </span>
-                </div>
+                                                {{-- Category badge --}}
+                                                <span
+                                                    class="position-absolute top-0 start-0 m-2 px-3 py-1 small fw-semibold text-white"
+                                                    style="background: rgba(0,0,0,0.65); border-radius: 18px; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
+                                                    {{ $post->custom_category ?: optional($post->category)->categoryName ?? 'Uncategorized' }}
+                                                </span>
+                                            </div>
 
-                {{-- Card Body --}}
-                <div class="card-body d-flex flex-column">
+                                            {{-- Card Body --}}
+                                            <div class="card-body d-flex flex-column">
 
-                    {{-- Title + Draft badge (same row) --}}
-                    <div class="d-flex align-items-start justify-content-between gap-2 mb-2">
-                        <h5 class="card-title mb-0 flex-grow-1">
-                            {{ $post->title }}
-                        </h5>
+                                                {{-- Title + Draft badge (same row) --}}
+                                                <div
+                                                    class="d-flex align-items-start justify-content-between gap-2 mb-2">
+                                                    <h5 class="card-title mb-0 flex-grow-1">
+                                                        {{ $post->title }}
+                                                    </h5>
 
-                        <div class="d-flex align-items-center gap-2 flex-shrink-0">
-                            @if ($post->status !== 'published' && $isOwner)
-                                <span class="badge bg-warning text-dark fw-semibold">
-                                    Draft
-                                </span>
-                            @endif
-                        </div>
-                    </div>
+                                                    <div class="d-flex align-items-center gap-2 flex-shrink-0">
+                                                        @if ($post->status !== 'published' && $isOwner)
+                                                            <span class="badge bg-warning text-dark fw-semibold">
+                                                                Draft
+                                                            </span>
+                                                        @endif
+                                                    </div>
+                                                </div>
 
-                    {{-- Excerpt --}}
-                    <p class="text-muted small mb-3">
-                        {{ $excerpt }}
-                    </p>
+                                                {{-- Excerpt --}}
+                                                <p class="text-muted small mb-3">
+                                                    {{ $excerpt }}
+                                                </p>
 
-                    {{-- Date at bottom-left --}}
-                    <div class="mt-auto">
-                        <div class="d-flex align-items-center gap-1 small text-secondary" style="opacity: 0.85;">
-                            <i class="fas fa-calendar-alt" style="color: #004aad;"></i>
-                            <span>{{ $displayDate }}</span>
-                        </div>
-                    </div>
+                                                {{-- Date at bottom-left --}}
+                                                <div class="mt-auto">
+                                                    <div class="d-flex align-items-center gap-1 small text-secondary"
+                                                        style="opacity: 0.85;">
+                                                        <i class="fas fa-calendar-alt" style="color: #004aad;"></i>
+                                                        <span>{{ $displayDate }}</span>
+                                                    </div>
+                                                </div>
 
-                </div>
-            </div>
-        </a>
+                                            </div>
+                                        </div>
+                                    </a>
 
-    @empty
-        <div class="card">
-            <div class="card-body text-center py-4">
-                <i class="fas fa-file-alt text-muted fa-2x mb-3"></i>
-                <p class="text-muted mb-0">No blog posts yet</p>
-            </div>
-        </div>
-    @endforelse
+                                @empty
+                                    <div class="card">
+                                        <div class="card-body text-center py-4">
+                                            <i class="fas fa-file-alt text-muted fa-2x mb-3"></i>
+                                            <p class="text-muted mb-0">No blog posts yet</p>
+                                        </div>
+                                    </div>
+                                @endforelse
 
-    {{-- Pagination --}}
-    @if ($blogPosts->hasPages())
-        <div class="d-flex justify-content-center mt-3 events-pagination">
-            {{ $blogPosts->withQueryString()->links('pagination::bootstrap-5') }}
-        </div>
-    @endif
-</div>
+                                {{-- Pagination --}}
+                                @if ($blogPosts->hasPages())
+                                    <div class="d-flex justify-content-center mt-3 events-pagination">
+                                        {{ $blogPosts->withQueryString()->links('pagination::bootstrap-5') }}
+                                    </div>
+                                @endif
+                            </div>
 
                         </div>
                     </div>

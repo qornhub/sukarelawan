@@ -67,40 +67,40 @@
     <main>
         <div class="container main-content">
 
-          @php
-    $createRoute = null;
+            @php
+                $createRoute = null;
 
-    if (auth()->check()) {
-        $user = auth()->user();
-        $roleName = null;
+                if (auth()->check()) {
+                    $user = auth()->user();
+                    $roleName = null;
 
-        // If User has a 'role' relationship
-        if (isset($user->role) && isset($user->role->roleName)) {
-            $roleName = strtolower($user->role->roleName);
-        }
+                    // If User has a 'role' relationship
+                    if (isset($user->role) && isset($user->role->roleName)) {
+                        $roleName = strtolower($user->role->roleName);
+                    }
 
-        // If User has role_id but relationship not loaded (fallback)
-        if (!$roleName && isset($user->role_id)) {
-            $role = \App\Models\Role::where('role_id', $user->role_id)->first();
-            if ($role) {
-                $roleName = strtolower($role->roleName);
-            }
-        }
+                    // If User has role_id but relationship not loaded (fallback)
+                    if (!$roleName && isset($user->role_id)) {
+                        $role = \App\Models\Role::where('role_id', $user->role_id)->first();
+                        if ($role) {
+                            $roleName = strtolower($role->roleName);
+                        }
+                    }
 
-        // Default to volunteer if role not found
-        if (!$roleName) {
-            $roleName = 'volunteer';
-        }
+                    // Default to volunteer if role not found
+                    if (!$roleName) {
+                        $roleName = 'volunteer';
+                    }
 
-        if (in_array($roleName, ['volunteer', 'ngo', 'admin'])) {
-            $createRoute = route($roleName . '.blogs.create');
-        } else {
-            $createRoute = route('volunteer.blogs.create');
-        }
-    } else {
-        $createRoute = route('login');
-    }
-@endphp
+                    if (in_array($roleName, ['volunteer', 'ngo', 'admin'])) {
+                        $createRoute = route($roleName . '.blogs.create');
+                    } else {
+                        $createRoute = route('volunteer.blogs.create');
+                    }
+                } else {
+                    $createRoute = route('login');
+                }
+            @endphp
 
 
             <div>
@@ -131,7 +131,7 @@
                                         @php
                                             $img = $post->image
                                                 ? asset('images/Blog/' . $post->image)
-                                                : asset('images/Blog/default_blog.jpg');
+                                                : asset('assets/default_blog.jpg');
                                         @endphp
                                         <div class="ratio ratio-16x9 rounded" style="overflow:hidden;">
                                             <img src="{{ $img }}" alt="{{ $post->title }}" class="img-left">

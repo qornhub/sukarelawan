@@ -20,7 +20,7 @@
             <div class="col-lg-6 d-flex align-items-center justify-content-center p-3">
                 <div class="form-section">
                     <div class="header-logo d-flex align-items-center gap-2">
-                        <img src="{{ asset('images/sukarelawan_logo.png') }}" alt="Logo" style="height: 60px;">
+                        <img src="{{ asset('assets/sukarelawan_logo.png') }}" alt="Logo" style="height: 60px;">
                         <h1 class="mb-0">SukaRelawan</h1>
                     </div>
                     <h3 class="fw-bold mb-3">Welcome Back!</h3>

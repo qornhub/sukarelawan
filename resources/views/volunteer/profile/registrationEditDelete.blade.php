@@ -13,52 +13,54 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/events/event_show.css') }}">
     <link rel="stylesheet" href="{{ asset('css/blogs/comment.css') }}">
-<style>
-    
-/* Assignment banner refined */
-.assignment-banner {
-    background:  var(--primary-light);
-    color: white;
-    border-radius: 0 0 var(--border-radius) var(--border-radius); /* bottom only */
-    box-shadow: var(--shadow);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem 6rem; /* more left-right spacing */
-    margin-bottom: 1.5rem;
-    animation: slideIn 0.6s ease;
-}
+    <style>
+        /* Assignment banner refined */
+        .assignment-banner {
+            background: var(--primary-light);
+            color: white;
+            border-radius: 0 0 var(--border-radius) var(--border-radius);
+            /* bottom only */
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 6rem;
+            /* more left-right spacing */
+            margin-bottom: 1.5rem;
+            animation: slideIn 0.6s ease;
+        }
 
-.assignment-banner strong {
-    font-size: 1rem;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
+        .assignment-banner strong {
+            font-size: 1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
 
-.assignment-banner strong::before {
-    content: "🎉";
-    font-size: 1.2rem;
-}
+        .assignment-banner strong::before {
+            content: "🎉";
+            font-size: 1.2rem;
+        }
 
-/* Button styling */
-.assignment-banner .btn {
-    background: white;
-    color: var(--primary-color);
-    font-weight: 600;
-    border-radius: 10px; /* pill style */
-    padding: 0.4rem 1rem;
-    transition: all 0.2s ease;
-    box-shadow: var(--card-shadow);
-}
+        /* Button styling */
+        .assignment-banner .btn {
+            background: white;
+            color: var(--primary-color);
+            font-weight: 600;
+            border-radius: 10px;
+            /* pill style */
+            padding: 0.4rem 1rem;
+            transition: all 0.2s ease;
+            box-shadow: var(--card-shadow);
+        }
 
-.assignment-banner .btn:hover {
-    background: var(--primary-hover);
-    color: #fff;
-}
+        .assignment-banner .btn:hover {
+            background: var(--primary-hover);
+            color: #fff;
+        }
 
- /* Modal customization */
+        /* Modal customization */
         .assignment-modal .modal-content {
             border-radius: var(--border-radius);
             box-shadow: var(--shadow);
@@ -67,7 +69,7 @@
 
         .assignment-modal .modal-header {
             background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end));
-            border-bottom: 1px solid rgba(0,0,0,0.05);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
             padding: 1rem 1.5rem;
         }
 
@@ -83,7 +85,7 @@
         }
 
         .assignment-modal .modal-footer {
-            border-top: 1px solid rgba(0,0,0,0.05);
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
             padding: 1rem 1.5rem;
         }
 
@@ -183,36 +185,37 @@
                 flex-direction: column;
                 align-items: flex-start;
             }
-            
+
             .task-date {
                 align-self: flex-start;
             }
-            
+
             .modal-footer {
                 flex-direction: column;
                 gap: 1rem;
             }
-            
+
             .modal-footer .organizer-contact {
                 width: 100%;
             }
-            
+
             .modal-footer .btn {
                 width: 100%;
             }
         }
 
-/* Slide-in animation */
-@keyframes slideIn {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
+        /* Slide-in animation */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
 
         .post-settings {
@@ -251,8 +254,7 @@
                 padding-top: 20px;
             }
         }
- 
-</style>
+    </style>
 </head>
 
 <body>
@@ -262,7 +264,7 @@
     @php
         // image helpers
         $eventImage = $event->eventImage ?? null;
-        $eventHeroUrl = $eventImage ? asset('images/events/' . $eventImage) : asset('images/events/default_event.jpg');
+        $eventHeroUrl = $eventImage ? asset('images/events/' . $eventImage) : asset('assets/default_event.jpg');
 
         // dates
         $start = $event->eventStart ? \Carbon\Carbon::parse($event->eventStart) : null;
@@ -290,151 +292,152 @@
     @include('layouts.messages')
 
 
-    @if(isset($assignments) && $assignments->count() > 0)
-    <div class="assignment-banner">
-        <div>
-            <strong>You’ve been assigned {{ $assignments->count() }} task(s) for this event!</strong>
+    @if (isset($assignments) && $assignments->count() > 0)
+        <div class="assignment-banner">
+            <div>
+                <strong>You’ve been assigned {{ $assignments->count() }} task(s) for this event!</strong>
+            </div>
+            <button type="button" class="btn btn-sm" data-bs-toggle="modal" data-bs-target="#assignmentsModal">
+                View Assignments
+            </button>
         </div>
-        <button type="button" class="btn btn-sm" data-bs-toggle="modal" data-bs-target="#assignmentsModal">
-            View Assignments
-        </button>
-    </div>
-@endif
+    @endif
 
 
 
-   <div class="modal fade" id="assignmentsModal" tabindex="-1" aria-labelledby="assignmentsModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content assignment-modal">
-            <div class="modal-header">
-                <h5 class="modal-title" id="assignmentsModalLabel">
-                    <i class="fas fa-tasks me-2"></i> Your Assigned Tasks
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-
-            <div class="modal-body">
-                @if(isset($assignments) && $assignments->count())
-                    <div class="task-grid">
-                        <div class="task-list">
-                            @foreach($assignments as $index => $assignment)
-                                @php 
-                                    $task = $assignment->task; 
-                                    $ad = $assignment->assignedDate ?? null;
-                                    $assignedText = 'N/A';
-                                    if ($ad) {
-                                        try {
-                                            $assignedText = \Carbon\Carbon::parse($ad)->format('M j, Y g:i A');
-                                        } catch (\Exception $ex) {
-                                            $assignedText = (string) $ad;
-                                        }
-                                    }
-                                @endphp
-
-                                <div class="task-card">
-                                    <div class="task-header">
-                                        <span class="task-number">{{ $index + 1 }}</span>
-                                        <h6 class="task-title">{{ $task->title }}</h6>
-                                        <span class="task-date">Assigned: {{ $assignedText }}</span>
-                                    </div>
-                                    <p class="task-desc">{{ $task->description }}</p>
-                                </div>
-                            @endforeach
-                        </div>
-                    </div>
-                @else
-                    <div class="empty-state text-center p-4">
-                        <i class="fas fa-inbox fa-2x text-muted mb-2"></i>
-                        <p class="text-muted mb-0">No tasks have been assigned to you yet.</p>
-                    </div>
-                @endif
-            </div>
-
-            <div class="modal-footer d-flex justify-content-between align-items-center">
-                {{-- Contact Organizer --}}
-                <div class="organizer-contact">
-                    @php
-                        $phone = optional($event->organizer)->phone ?? null;
-                        $waLink = $phone
-                            ? "https://wa.me/{$phone}"
-                            : 'https://wa.me/?text=' .
-                                urlencode('Hello, I am interested in your event: ' . ($event->eventTitle ?? ''));
-                    @endphp
-                    <a href="{{ $waLink }}" target="_blank" class="btn btn-success">
-                        <i class="fab fa-whatsapp me-2"></i>Contact Organizer
-                    </a>
+    <div class="modal fade" id="assignmentsModal" tabindex="-1" aria-labelledby="assignmentsModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content assignment-modal">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="assignmentsModalLabel">
+                        <i class="fas fa-tasks me-2"></i> Your Assigned Tasks
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
 
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <div class="modal-body">
+                    @if (isset($assignments) && $assignments->count())
+                        <div class="task-grid">
+                            <div class="task-list">
+                                @foreach ($assignments as $index => $assignment)
+                                    @php
+                                        $task = $assignment->task;
+                                        $ad = $assignment->assignedDate ?? null;
+                                        $assignedText = 'N/A';
+                                        if ($ad) {
+                                            try {
+                                                $assignedText = \Carbon\Carbon::parse($ad)->format('M j, Y g:i A');
+                                            } catch (\Exception $ex) {
+                                                $assignedText = (string) $ad;
+                                            }
+                                        }
+                                    @endphp
+
+                                    <div class="task-card">
+                                        <div class="task-header">
+                                            <span class="task-number">{{ $index + 1 }}</span>
+                                            <h6 class="task-title">{{ $task->title }}</h6>
+                                            <span class="task-date">Assigned: {{ $assignedText }}</span>
+                                        </div>
+                                        <p class="task-desc">{{ $task->description }}</p>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @else
+                        <div class="empty-state text-center p-4">
+                            <i class="fas fa-inbox fa-2x text-muted mb-2"></i>
+                            <p class="text-muted mb-0">No tasks have been assigned to you yet.</p>
+                        </div>
+                    @endif
+                </div>
+
+                <div class="modal-footer d-flex justify-content-between align-items-center">
+                    {{-- Contact Organizer --}}
+                    <div class="organizer-contact">
+                        @php
+                            $phone = optional($event->organizer)->phone ?? null;
+                            $waLink = $phone
+                                ? "https://wa.me/{$phone}"
+                                : 'https://wa.me/?text=' .
+                                    urlencode('Hello, I am interested in your event: ' . ($event->eventTitle ?? ''));
+                        @endphp
+                        <a href="{{ $waLink }}" target="_blank" class="btn btn-success">
+                            <i class="fab fa-whatsapp me-2"></i>Contact Organizer
+                        </a>
+                    </div>
+
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-  @php
-    use Carbon\Carbon;
+    @php
+        use Carbon\Carbon;
 
-    // Try to get the event start. This handles both: $registration->event relation,
-    // or a raw datetime field like $registration->eventStart if you store it on registration.
-    $eventStartRaw = null;
-    if (isset($registration->event) && !empty($registration->event->eventStart)) {
-        $eventStartRaw = $registration->event->eventStart;
-    } elseif (!empty($registration->eventStart)) {
-        $eventStartRaw = $registration->eventStart;
-    }
-
-    // Parse safely — default to null on failure
-    $eventHasStarted = false;
-    if ($eventStartRaw) {
-        try {
-            $eventStart = Carbon::parse($eventStartRaw);
-            // Use app timezone or explicit timezone if you need
-            // $now = Carbon::now('Asia/Kuala_Lumpur');
-            $now = Carbon::now(); // assumes your app timezone is configured correctly
-            $eventHasStarted = $now->greaterThanOrEqualTo($eventStart);
-        } catch (\Exception $ex) {
-            // parsing error — keep $eventHasStarted = false (don't hide)
+        // Try to get the event start. This handles both: $registration->event relation,
+        // or a raw datetime field like $registration->eventStart if you store it on registration.
+        $eventStartRaw = null;
+        if (isset($registration->event) && !empty($registration->event->eventStart)) {
+            $eventStartRaw = $registration->event->eventStart;
+        } elseif (!empty($registration->eventStart)) {
+            $eventStartRaw = $registration->eventStart;
         }
-    }
-@endphp
 
-@if (!$eventHasStarted)
+        // Parse safely — default to null on failure
+        $eventHasStarted = false;
+        if ($eventStartRaw) {
+            try {
+                $eventStart = Carbon::parse($eventStartRaw);
+                // Use app timezone or explicit timezone if you need
+                // $now = Carbon::now('Asia/Kuala_Lumpur');
+                $now = Carbon::now(); // assumes your app timezone is configured correctly
+                $eventHasStarted = $now->greaterThanOrEqualTo($eventStart);
+            } catch (\Exception $ex) {
+                // parsing error — keep $eventHasStarted = false (don't hide)
+            }
+        }
+    @endphp
 
-<div class="container mb-5">
-    <div class="post-settings">
-        <div class="btn-group">
-            <button type="button" class="btn btn-settings btn-sm dropdown-toggle dropdown-toggle-no-caret"
-                data-bs-toggle="dropdown" aria-expanded="false" title="Post settings">
-                <i class="fa fa-cog"></i>
-            </button>
+    @if (!$eventHasStarted)
+        <div class="container mb-5">
+            <div class="post-settings">
+                <div class="btn-group">
+                    <button type="button" class="btn btn-settings btn-sm dropdown-toggle dropdown-toggle-no-caret"
+                        data-bs-toggle="dropdown" aria-expanded="false" title="Post settings">
+                        <i class="fa fa-cog"></i>
+                    </button>
 
-            <ul class="dropdown-menu dropdown-menu-end">
-                {{-- Edit --}}
-                <li>
-                    <a class="dropdown-item"
-                       href="{{ route('volunteer.event.register.edit', $registration->registration_id) }}">
-                        <i class="fa fa-edit me-2"></i> Edit Registration
-                    </a>
-                </li>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        {{-- Edit --}}
+                        <li>
+                            <a class="dropdown-item"
+                                href="{{ route('volunteer.event.register.edit', $registration->registration_id) }}">
+                                <i class="fa fa-edit me-2"></i> Edit Registration
+                            </a>
+                        </li>
 
-                {{-- Delete --}}
-                <li>
-                    <form action="{{ route('volunteer.event.register.destroy', $registration->registration_id) }}"
-                          method="POST"
-                          onsubmit="return confirm('Are you sure you want to permanently delete this registration? This action cannot be undone.');"
-                          class="m-0 p-0">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="dropdown-item text-danger">
-                            <i class="fa fa-trash me-2"></i> Delete Registration
-                        </button>
-                    </form>
-                </li>
-            </ul>
+                        {{-- Delete --}}
+                        <li>
+                            <form
+                                action="{{ route('volunteer.event.register.destroy', $registration->registration_id) }}"
+                                method="POST"
+                                onsubmit="return confirm('Are you sure you want to permanently delete this registration? This action cannot be undone.');"
+                                class="m-0 p-0">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="dropdown-item text-danger">
+                                    <i class="fa fa-trash me-2"></i> Delete Registration
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            </div>
         </div>
-    </div>
-</div>
-@endif
+    @endif
 
 
     <main class="container page-body">
@@ -528,7 +531,7 @@
                                             $filename = optional($user->volunteerProfile)->profilePhoto;
                                             $avatarUrl = $filename
                                                 ? asset('images/profiles/' . $filename)
-                                                : asset('images/default-profile.png');
+                                                : asset('assets/default-profile.png');
                                             $title = $user->name ?? 'Volunteer';
                                         @endphp
 
@@ -548,18 +551,18 @@
                     </div>
                 </section>
 
-                 {{-- commetn--}}
+                {{-- commetn --}}
                 <section class="content-card">
-@include('partials.events.comments', [
-    'event' => $event,
-    'comments' => $comments,
-    // optional:
-    'profileRelation' => 'volunteerProfile',
-    'profileRoute' => 'volunteer.profile.show',
-    'profileStoragePath' => 'images/profiles/'
-])
+                    @include('partials.events.comments', [
+                        'event' => $event,
+                        'comments' => $comments,
+                        // optional:
+                        'profileRelation' => 'volunteerProfile',
+                        'profileRoute' => 'volunteer.profile.show',
+                        'profileStoragePath' => 'images/profiles/',
+                    ])
 
-                     </section>
+                </section>
 
 
             </div>
@@ -711,7 +714,7 @@
                         @php
                             use Illuminate\Support\Facades\Storage;
 
-                            $default = asset('images/default-profile.png');
+                            $default = asset('assets/default-profile.png');
                             $organizer = optional($event->organizer);
 
                             // Try to get profile photo from organizer->ngoProfile or volunteerProfile
@@ -778,18 +781,18 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    @if(!empty($autoOpenAssignments))
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            var el = document.getElementById('assignmentsModal');
-            if (el && typeof bootstrap !== 'undefined') {
-                var modal = new bootstrap.Modal(el);
-                modal.show();
-            }
-        });
-    </script>
-    @stack('scripts')
-@endif
+    @if (!empty($autoOpenAssignments))
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                var el = document.getElementById('assignmentsModal');
+                if (el && typeof bootstrap !== 'undefined') {
+                    var modal = new bootstrap.Modal(el);
+                    modal.show();
+                }
+            });
+        </script>
+        @stack('scripts')
+    @endif
 
 
 </html>

@@ -73,7 +73,7 @@
 
         <!-- Blog Header with Background Image in HTML -->
         <section class="blog-header position-relative">
-            <img src="{{ $post->image ? asset('images/Blog/' . $post->image) : asset('images/Blog/default_blog.jpg') }}"
+            <img src="{{ $post->image ? asset('images/Blog/' . $post->image) : asset('assets/default_blog.jpg') }}"
                 alt="{{ $post->title }}" class="header-image">
 
 
@@ -177,8 +177,8 @@
                                     <div class="info-item">
                                         <span class="info-label">Category</span>
                                         <span class="info-value">
-                                        {{ $post->custom_category ? $post->custom_category : optional($post->category)->categoryName ?? 'Uncategorized' }}
-                                    </span>
+                                            {{ $post->custom_category ? $post->custom_category : optional($post->category)->categoryName ?? 'Uncategorized' }}
+                                        </span>
                                     </div>
 
                                     <div class="info-item">

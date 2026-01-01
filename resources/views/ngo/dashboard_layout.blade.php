@@ -16,26 +16,25 @@
 
     <style>
         .pie-chart-container {
-    height: 220px;
-    min-height: 220px;
-}
+            height: 220px;
+            min-height: 220px;
+        }
 
-.category-list-container {
-    max-height: 220px;
-    overflow-y: auto;
-    padding-right: 6px;
-}
+        .category-list-container {
+            max-height: 220px;
+            overflow-y: auto;
+            padding-right: 6px;
+        }
 
-/* Optional: cleaner scrollbar */
-.category-list-container::-webkit-scrollbar {
-    width: 6px;
-}
+        /* Optional: cleaner scrollbar */
+        .category-list-container::-webkit-scrollbar {
+            width: 6px;
+        }
 
-.category-list-container::-webkit-scrollbar-thumb {
-    background-color: rgba(0, 0, 0, 0.2);
-    border-radius: 4px;
-}
-
+        .category-list-container::-webkit-scrollbar-thumb {
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+        }
     </style>
 </head>
 
@@ -116,9 +115,9 @@
                         @forelse($topAttendanceEvents as $event)
                             <div class="attendance-item d-flex align-items-center mb-4 p-3 rounded">
                                 <div class="event-image me-3">
-                                    <img src="{{ $event['image'] ?: asset('images/events/default_event.jpg') }}"
+                                    <img src="{{ $event['image'] ?: asset('assets/default_event.jpg') }}"
                                         alt="Event Image" class="rounded"
-                                        onerror="this.onerror=null;this.src='{{ asset('images/events/default_event.jpg') }}';" />
+                                        onerror="this.onerror=null;this.src='{{ asset('assets/default_event.jpg') }}';" />
                                 </div>
                                 <div class="event-details flex-grow-1">
                                     <div class="d-flex justify-content-between align-items-center mb-2">

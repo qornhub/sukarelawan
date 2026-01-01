@@ -1,7 +1,7 @@
 <div class="volunteer-footer-component">
     <footer class="volunteer-footer">
         <div class="volunteer-footer-wave"></div>
-        
+
         <div class="volunteer-footer-content">
             <div class="volunteer-footer-row">
                 <div class="volunteer-footer-col">
@@ -13,7 +13,7 @@
                         <li><a href="#"><i class="fas fa-award"></i> Rewards</a></li>
                     </ul>
                 </div>
-                
+
                 <div class="volunteer-footer-col">
                     <h6 class="volunteer-footer-heading">Information</h6>
                     <ul class="volunteer-footer-links">
@@ -21,7 +21,7 @@
                         <li><a href="#"><i class="fas fa-headset"></i> Help</a></li>
                     </ul>
                 </div>
-                
+
                 <div class="volunteer-footer-col">
                     <h6 class="volunteer-footer-heading">Contact</h6>
                     <ul class="volunteer-footer-links">
@@ -47,17 +47,17 @@
                         </li>
                     </ul>
                 </div>
-                
+
                 <div class="volunteer-footer-col">
-                   <a href="{{ route('register.volunteer') }}" class="volunteer-cta-button">
-                        Become an volunteer 
+                    <a href="{{ route('register.volunteer') }}" class="volunteer-cta-button">
+                        Become an volunteer
                         <strong>Sign Up</strong>
                     </a>
                 </div>
             </div>
-            
+
             <div class="volunteer-footer-bottom">
-                <img src="{{ asset('images/sukarelawan_logo.png') }}" alt="Logo" class="volunteer-footer-logo">
+                <img src="{{ asset('assets/sukarelawan_logo.png') }}" alt="Logo" class="volunteer-footer-logo">
                 <span class="volunteer-copyright">&copy; 2026 SukaRelawan. All rights reserved.</span>
             </div>
         </div>
@@ -74,7 +74,7 @@
         --vol-footer-transition: all 0.3s ease;
         --vol-footer-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     }
-    
+
     /* Footer Styles */
     .volunteer-footer-component .volunteer-footer {
         background: white;
@@ -84,7 +84,7 @@
         overflow: hidden;
         margin-top: 0;
     }
-    
+
     .volunteer-footer-component .volunteer-footer-wave {
         position: absolute;
         top: -2px;
@@ -93,23 +93,23 @@
         height: 10px;
         background: linear-gradient(90deg, var(--vol-footer-primary-color), var(--vol-footer-primary-light));
     }
-    
+
     .volunteer-footer-component .volunteer-footer-content {
         max-width: 1200px;
         margin: 0 auto;
     }
-    
+
     .volunteer-footer-component .volunteer-footer-row {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
         gap: 2rem;
         margin-bottom: 2rem;
     }
-    
+
     .volunteer-footer-component .volunteer-footer-col {
         margin-bottom: 1.5rem;
     }
-    
+
     .volunteer-footer-component .volunteer-footer-heading {
         position: relative;
         font-weight: 700;
@@ -118,7 +118,7 @@
         padding-bottom: 0.5rem;
         font-size: 1.1rem;
     }
-    
+
     .volunteer-footer-component .volunteer-footer-heading::after {
         content: '';
         position: absolute;
@@ -128,16 +128,16 @@
         height: 2px;
         background: var(--vol-footer-primary-light);
     }
-    
+
     .volunteer-footer-component .volunteer-footer-links {
         list-style: none;
         padding: 0;
     }
-    
+
     .volunteer-footer-component .volunteer-footer-links li {
         margin-bottom: 0.8rem;
     }
-    
+
     .volunteer-footer-component .volunteer-footer-links a {
         color: #555;
         text-decoration: none;
@@ -146,19 +146,19 @@
         gap: 0.5rem;
         transition: var(--vol-footer-transition);
     }
-    
+
     .volunteer-footer-component .volunteer-footer-links a:hover {
         color: var(--vol-footer-primary-color);
         transform: translateX(5px);
     }
-    
+
     .volunteer-footer-component .volunteer-footer-links a i {
         font-size: 0.9rem;
         color: var(--vol-footer-primary-color);
         width: 20px;
         text-align: center;
     }
-    
+
     .volunteer-footer-component .volunteer-cta-button {
         background: var(--vol-footer-primary-color);
         color: white;
@@ -172,52 +172,52 @@
         transition: var(--vol-footer-transition);
         box-shadow: 0 4px 15px rgba(0, 74, 173, 0.2);
     }
-    
+
     .volunteer-footer-component .volunteer-cta-button:hover {
         background: var(--vol-footer-primary-light);
         transform: translateY(-5px);
         box-shadow: 0 6px 20px rgba(0, 74, 173, 0.3);
     }
-    
+
     .volunteer-footer-component .volunteer-cta-button strong {
         display: block;
         font-size: 1.1rem;
         margin-top: 0.5rem;
     }
-    
+
     .volunteer-footer-component .volunteer-footer-bottom {
         max-width: 1200px;
         margin: 0 auto;
         padding-top: 2rem;
-        border-top: 1px solid rgba(0,0,0,0.05);
+        border-top: 1px solid rgba(0, 0, 0, 0.05);
         text-align: center;
         display: flex;
         flex-direction: column;
         align-items: center;
     }
-    
+
     .volunteer-footer-component .volunteer-footer-logo {
         height: 40px;
         margin-bottom: 1rem;
         transition: var(--vol-footer-transition);
     }
-    
+
     .volunteer-footer-component .volunteer-footer-logo:hover {
         transform: scale(1.05);
     }
-    
+
     .volunteer-footer-component .volunteer-copyright {
         color: var(--vol-footer-text-gray);
         font-size: 0.9rem;
     }
-    
+
     /* Social media links */
     .volunteer-footer-component .volunteer-social-links {
         display: flex;
         gap: 0.5rem;
         margin-top: 0.5rem;
     }
-    
+
     .volunteer-footer-component .volunteer-social-icon {
         display: flex;
         align-items: center;
@@ -229,19 +229,19 @@
         color: var(--vol-footer-primary-color);
         transition: var(--vol-footer-transition);
     }
-    
+
     .volunteer-footer-component .volunteer-social-icon:hover {
         background: var(--vol-footer-primary-color);
         color: white;
         transform: translateY(-3px);
     }
-    
+
     /* Responsive styles */
     @media (min-width: 768px) {
         .volunteer-footer-component .volunteer-footer-row {
             grid-template-columns: repeat(4, 1fr);
         }
-        
+
         .volunteer-footer-component .volunteer-footer-col:last-child {
             display: flex;
             flex-direction: column;
@@ -249,16 +249,16 @@
             justify-content: center;
         }
     }
-    
+
     @media (max-width: 767px) {
         .volunteer-footer-component .volunteer-cta-button {
             margin-top: 1rem;
         }
-        
+
         .volunteer-footer-component .volunteer-footer-row {
             grid-template-columns: 1fr;
         }
-        
+
         .volunteer-footer-component .volunteer-footer-col:last-child {
             text-align: center;
         }
@@ -269,7 +269,7 @@
     document.addEventListener('DOMContentLoaded', function() {
         // Simple animation for the CTA button on page load
         const ctaButton = document.querySelector('.volunteer-footer-component .volunteer-cta-button');
-        
+
         setTimeout(() => {
             if (ctaButton) {
                 ctaButton.style.transform = 'translateY(0)';

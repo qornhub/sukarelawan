@@ -172,7 +172,7 @@
     @php
         // image helpers
         $eventImage = $event->eventImage ?? null;
-        $eventHeroUrl = $eventImage ? asset('images/events/' . $eventImage) : asset('images/events/default_event.jpg');
+        $eventHeroUrl = $eventImage ? asset('images/events/' . $eventImage) : asset('assets/default_event.jpg');
 
         // dates
         $start = $event->eventStart ? \Carbon\Carbon::parse($event->eventStart) : null;
@@ -368,7 +368,7 @@
                                             $filename = optional($user->volunteerProfile)->profilePhoto;
                                             $avatarUrl = $filename
                                                 ? asset('images/profiles/' . $filename)
-                                                : asset('images/default-profile.png');
+                                                : asset('assets/default-profile.png');
                                             $title = $user->name ?? 'Volunteer';
                                         @endphp
 
@@ -553,7 +553,7 @@
                         @php
                             use Illuminate\Support\Facades\Storage;
 
-                            $default = asset('images/default-profile.png');
+                            $default = asset('assets/default-profile.png');
                             $organizer = optional($event->organizer);
 
                             // Try to get profile photo from organizer->ngoProfile or volunteerProfile

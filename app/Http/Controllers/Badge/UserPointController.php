@@ -71,7 +71,7 @@ $earnedBadgeIds = $user->badges()->pluck('user_badges.badge_id')->toArray();
             $filename = optional($u->volunteerProfile)->profilePhoto ?? optional($u->volunteerProfile)->avatar ?? null;
             $u->avatar_url = $filename && file_exists(public_path('images/profiles/' . $filename))
                 ? asset('images/profiles/' . $filename)
-                : asset('images/default-profile.png');
+                : asset('assets/default-profile.png');
 
             return $u;
         });

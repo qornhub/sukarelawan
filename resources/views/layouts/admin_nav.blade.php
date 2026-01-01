@@ -632,7 +632,7 @@
             $photoFile = optional($profile)->profilePhoto ?? null;
 
             // default image
-            $profileImageUrl = asset('images/default-profile.png');
+            $profileImageUrl = asset('assets/default-profile.png');
 
             if ($photoFile) {
                 $basename = trim(basename($photoFile));

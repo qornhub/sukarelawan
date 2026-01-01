@@ -1,6 +1,6 @@
 {{-- resources/views/partials/events/comments.blade.php --}}
 @php
-    
+
     $perPage = method_exists($comments, 'perPage') ? $comments->perPage() : 3;
     $profileRelation = $profileRelation ?? null;
     $profileRouteOverride = $profileRoute ?? null;
@@ -60,7 +60,7 @@
                 }
 
                 $filename = $profile->profilePhoto ?? ($profile->avatar ?? ($profile->photo ?? null));
-                $avatarUrl = $filename ? asset($profileStoragePath . $filename) : asset('images/default-profile.png');
+                $avatarUrl = $filename ? asset($profileStoragePath . $filename) : asset('assets/default-profile.png');
 
                 // route to profile (allow override)
                 if ($profileRouteOverride && \Illuminate\Support\Facades\Route::has($profileRouteOverride)) {
@@ -97,7 +97,7 @@
                     <div class="me-3">
                         <a href="{{ $profileUrl }}" title="{{ $displayName }}">
                             <img src="{{ $avatarUrl }}" alt="{{ $displayName }}" class="avatar-circle"
-                                onerror="this.onerror=null;this.src='{{ asset('images/default-profile.png') }}'">
+                                onerror="this.onerror=null;this.src='{{ asset('assets/default-profile.png') }}'">
                         </a>
                     </div>
 
@@ -133,8 +133,7 @@
                                         @if ($isAdmin || $isOwner)
                                             <form
                                                 action="{{ route('events.comments.destroy', [$event->event_id, $comment->eventComment_id]) }}"
-                                                method="POST" 
-                                                style="margin:0;">
+                                                method="POST" style="margin:0;">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="dropdown-item text-danger"><i
@@ -265,13 +264,14 @@
         function confirmDeleteEventComment(form) {
             return confirm('Are you sure you want to delete this comment?');
         }
-        function updateEventCommentHeadingCount() {
-    const list = document.querySelector('#event-comments .comments-list');
-    const count = list ? list.querySelectorAll('.comment-card').length : 0;
 
-    const badge = document.getElementById('event-comment-count');
-    if (badge) badge.textContent = count;
-}
+        function updateEventCommentHeadingCount() {
+            const list = document.querySelector('#event-comments .comments-list');
+            const count = list ? list.querySelectorAll('.comment-card').length : 0;
+
+            const badge = document.getElementById('event-comment-count');
+            if (badge) badge.textContent = count;
+        }
 
 
         /* Load more reveal (kept same) */
@@ -326,118 +326,128 @@
 
 
         (function() {
-  const containerSel = '#event-comments';
-  const flashId = 'event-comments-flash';
+            const containerSel = '#event-comments';
+            const flashId = 'event-comments-flash';
 
-  function extractFragment(htmlText) {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(htmlText, 'text/html');
-    const node = doc.querySelector(containerSel);
-    return node ? node.innerHTML : null;
-  }
+            function extractFragment(htmlText) {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(htmlText, 'text/html');
+                const node = doc.querySelector(containerSel);
+                return node ? node.innerHTML : null;
+            }
 
-  async function handleFormSubmit(form) {
-    // prevent default already done by caller
-    const methodInput = form.querySelector('input[name="_method"]');
-    const method = (methodInput ? methodInput.value.toUpperCase() : (form.method || 'POST')).toUpperCase();
+            async function handleFormSubmit(form) {
+                // prevent default already done by caller
+                const methodInput = form.querySelector('input[name="_method"]');
+                const method = (methodInput ? methodInput.value.toUpperCase() : (form.method || 'POST'))
+                    .toUpperCase();
 
-    if (method === 'DELETE') {
-      // reuse existing confirm if present
-      if (typeof confirmDeleteEventComment === 'function') {
-        if (!confirmDeleteEventComment(form)) return;
-      } else {
-        if (!confirm('Are you sure you want to delete this comment?')) return;
-      }
-    }
+                if (method === 'DELETE') {
+                    // reuse existing confirm if present
+                    if (typeof confirmDeleteEventComment === 'function') {
+                        if (!confirmDeleteEventComment(form)) return;
+                    } else {
+                        if (!confirm('Are you sure you want to delete this comment?')) return;
+                    }
+                }
 
-    const formData = new FormData(form);
-    const metaToken = document.querySelector('meta[name="csrf-token"]')?.content;
-    if (!formData.get('_token') && metaToken) {
-      formData.append('_token', metaToken);
-    }
+                const formData = new FormData(form);
+                const metaToken = document.querySelector('meta[name="csrf-token"]')?.content;
+                if (!formData.get('_token') && metaToken) {
+                    formData.append('_token', metaToken);
+                }
 
-    const headers = {
-      'X-Requested-With': 'XMLHttpRequest'
-      // do not set Content-Type when using FormData
-    };
-    if (metaToken) headers['X-CSRF-TOKEN'] = metaToken;
+                const headers = {
+                    'X-Requested-With': 'XMLHttpRequest'
+                    // do not set Content-Type when using FormData
+                };
+                if (metaToken) headers['X-CSRF-TOKEN'] = metaToken;
 
-    // disable submit button (UX)
-    const submitBtn = form.querySelector('[type="submit"]');
-    let originalBtnHtml = null;
-    if (submitBtn) {
-      originalBtnHtml = submitBtn.innerHTML;
-      submitBtn.disabled = true;
-      submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
-    }
+                // disable submit button (UX)
+                const submitBtn = form.querySelector('[type="submit"]');
+                let originalBtnHtml = null;
+                if (submitBtn) {
+                    originalBtnHtml = submitBtn.innerHTML;
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML =
+                        '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+                }
 
-    try {
-      const response = await fetch(form.action, {
-        method: method === 'GET' ? 'GET' : 'POST',
-        headers,
-        body: formData
-      });
+                try {
+                    const response = await fetch(form.action, {
+                        method: method === 'GET' ? 'GET' : 'POST',
+                        headers,
+                        body: formData
+                    });
 
-      if (response.ok) {
-        // server usually returns final HTML after redirect; extract the fragment and replace
-        const text = await response.text();
-        const fragment = extractFragment(text);
-        if (fragment !== null) {
-          const container = document.querySelector(containerSel);
-          if (container) container.innerHTML = fragment;
-          updateEventCommentHeadingCount();
-        } else {
-          // fallback: replace entire container with raw response
-          const container = document.querySelector(containerSel);
-          if (container) container.innerHTML = text;
-        }
-      } else if (response.status === 422) {
-        // validation errors JSON
-        let payload;
-        try { payload = await response.json(); } catch (e) { payload = null; }
-        if (payload && payload.errors) {
-          const msgs = Object.values(payload.errors).flat().map(m => `<li>${m}</li>`).join('');
-          const flashDiv = document.getElementById(flashId);
-          if (flashDiv) {
-            flashDiv.innerHTML = `<div class="alert alert-danger alert-sm mb-0"><ul class="mb-0">${msgs}</ul></div>`;
-          }
-        } else {
-          const text = await response.text();
-          const flashDiv = document.getElementById(flashId);
-          if (flashDiv) flashDiv.innerHTML = `<div class="alert alert-danger alert-sm mb-0">${text}</div>`;
-        }
-      } else {
-        // generic error: try to extract fragment, if not show a brief message
-        const text = await response.text();
-        const fragment = extractFragment(text);
-        if (fragment) {
-          const container = document.querySelector(containerSel);
-          if (container) container.innerHTML = fragment;
-        } else {
-          const flashDiv = document.getElementById(flashId);
-          if (flashDiv) flashDiv.innerHTML = `<div class="alert alert-danger alert-sm mb-0">An error occurred. Please refresh the page.</div>`;
-        }
-      }
-    } catch (err) {
-      console.error('Comment AJAX error', err);
-      const flashDiv = document.getElementById(flashId);
-      if (flashDiv) flashDiv.innerHTML = `<div class="alert alert-danger alert-sm mb-0">Network error. Please try again.</div>`;
-    } finally {
-      if (submitBtn) {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = originalBtnHtml;
-      }
-    }
-  }
+                    if (response.ok) {
+                        // server usually returns final HTML after redirect; extract the fragment and replace
+                        const text = await response.text();
+                        const fragment = extractFragment(text);
+                        if (fragment !== null) {
+                            const container = document.querySelector(containerSel);
+                            if (container) container.innerHTML = fragment;
+                            updateEventCommentHeadingCount();
+                        } else {
+                            // fallback: replace entire container with raw response
+                            const container = document.querySelector(containerSel);
+                            if (container) container.innerHTML = text;
+                        }
+                    } else if (response.status === 422) {
+                        // validation errors JSON
+                        let payload;
+                        try {
+                            payload = await response.json();
+                        } catch (e) {
+                            payload = null;
+                        }
+                        if (payload && payload.errors) {
+                            const msgs = Object.values(payload.errors).flat().map(m => `<li>${m}</li>`).join('');
+                            const flashDiv = document.getElementById(flashId);
+                            if (flashDiv) {
+                                flashDiv.innerHTML =
+                                    `<div class="alert alert-danger alert-sm mb-0"><ul class="mb-0">${msgs}</ul></div>`;
+                            }
+                        } else {
+                            const text = await response.text();
+                            const flashDiv = document.getElementById(flashId);
+                            if (flashDiv) flashDiv.innerHTML =
+                                `<div class="alert alert-danger alert-sm mb-0">${text}</div>`;
+                        }
+                    } else {
+                        // generic error: try to extract fragment, if not show a brief message
+                        const text = await response.text();
+                        const fragment = extractFragment(text);
+                        if (fragment) {
+                            const container = document.querySelector(containerSel);
+                            if (container) container.innerHTML = fragment;
+                        } else {
+                            const flashDiv = document.getElementById(flashId);
+                            if (flashDiv) flashDiv.innerHTML =
+                                `<div class="alert alert-danger alert-sm mb-0">An error occurred. Please refresh the page.</div>`;
+                        }
+                    }
+                } catch (err) {
+                    console.error('Comment AJAX error', err);
+                    const flashDiv = document.getElementById(flashId);
+                    if (flashDiv) flashDiv.innerHTML =
+                        `<div class="alert alert-danger alert-sm mb-0">Network error. Please try again.</div>`;
+                } finally {
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalBtnHtml;
+                    }
+                }
+            }
 
-  // delegated submit listener
-  document.addEventListener('submit', function(e) {
-    const form = e.target;
-    if (!form || !form.closest(containerSel)) return; // not a form inside comments
-    e.preventDefault();
-    handleFormSubmit(form);
-  });
+            // delegated submit listener
+            document.addEventListener('submit', function(e) {
+                const form = e.target;
+                if (!form || !form.closest(containerSel)) return; // not a form inside comments
+                e.preventDefault();
+                handleFormSubmit(form);
+            });
 
-})();
+        })();
     </script>
 @endpush

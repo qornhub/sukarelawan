@@ -165,7 +165,7 @@
                     @php
                         $imageUrl = $post->image
                             ? asset('images/Blog/' . $post->image)
-                            : asset('images/Blog/default_blog.jpg');
+                            : asset('assets/default_blog.jpg');
 
                         // ===== CLEAN EXCERPT LOGIC (summary > content) =====
                         if (!empty($post->blogSummary)) {

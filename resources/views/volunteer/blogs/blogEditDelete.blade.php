@@ -58,7 +58,7 @@
 
     <!-- Blog Header with Background Image in HTML -->
     <section class="blog-header">
-        <img src="{{ $post->image ? asset('images/Blog/' . $post->image) : asset('images/Blog/default_blog.jpg') }}"
+        <img src="{{ $post->image ? asset('images/Blog/' . $post->image) : asset('assets/default_blog.jpg') }}"
             alt="{{ $post->title }}" class="header-image">
         <div class="container main-container">
             <div class="row">
@@ -78,7 +78,7 @@
 
 
 
-           <div class="post-settings">
+            <div class="post-settings">
                 <div class="btn-group">
                     <button type="button" class="btn btn-settings btn-sm dropdown-toggle dropdown-toggle-no-caret"
                         data-bs-toggle="dropdown" aria-expanded="false" title="Post settings">

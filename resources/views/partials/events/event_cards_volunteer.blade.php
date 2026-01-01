@@ -21,25 +21,25 @@
 
 
         <div class="event-details">
-           <div class="event-meta">
-    <div class="event-date">
-        <i class="far fa-calendar-alt"></i>
+            <div class="event-meta">
+                <div class="event-date">
+                    <i class="far fa-calendar-alt"></i>
 
-        {{-- Desktop / large screen --}}
-        <span class="date-full">
-            {{ \Carbon\Carbon::parse($event->eventStart)->format('l, j F Y g:i A') }}
-        </span>
+                    {{-- Desktop / large screen --}}
+                    <span class="date-full">
+                        {{ \Carbon\Carbon::parse($event->eventStart)->format('l, j F Y g:i A') }}
+                    </span>
 
-        {{-- Mobile / small screen --}}
-        <span class="date-mobile">
-            {{ \Carbon\Carbon::parse($event->eventStart)->format('d/m/Y - g:i A') }}
-        </span>
-    </div>
+                    {{-- Mobile / small screen --}}
+                    <span class="date-mobile">
+                        {{ \Carbon\Carbon::parse($event->eventStart)->format('d/m/Y - g:i A') }}
+                    </span>
+                </div>
 
-    <div class="event-points">
-        {{ $event->eventPoints ?? 0 }} Points
-    </div>
-</div>
+                <div class="event-points">
+                    {{ $event->eventPoints ?? 0 }} Points
+                </div>
+            </div>
 
             <h3 class="event-title">{{ $event->eventTitle }}</h3>
 
@@ -57,7 +57,7 @@
             <div class="event-footer">
 
                 @php
-                    $default = asset('images/default-profile.png');
+                    $default = asset('assets/default-profile.png');
                     $organizer = optional($event->organizer);
 
                     // Try to get profile photo from organizer->ngoProfile or volunteerProfile

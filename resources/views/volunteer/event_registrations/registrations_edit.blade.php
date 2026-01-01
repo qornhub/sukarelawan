@@ -141,7 +141,7 @@
         $volunteerProfile = $user ? $user->volunteerProfile : null;
 
         $eventImage = $event->eventImage ?? null;
-        $eventHeroUrl = $eventImage ? asset('images/events/' . $eventImage) : asset('images/events/default_event.jpg');
+        $eventHeroUrl = $eventImage ? asset('images/events/' . $eventImage) : asset('assets/default_event.jpg');
     @endphp
 
     <!-- HERO -->
@@ -163,7 +163,8 @@
 
             <!-- LEFT FORM -->
             <div class="col-lg-8">
-                <form action="{{ route('volunteer.event.register.update', $registration->registration_id) }}" method="POST" novalidate>
+                <form action="{{ route('volunteer.event.register.update', $registration->registration_id) }}"
+                    method="POST" novalidate>
                     @csrf
                     @method('PUT')
 
@@ -181,30 +182,40 @@
 
                             <div class="col-md-6">
                                 <label class="form-label">Full Name</label>
-                                <input type="text" name="name" class="form-control" 
-                                    value="{{ old('name', $registration->name ?? $user->name ?? '') }}" required>
-                                @error('name') <div class="text-danger small">{{ $message }}</div> @enderror
+                                <input type="text" name="name" class="form-control"
+                                    value="{{ old('name', $registration->name ?? ($user->name ?? '')) }}" required>
+                                @error('name')
+                                    <div class="text-danger small">{{ $message }}</div>
+                                @enderror
                             </div>
 
                             <div class="col-md-6">
                                 <label class="form-label">Email</label>
                                 <input type="email" name="email" class="form-control"
-                                    value="{{ old('email', $registration->email ?? $user->email ?? '') }}" required>
-                                @error('email') <div class="text-danger small">{{ $message }}</div> @enderror
+                                    value="{{ old('email', $registration->email ?? ($user->email ?? '')) }}" required>
+                                @error('email')
+                                    <div class="text-danger small">{{ $message }}</div>
+                                @enderror
                             </div>
 
                             <div class="col-md-6">
                                 <label class="form-label">Contact Number</label>
                                 <input type="text" name="contactNumber" class="form-control"
-                                    value="{{ old('contactNumber', $registration->contactNumber ?? $volunteerProfile->contactNumber ?? '') }}" required>
-                                @error('contactNumber') <div class="text-danger small">{{ $message }}</div> @enderror
+                                    value="{{ old('contactNumber', $registration->contactNumber ?? ($volunteerProfile->contactNumber ?? '')) }}"
+                                    required>
+                                @error('contactNumber')
+                                    <div class="text-danger small">{{ $message }}</div>
+                                @enderror
                             </div>
 
                             <div class="col-md-3">
                                 <label class="form-label">Age</label>
                                 <input type="number" name="age" class="form-control" min="16" max="120"
-                                    value="{{ old('age', $registration->age ?? $volunteerProfile->age ?? '') }}" required>
-                                @error('age') <div class="text-danger small">{{ $message }}</div> @enderror
+                                    value="{{ old('age', $registration->age ?? ($volunteerProfile->age ?? '')) }}"
+                                    required>
+                                @error('age')
+                                    <div class="text-danger small">{{ $message }}</div>
+                                @enderror
                             </div>
 
                             <div class="col-md-3">
@@ -212,24 +223,30 @@
                                 @php $sg = old('gender', $registration->gender ?? $volunteerProfile->gender ?? ''); @endphp
                                 <select name="gender" class="form-control">
                                     <option value="">Choose Your Gender</option>
-                                    <option value="male" {{ $sg=='male' ? 'selected': '' }}>Male</option>
-                                    <option value="female" {{ $sg=='female' ? 'selected': '' }}>Female</option>
-                                    <option value="other" {{ $sg=='other' ? 'selected': '' }}>Other</option>
+                                    <option value="male" {{ $sg == 'male' ? 'selected' : '' }}>Male</option>
+                                    <option value="female" {{ $sg == 'female' ? 'selected' : '' }}>Female</option>
+                                    <option value="other" {{ $sg == 'other' ? 'selected' : '' }}>Other</option>
                                 </select>
-                                @error('gender') <div class="text-danger small">{{ $message }}</div> @enderror
+                                @error('gender')
+                                    <div class="text-danger small">{{ $message }}</div>
+                                @enderror
                             </div>
 
                             <div class="col-12">
                                 <label class="form-label">Company (Optional)</label>
                                 <input type="text" name="company" class="form-control"
                                     value="{{ old('company', $registration->company ?? '') }}">
-                                @error('company') <div class="text-danger small">{{ $message }}</div> @enderror
+                                @error('company')
+                                    <div class="text-danger small">{{ $message }}</div>
+                                @enderror
                             </div>
 
                             <div class="col-12">
                                 <label class="form-label">Home Address</label>
-                                <textarea name="address" class="form-control" rows="2">{{ old('address', $registration->address ?? $volunteerProfile->address ?? '') }}</textarea>
-                                @error('address') <div class="text-danger small">{{ $message }}</div> @enderror
+                                <textarea name="address" class="form-control" rows="2">{{ old('address', $registration->address ?? ($volunteerProfile->address ?? '')) }}</textarea>
+                                @error('address')
+                                    <div class="text-danger small">{{ $message }}</div>
+                                @enderror
                             </div>
 
                         </div>
@@ -247,22 +264,31 @@
                             <div class="col-md-6">
                                 <label class="form-label">Name</label>
                                 <input type="text" name="emergencyContact" class="form-control"
-                                    value="{{ old('emergencyContact', $registration->emergencyContact ?? '') }}" required>
-                                @error('emergencyContact') <div class="text-danger small">{{ $message }}</div> @enderror
+                                    value="{{ old('emergencyContact', $registration->emergencyContact ?? '') }}"
+                                    required>
+                                @error('emergencyContact')
+                                    <div class="text-danger small">{{ $message }}</div>
+                                @enderror
                             </div>
 
                             <div class="col-md-6">
                                 <label class="form-label">Phone Number</label>
                                 <input type="text" name="emergencyContactNumber" class="form-control"
-                                    value="{{ old('emergencyContactNumber', $registration->emergencyContactNumber ?? '') }}" required>
-                                @error('emergencyContactNumber') <div class="text-danger small">{{ $message }}</div> @enderror
+                                    value="{{ old('emergencyContactNumber', $registration->emergencyContactNumber ?? '') }}"
+                                    required>
+                                @error('emergencyContactNumber')
+                                    <div class="text-danger small">{{ $message }}</div>
+                                @enderror
                             </div>
 
                             <div class="col-12">
                                 <label class="form-label">Relationship</label>
                                 <input type="text" name="contactRelationship" class="form-control"
-                                    value="{{ old('contactRelationship', $registration->contactRelationship ?? '') }}" required>
-                                @error('contactRelationship') <div class="text-danger small">{{ $message }}</div> @enderror
+                                    value="{{ old('contactRelationship', $registration->contactRelationship ?? '') }}"
+                                    required>
+                                @error('contactRelationship')
+                                    <div class="text-danger small">{{ $message }}</div>
+                                @enderror
                             </div>
 
                         </div>
@@ -282,22 +308,27 @@
                                 @php $ve = old('volunteeringExperience', $registration->volunteeringExperience ?? ''); @endphp
                                 <select name="volunteeringExperience" class="form-control">
                                     <option value="">Choose</option>
-                                    <option value="yes" {{ $ve=='yes' ? 'selected': '' }}>Yes</option>
-                                    <option value="no" {{ $ve=='no' ? 'selected': '' }}>No</option>
+                                    <option value="yes" {{ $ve == 'yes' ? 'selected' : '' }}>Yes</option>
+                                    <option value="no" {{ $ve == 'no' ? 'selected' : '' }}>No</option>
                                 </select>
-                                @error('volunteeringExperience') <div class="text-danger small">{{ $message }}</div> @enderror
+                                @error('volunteeringExperience')
+                                    <div class="text-danger small">{{ $message }}</div>
+                                @enderror
                             </div>
 
                             <div class="col-md-6">
                                 <label class="form-label">Skills</label>
                                 <input type="text" name="skill" class="form-control"
-                                    value="{{ old('skill', $registration->skill ?? $volunteerProfile->skill ?? '') }}">
-                                @error('skill') <div class="text-danger small">{{ $message }}</div> @enderror
+                                    value="{{ old('skill', $registration->skill ?? ($volunteerProfile->skill ?? '')) }}">
+                                @error('skill')
+                                    <div class="text-danger small">{{ $message }}</div>
+                                @enderror
                             </div>
 
                             <div class="col-12 text-start mt-4 d-flex gap-2">
                                 <button type="submit" class="btn btn-primary">Save Changes</button>
-                                <a href="{{ route('volunteer.profile.registrationEditDelete', $event) }}" class="btn btn-outline-secondary">Cancel</a>
+                                <a href="{{ route('volunteer.profile.registrationEditDelete', $event) }}"
+                                    class="btn btn-outline-secondary">Cancel</a>
                             </div>
 
                         </div>
@@ -312,12 +343,12 @@
                 @php
                     use Illuminate\Support\Facades\Storage;
 
-                    $default = asset('images/default-profile.png');
+                    $default = asset('assets/default-profile.png');
                     $organizer = optional($event->organizer);
 
-                    $file = optional($organizer->ngoProfile)->profilePhoto ??
-                            optional($organizer->volunteerProfile)->profilePhoto ??
-                            null;
+                    $file =
+                        optional($organizer->ngoProfile)->profilePhoto ??
+                        (optional($organizer->volunteerProfile)->profilePhoto ?? null);
 
                     $profileImageUrl = $default;
 
@@ -340,8 +371,7 @@
                     <div class="d-flex align-items-center gap-3">
 
                         <div class="organizer-avatar">
-                            <img src="{{ $profileImageUrl }}" alt="Organizer Image"
-                                class="rounded-circle"
+                            <img src="{{ $profileImageUrl }}" alt="Organizer Image" class="rounded-circle"
                                 style="width:60px;height:60px;object-fit:cover;">
                         </div>
 
@@ -361,7 +391,8 @@
                             $phone = optional($event->organizer)->phone ?? null;
                             $waLink = $phone
                                 ? "https://wa.me/{$phone}"
-                                : 'https://wa.me/?text=' . urlencode('Hello, I am interested in your event: '.$event->eventTitle);
+                                : 'https://wa.me/?text=' .
+                                    urlencode('Hello, I am interested in your event: ' . $event->eventTitle);
                         @endphp
 
                         <a href="{{ $waLink }}" target="_blank" class="btn-organizer primary">
@@ -372,7 +403,8 @@
                             $profileId = $organizer->ngo_id ?? ($organizer->id ?? '#');
                         @endphp
 
-                        <a href="{{ route('ngo.profile.show', ['id' => $profileId]) }}" class="btn-organizer secondary">
+                        <a href="{{ route('ngo.profile.show', ['id' => $profileId]) }}"
+                            class="btn-organizer secondary">
                             <i class="fas fa-user me-2"></i>View Profile
                         </a>
                     </div>
@@ -396,4 +428,5 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
+
 </html>

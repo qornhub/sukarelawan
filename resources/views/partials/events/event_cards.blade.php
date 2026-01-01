@@ -1,13 +1,13 @@
 @foreach ($events as $event)
     {{-- We already filtered to future events in the controller --}}
     <div class="event-card">
-         <div class="image-container">
+        <div class="image-container">
             <img src="{{ asset('images/events/' . ($event->eventImage ?? 'default_event.jpg')) }}"
                 alt="{{ $event->eventTitle }}" class="event-image">
 
             <span class="category-tag">
                 @if (!empty($event->custom_category))
-                    {{ $event->custom_category }} 
+                    {{ $event->custom_category }}
                 @elseif ($event->category)
                     {{ $event->category->eventCategoryName }}
                 @else
@@ -41,7 +41,7 @@
             <div class="event-footer">
 
                 @php
-                    $default = asset('images/default-profile.png');
+                    $default = asset('assets/default-profile.png');
                     $organizer = optional($event->organizer);
 
                     // Try to get profile photo from organizer->ngoProfile or volunteerProfile

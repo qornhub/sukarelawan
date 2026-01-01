@@ -180,7 +180,7 @@
                                         (optional($user->volunteerProfile)->profilePhoto ??
                                             (optional($user->adminProfile)->profilePhoto ?? null));
 
-                                    $profileImageUrl = asset('images/default-profile.png');
+                                    $profileImageUrl = asset('assets/default-profile.png');
                                     if ($photoFile) {
                                         $basename = trim(basename($photoFile));
                                         if (file_exists(public_path("images/profiles/{$basename}"))) {

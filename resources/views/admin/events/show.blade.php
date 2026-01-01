@@ -21,61 +21,87 @@
         /* place settings button in document flow so margin-bottom works and allow right alignment */
         .post-settings {
             position: relative;
-            margin-bottom: 18px; /* space below the settings button */
-            text-align: right;   /* align to right edge of container */
+            margin-bottom: 18px;
+            /* space below the settings button */
+            text-align: right;
+            /* align to right edge of container */
         }
+
         .post-settings .btn-settings {
             display: inline-block;
-            background: rgba(255,255,255,0.96);
-            border: 1px solid rgba(0,0,0,0.08);
+            background: rgba(255, 255, 255, 0.96);
+            border: 1px solid rgba(0, 0, 0, 0.08);
             padding: 8px 10px;
             border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
             color: #333;
         }
-        .post-settings .dropdown-menu { min-width: 180px; }
-        @media (max-width: 767.98px) {
-            .post-settings { margin-bottom: 12px; text-align: center; }
+
+        .post-settings .dropdown-menu {
+            min-width: 180px;
         }
+
+        @media (max-width: 767.98px) {
+            .post-settings {
+                margin-bottom: 12px;
+                text-align: center;
+            }
+        }
+
         /* Sentiment badge only — for event comments (scoped to #event-comments) */
 
         /* wrapper (if you place the badge below the content) */
         #event-comments .sentiment-row {
-          display: block;
-          margin-top: 0.5rem;   /* space between content/edit form and badge */
-          text-align: right;     /* change to right if you prefer right-aligned */
+            display: block;
+            margin-top: 0.5rem;
+            /* space between content/edit form and badge */
+            text-align: right;
+            /* change to right if you prefer right-aligned */
         }
 
         /* badge (pill) */
         #event-comments .sentiment-badge {
-          display: inline-block;
-          font-size: 0.75rem;
-          padding: 0.18rem 0.5rem;
-          border-radius: 999px;
-          font-weight: 600;
-          line-height: 1;
-          vertical-align: middle;
-          color: #ffffff;       /* white text on colored pills */
-          box-shadow: none;
+            display: inline-block;
+            font-size: 0.75rem;
+            padding: 0.18rem 0.5rem;
+            border-radius: 999px;
+            font-weight: 600;
+            line-height: 1;
+            vertical-align: middle;
+            color: #ffffff;
+            /* white text on colored pills */
+            box-shadow: none;
         }
 
         /* colors */
-        #event-comments .sentiment-badge.positive { background: #198754; } /* green */
-        #event-comments .sentiment-badge.negative { background: #fd7e14; } /* orange */
-        #event-comments .sentiment-badge.toxic    { background: #dc3545; } /* red */
+        #event-comments .sentiment-badge.positive {
+            background: #198754;
+        }
+
+        /* green */
+        #event-comments .sentiment-badge.negative {
+            background: #fd7e14;
+        }
+
+        /* orange */
+        #event-comments .sentiment-badge.toxic {
+            background: #dc3545;
+        }
+
+        /* red */
 
         /* small mobile tweak */
         @media (max-width: 576px) {
-          #event-comments .sentiment-badge {
-            font-size: 0.70rem;
-            padding: 0.14rem 0.4rem;
-          }
+            #event-comments .sentiment-badge {
+                font-size: 0.70rem;
+                padding: 0.14rem 0.4rem;
+            }
         }
 
         /* specificity booster (in case other CSS overrides) */
         #event-comments .comments-list .sentiment-badge {
-          /* noop: keeps selector strong; uncomment !important only if absolutely needed */
-          /* color: #fff !important; */
+            /* noop: keeps selector strong; uncomment !important only if absolutely needed */
+            /* color: #fff !important; */
         }
     </style>
 </head>
@@ -87,7 +113,7 @@
     @php
         // image helpers
         $eventImage = $event->eventImage ?? null;
-        $eventHeroUrl = $eventImage ? asset('images/events/' . $eventImage) : asset('images/events/default_event.jpg');
+        $eventHeroUrl = $eventImage ? asset('images/events/' . $eventImage) : asset('assets/default_event.jpg');
 
         // dates
         $start = $event->eventStart ? \Carbon\Carbon::parse($event->eventStart) : null;
@@ -115,47 +141,49 @@
                 </div>
             </div>
         </header>
-     
+
 
         @include('layouts.messages')
 
         {{-- SETTINGS ICON (replaces register button). right-aligned under hero --}}
         <div class="container">
-    <div class="post-settings" style="margin-top:18px;">
-        <div class="btn-group">
-            <button type="button" class="btn btn-settings btn-sm dropdown-toggle"
-                    data-bs-toggle="dropdown" aria-expanded="false" title="Event settings">
-                <i class="fa fa-cog"></i>
-            </button>
+            <div class="post-settings" style="margin-top:18px;">
+                <div class="btn-group">
+                    <button type="button" class="btn btn-settings btn-sm dropdown-toggle" data-bs-toggle="dropdown"
+                        aria-expanded="false" title="Event settings">
+                        <i class="fa fa-cog"></i>
+                    </button>
 
-            <ul class="dropdown-menu dropdown-menu-end">
+                    <ul class="dropdown-menu dropdown-menu-end">
 
-                {{-- MANAGE EVENT (View Only) --}}
-                <li>
-                    <a href="{{ route('admin.events.view', $event->event_id) }}" class="dropdown-item">
-                        <i class="fas fa-tasks me-2"></i> Manage Event
-                    </a>
-                </li>
+                        {{-- MANAGE EVENT (View Only) --}}
+                        <li>
+                            <a href="{{ route('admin.events.view', $event->event_id) }}" class="dropdown-item">
+                                <i class="fas fa-tasks me-2"></i> Manage Event
+                            </a>
+                        </li>
 
-                <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
 
-                {{-- DELETE EVENT --}}
-                <li>
-                    <form action="{{ route('admin.events.destroy', $event->event_id) }}" method="POST"
-                        onsubmit="return confirm('Are you sure you want to permanently delete this event? This action cannot be undone.');"
-                        class="m-0 p-0">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="dropdown-item text-danger">
-                            <i class="fa fa-trash me-2"></i> Delete event
-                        </button>
-                    </form>
-                </li>
+                        {{-- DELETE EVENT --}}
+                        <li>
+                            <form action="{{ route('admin.events.destroy', $event->event_id) }}" method="POST"
+                                onsubmit="return confirm('Are you sure you want to permanently delete this event? This action cannot be undone.');"
+                                class="m-0 p-0">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="dropdown-item text-danger">
+                                    <i class="fa fa-trash me-2"></i> Delete event
+                                </button>
+                            </form>
+                        </li>
 
-            </ul>
+                    </ul>
+                </div>
+            </div>
         </div>
-    </div>
-</div>
 
 
         <main class="container page-body">
@@ -249,7 +277,7 @@
                                                 $filename = optional($user->volunteerProfile)->profilePhoto;
                                                 $avatarUrl = $filename
                                                     ? asset('images/profiles/' . $filename)
-                                                    : asset('images/default-profile.png');
+                                                    : asset('assets/default-profile.png');
                                                 $title = $user->name ?? 'Volunteer';
                                             @endphp
 
@@ -285,7 +313,7 @@
                             'profileRelation' => 'volunteerProfile',
                             'profileRoute' => 'volunteer.profile.show',
                             'profileStoragePath' => 'images/profiles/',
-                            'isAdmin' => true,              // allow partial to show admin delete on comments
+                            'isAdmin' => true, // allow partial to show admin delete on comments
                         ])
                     </section>
                 </div>
@@ -312,8 +340,8 @@
                             <a class="social-btn instagram" href="#">
                                 <i class="fab fa-instagram"></i>
                             </a>
-                            <a class="social-btn whatsapp" href="https://wa.me/?text={{ urlencode(request()->fullUrl()) }}"
-                                target="_blank">
+                            <a class="social-btn whatsapp"
+                                href="https://wa.me/?text={{ urlencode(request()->fullUrl()) }}" target="_blank">
                                 <i class="fab fa-whatsapp"></i>
                             </a>
                         </div>
@@ -434,48 +462,49 @@
                     {{-- Organizer card --}}
                     <div class="sidebar-card organizer-card mt-3">
                         <div class="organizer-header">
-                        @php
-                            use Illuminate\Support\Facades\Storage;
+                            @php
+                                use Illuminate\Support\Facades\Storage;
 
-                            $default = asset('images/default-profile.png');
-                            $organizer = optional($event->organizer);
+                                $default = asset('assets/default-profile.png');
+                                $organizer = optional($event->organizer);
 
-                            // Try to get profile photo from organizer->ngoProfile or volunteerProfile
-                            $file =
-                                optional($organizer->ngoProfile)->profilePhoto ??
-                                (optional($organizer->volunteerProfile)->profilePhoto ?? null);
+                                // Try to get profile photo from organizer->ngoProfile or volunteerProfile
+                                $file =
+                                    optional($organizer->ngoProfile)->profilePhoto ??
+                                    (optional($organizer->volunteerProfile)->profilePhoto ?? null);
 
-                            $profileImageUrl = $default;
+                                $profileImageUrl = $default;
 
-                            if ($file) {
-                                $basename = trim(basename($file));
+                                if ($file) {
+                                    $basename = trim(basename($file));
 
-                                // Case 1: public/images/profiles/<basename>
-                                if (file_exists(public_path("images/profiles/{$basename}"))) {
-                                    $profileImageUrl = asset("images/profiles/{$basename}");
+                                    // Case 1: public/images/profiles/<basename>
+                                    if (file_exists(public_path("images/profiles/{$basename}"))) {
+                                        $profileImageUrl = asset("images/profiles/{$basename}");
+                                    }
+                                    // Case 2: public/images/<basename>
+                                    elseif (file_exists(public_path("images/{$basename}"))) {
+                                        $profileImageUrl = asset("images/{$basename}");
+                                    }
+                                    // Case 3: stored in storage/app/public
+                                    elseif (Storage::disk('public')->exists($file)) {
+                                        $profileImageUrl = Storage::disk('public')->url($file);
+                                    } elseif (Storage::disk('public')->exists("profiles/{$basename}")) {
+                                        $profileImageUrl = Storage::disk('public')->url("profiles/{$basename}");
+                                    }
                                 }
-                                // Case 2: public/images/<basename>
-                                elseif (file_exists(public_path("images/{$basename}"))) {
-                                    $profileImageUrl = asset("images/{$basename}");
-                                }
-                                // Case 3: stored in storage/app/public
-                                elseif (Storage::disk('public')->exists($file)) {
-                                    $profileImageUrl = Storage::disk('public')->url($file);
-                                } elseif (Storage::disk('public')->exists("profiles/{$basename}")) {
-                                    $profileImageUrl = Storage::disk('public')->url("profiles/{$basename}");
-                                }
-                            }
-                        @endphp
+                            @endphp
 
-                        <div class="org-avatar">
-                            <img src="{{ $profileImageUrl }}" alt="Organizer Image" class="rounded-circle"
-                                style="width:60px;height:60px;object-fit:cover;">
+                            <div class="org-avatar">
+                                <img src="{{ $profileImageUrl }}" alt="Organizer Image" class="rounded-circle"
+                                    style="width:60px;height:60px;object-fit:cover;">
+                            </div>
+                            <div>
+                                <div class="organizer-label">Organized By</div>
+                                <div class="organizer-name">{{ optional($event->organizer)->name ?? 'Organizer' }}
+                                </div>
+                            </div>
                         </div>
-                        <div>
-                            <div class="organizer-label">Organized By</div>
-                            <div class="organizer-name">{{ optional($event->organizer)->name ?? 'Organizer' }}</div>
-                        </div>
-                    </div>
 
                         <div class="organizer-actions">
                             @php
@@ -483,7 +512,9 @@
                                 $waLink = $phone
                                     ? "https://wa.me/{$phone}"
                                     : 'https://wa.me/?text=' .
-                                        urlencode('Hello, I am interested in your event: ' . ($event->eventTitle ?? ''));
+                                        urlencode(
+                                            'Hello, I am interested in your event: ' . ($event->eventTitle ?? ''),
+                                        );
                             @endphp
 
                             <a href="{{ $waLink }}" target="_blank" class="btn-organizer primary">

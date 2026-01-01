@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -69,12 +70,12 @@
             border-color: var(--primary-color);
             box-shadow: 0 0 0 0.2rem rgba(44, 62, 80, 0.25);
         }
-        
+
         .form-control.error {
             border-color: var(--error-color);
             background-color: #fff9fa;
         }
-        
+
         .form-control.error:focus {
             border-color: var(--error-color);
             box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
@@ -124,7 +125,7 @@
             color: #adb5bd;
             transition: color 0.3s;
         }
-        
+
         .input-icon.error i {
             color: var(--error-color);
         }
@@ -153,11 +154,11 @@
             gap: 10px;
             margin-bottom: 1.5rem;
         }
-        
+
         .header-logo img {
             height: 60px;
         }
-        
+
         .header-logo h1 {
             font-size: 1.8rem;
             font-weight: 700;
@@ -187,26 +188,27 @@
             .form-section {
                 padding: 1.5rem;
             }
-            
+
             .form-section h2 {
                 font-size: 1.5rem;
             }
         }
     </style>
 </head>
+
 <body>
     <div class="form-section">
         <div class="header-logo">
-            <img src="{{ asset('images/sukarelawan_logo.png') }}" alt="Logo">
+            <img src="{{ asset('assets/sukarelawan_logo.png') }}" alt="Logo">
             <h1>SukaRelawan</h1>
         </div>
         <h2 class="fw-bold mb-3">Reset Your Password</h2>
         <p class="text-muted">Enter your email to receive a password reset link</p>
 
         @if (session('status'))
-        <div class="status-message status-success">
-            <i class="fas fa-check-circle me-2"></i>{{ session('status') }}
-        </div>
+            <div class="status-message status-success">
+                <i class="fas fa-check-circle me-2"></i>{{ session('status') }}
+            </div>
         @endif
 
         <form id="forgot-password-form" method="POST" action="{{ route('password.email') }}">
@@ -217,12 +219,13 @@
                 <label class="form-label">Email Address</label>
                 <div class="input-icon">
                     <i class="fas fa-envelope"></i>
-                    <input type="email" name="email" value="{{ old('email') }}" class="form-control" placeholder="Enter your email" required>
+                    <input type="email" name="email" value="{{ old('email') }}" class="form-control"
+                        placeholder="Enter your email" required>
                 </div>
                 @error('email')
-                <div class="status-message status-error mt-2">
-                    <i class="fas fa-exclamation-circle me-2"></i>{{ $message }}
-                </div>
+                    <div class="status-message status-error mt-2">
+                        <i class="fas fa-exclamation-circle me-2"></i>{{ $message }}
+                    </div>
                 @enderror
             </div>
 
@@ -230,18 +233,18 @@
                 <i class="fas fa-paper-plane me-2"></i>Send Reset Link
             </button>
 
-            
+
         </form>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const form = document.getElementById('forgot-password-form');
-            
+
             if (form) {
                 form.addEventListener('submit', function(e) {
                     let isValid = true;
-                    
+
                     // Reset previous errors
                     const inputs = this.querySelectorAll('.form-control');
                     inputs.forEach(input => {
@@ -249,7 +252,7 @@
                         const inputIcon = input.closest('.input-icon');
                         if (inputIcon) inputIcon.classList.remove('error');
                     });
-                    
+
                     // Check required fields
                     const emailField = this.querySelector('input[name="email"]');
                     if (!emailField.value.trim()) {
@@ -258,10 +261,10 @@
                         const inputIcon = emailField.closest('.input-icon');
                         if (inputIcon) inputIcon.classList.add('error');
                     }
-                    
+
                     if (!isValid) {
                         e.preventDefault();
-                        
+
                         // Show error message
                         let errorBox = this.querySelector('.form-errors');
                         if (!errorBox) {
@@ -270,13 +273,18 @@
                             errorBox.setAttribute('role', 'alert');
                             this.prepend(errorBox);
                         }
-                        
-                        errorBox.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i>Please enter your email address';
-                        errorBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+                        errorBox.innerHTML =
+                            '<i class="fas fa-exclamation-circle me-2"></i>Please enter your email address';
+                        errorBox.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
                     }
                 });
             }
         });
     </script>
 </body>
+
 </html>

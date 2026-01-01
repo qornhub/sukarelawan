@@ -29,8 +29,10 @@
         /* FORCE TABS TO STAY HORIZONTAL (no stacking) ON THIS PAGE */
         .admin-profile-tabs {
             display: flex;
-            flex-wrap: nowrap !important;   /* do not wrap to new lines */
-            overflow-x: auto;               /* allow horizontal scroll if too narrow */
+            flex-wrap: nowrap !important;
+            /* do not wrap to new lines */
+            overflow-x: auto;
+            /* allow horizontal scroll if too narrow */
             white-space: nowrap;
         }
 
@@ -61,7 +63,7 @@
 
             <img src="{{ $profile->profilePhoto
                 ? asset('images/profiles/' . $profile->profilePhoto)
-                : asset('images/default-profile.png') }}"
+                : asset('assets/default-profile.png') }}"
                 class="profile-avatar rounded-circle img-fluid" alt="Profile Photo">
 
             <div class="profile-header">
@@ -91,7 +93,7 @@
                             <div class="card-body" style="padding: 1.25rem;">
                                 <div class="info-item">
                                     <div class="info-icon">
-                                        @if($profile->gender === 'male')
+                                        @if ($profile->gender === 'male')
                                             <i class="fas fa-mars"></i>
                                         @elseif($profile->gender === 'female')
                                             <i class="fas fa-venus"></i>
@@ -111,7 +113,7 @@
                                     <div>
                                         <div class="text-muted small">Date of Birth</div>
                                         <div>
-                                            @if($profile->dateOfBirth)
+                                            @if ($profile->dateOfBirth)
                                                 {{ \Carbon\Carbon::parse($profile->dateOfBirth)->format('F j, Y') }}
                                             @else
                                                 -
@@ -159,7 +161,8 @@
                             <div class="card-body" style="padding: 1.25rem;">
                                 <div class="d-flex flex-column">
                                     <div class="stat-card text-center py-3 border-bottom">
-                                        <div class="stat-number">{{ count($upcomingEvents) + count($pastEvents) }}</div>
+                                        <div class="stat-number">{{ count($upcomingEvents) + count($pastEvents) }}
+                                        </div>
                                         <div class="stat-label">Events</div>
                                     </div>
 
@@ -217,7 +220,9 @@
                                             $eventImage = $event->eventImage
                                                 ? asset('images/events/' . $event->eventImage)
                                                 : asset('images/events/default-event.jpg');
-                                            $start = $event->eventStart ? \Carbon\Carbon::parse($event->eventStart) : null;
+                                            $start = $event->eventStart
+                                                ? \Carbon\Carbon::parse($event->eventStart)
+                                                : null;
                                             $end = $event->eventEnd ? \Carbon\Carbon::parse($event->eventEnd) : null;
                                         @endphp
 
@@ -231,7 +236,8 @@
                                                     <h5 class="card-title mb-1">{{ $event->eventTitle }}</h5>
                                                     @if (!empty($event->eventPoints))
                                                         <span class="badge bg-light text-primary p-2 mb-1">
-                                                            <i class="fas fa-coins me-1"></i> {{ $event->eventPoints }}
+                                                            <i class="fas fa-coins me-1"></i>
+                                                            {{ $event->eventPoints }}
                                                             points
                                                         </span>
                                                     @endif
@@ -272,14 +278,16 @@
                                 </div>
 
                                 <!-- Past Events Tab -->
-                                <div class="tab-pane fade {{ request('past_page') ? 'show active' : '' }}" id="past"
-                                    role="tabpanel" aria-labelledby="past-tab">
+                                <div class="tab-pane fade {{ request('past_page') ? 'show active' : '' }}"
+                                    id="past" role="tabpanel" aria-labelledby="past-tab">
                                     @forelse($pastEvents as $event)
                                         @php
                                             $eventImage = $event->eventImage
                                                 ? asset('images/events/' . $event->eventImage)
                                                 : asset('images/events/default-event.jpg');
-                                            $start = $event->eventStart ? \Carbon\Carbon::parse($event->eventStart) : null;
+                                            $start = $event->eventStart
+                                                ? \Carbon\Carbon::parse($event->eventStart)
+                                                : null;
                                             $end = $event->eventEnd ? \Carbon\Carbon::parse($event->eventEnd) : null;
                                             $attendance = optional($event->attendances)->first();
                                             $attendedAt =
@@ -355,7 +363,11 @@
                                             // In admin view: admin is never treated as owner
                                             $excerpt = $post->summary
                                                 ? $post->summary
-                                                : \Illuminate\Support\Str::limit(strip_tags($post->content), 120, '...');
+                                                : \Illuminate\Support\Str::limit(
+                                                    strip_tags($post->content),
+                                                    120,
+                                                    '...',
+                                                );
 
                                             $imageUrl = $post->image
                                                 ? asset('images/Blog/' . $post->image)
@@ -468,8 +480,7 @@
                                             @endphp
                                             <div class="earned-item d-flex align-items-center mb-3"
                                                 data-badge-id="{{ $ub->badge->id }}">
-                                                <div class="earned-open me-3"
-                                                    data-badge-id="{{ $ub->badge->id }}">
+                                                <div class="earned-open me-3" data-badge-id="{{ $ub->badge->id }}">
                                                     <img src="{{ $ub->badge->img_url ?? asset('images/badges/default-badge.jpg') }}"
                                                         alt="{{ $ub->badge->badgeName }}" class="earned-badge-img">
                                                 </div>
@@ -517,7 +528,8 @@
                                                 @endfor
 
                                                 {{-- next --}}
-                                                <li class="page-item {{ $earnedCurrent >= $earnedLast ? 'disabled' : '' }}">
+                                                <li
+                                                    class="page-item {{ $earnedCurrent >= $earnedLast ? 'disabled' : '' }}">
                                                     <a class="page-link"
                                                         href="{{ $earnedCurrent < $earnedLast ? $userBadges->url($earnedCurrent + 1) : '#' }}"
                                                         aria-label="Next">

@@ -20,25 +20,23 @@
     @include('layouts.ngo_header')
     @include('layouts.messages')
 
-   @php
-    // Normalize event image
-    $imageFile = trim($event->eventImage ?? '');
+    @php
+        // Normalize event image
+        $imageFile = trim($event->eventImage ?? '');
 
-    $eventHeroUrl = $imageFile !== ''
-        ? asset('images/events/' . $imageFile)
-        : asset('images/events/default_event.jpg');
+        $eventHeroUrl = $imageFile !== '' ? asset('images/events/' . $imageFile) : asset('assets/default_event.jpg');
 
-    // dates
-    $start = $event->eventStart ? \Carbon\Carbon::parse($event->eventStart) : null;
-    $end   = $event->eventEnd ? \Carbon\Carbon::parse($event->eventEnd) : null;
+        // dates
+        $start = $event->eventStart ? \Carbon\Carbon::parse($event->eventStart) : null;
+        $end = $event->eventEnd ? \Carbon\Carbon::parse($event->eventEnd) : null;
 
-    // relations
-    $registrations   = $event->registrations ?? collect();
-    $sdgs            = $event->sdgs ?? collect();
-    $skills          = $event->skills ?? collect();
-    $registeredCount = $registrations->count();
-    $max             = $event->eventMaximum ?? 0;
-@endphp
+        // relations
+        $registrations = $event->registrations ?? collect();
+        $sdgs = $event->sdgs ?? collect();
+        $skills = $event->skills ?? collect();
+        $registeredCount = $registrations->count();
+        $max = $event->eventMaximum ?? 0;
+    @endphp
 
 
     {{-- HERO --}}
@@ -146,7 +144,7 @@
                                             $filename = optional($user->volunteerProfile)->profilePhoto;
                                             $avatarUrl = $filename
                                                 ? asset('images/profiles/' . $filename)
-                                                : asset('images/default-profile.png');
+                                                : asset('assets/default-profile.png');
                                             $title = $user->name ?? 'Volunteer';
                                         @endphp
 
@@ -166,7 +164,7 @@
                     </div>
                 </section>
 
-                 {{-- comments --}}
+                {{-- comments --}}
                 <section class="content-card mt-3">
 
                     <div class="d-flex justify-content-between align-items-center mb-3">
@@ -333,11 +331,11 @@
 
                 {{-- Organizer card --}}
                 <div class="sidebar-card organizer-card">
-                     <div class="organizer-header">
+                    <div class="organizer-header">
                         @php
                             use Illuminate\Support\Facades\Storage;
 
-                            $default = asset('images/default-profile.png');
+                            $default = asset('assets/default-profile.png');
                             $organizer = optional($event->organizer);
 
                             // Try to get profile photo from organizer->ngoProfile or volunteerProfile

@@ -39,14 +39,15 @@
         body {
             background-color: var(--admin-gray);
             min-height: 100vh;
-            
+
             color: #222;
         }
 
         /* Main container offset to account for side nav */
         .admin-container {
             max-width: 1400px;
-            margin-left: calc(var(--side-nav-width) + 20px); /* left space for your sidebar */
+            margin-left: calc(var(--side-nav-width) + 20px);
+            /* left space for your sidebar */
             padding: 1rem;
         }
 
@@ -68,176 +69,179 @@
     <!-- WRAPPER: push everything right by 40px so admin_nav can expand -->
     <div style="margin-left: 70px;">
 
-    {{-- HERO --}}
-    <section class="blog-hero">
-        <div class="container">
-            <div class="row gy-4 align-items-center">
-                <div class="col-md-8">
-                    <h1 class="title">Real experiences. Real impact.</h1>
-                    <p class="subtitle mt-3">Explore personal stories, tips, and reflections from volunteers and NGOs —
-                        be inspired to take your own step toward change.</p>
-                </div>
+        {{-- HERO --}}
+        <section class="blog-hero">
+            <div class="container">
+                <div class="row gy-4 align-items-center">
+                    <div class="col-md-8">
+                        <h1 class="title">Real experiences. Real impact.</h1>
+                        <p class="subtitle mt-3">Explore personal stories, tips, and reflections from volunteers and
+                            NGOs —
+                            be inspired to take your own step toward change.</p>
+                    </div>
 
-                <div class="col-md-4 ">
-                    {{-- Search & New button --}}
-                    <div
-                        class="d-flex justify-content-md-end justify-content-center align-items-center gap-3 flex-wrap">
+                    <div class="col-md-4 ">
+                        {{-- Search & New button --}}
+                        <div
+                            class="d-flex justify-content-md-end justify-content-center align-items-center gap-3 flex-wrap">
 
 
-                        <form id="blog-search-form" action="{{ route('blogs.index') }}" method="GET"
-                            class="d-flex align-items-center" role="search" aria-label="Search blogs">
-                            <label for="blog-search" class="sr-only">Search Blog</label>
-                            <div class="input-group search-box">
-                                <input id="blog-search" type="search" name="q" value="{{ request('q') }}"
-                                    class="form-control" placeholder="Search Blog" aria-label="Search Blog"
-                                    autocomplete="off">
-                                <button class="btn btn-outline-secondary" type="submit" title="Search">
-                                    <i class="bi bi-search"></i>
-                                </button>
+                            <form id="blog-search-form" action="{{ route('blogs.index') }}" method="GET"
+                                class="d-flex align-items-center" role="search" aria-label="Search blogs">
+                                <label for="blog-search" class="sr-only">Search Blog</label>
+                                <div class="input-group search-box">
+                                    <input id="blog-search" type="search" name="q" value="{{ request('q') }}"
+                                        class="form-control" placeholder="Search Blog" aria-label="Search Blog"
+                                        autocomplete="off">
+                                    <button class="btn btn-outline-secondary" type="submit" title="Search">
+                                        <i class="bi bi-search"></i>
+                                    </button>
+                                </div>
+                            </form>
+
+                            {{-- Loading indicator --}}
+                            <div id="search-loading" class="search-loading" style="display:none;">
+                                <div class="spinner-border spinner-border-sm text-primary" role="status"
+                                    aria-hidden="true"></div>
+                                <span>Searching...</span>
                             </div>
-                        </form>
 
-                        {{-- Loading indicator --}}
-                        <div id="search-loading" class="search-loading" style="display:none;">
-                            <div class="spinner-border spinner-border-sm text-primary" role="status"
-                                aria-hidden="true"></div>
-                            <span>Searching...</span>
                         </div>
-
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    @include('layouts.messages')
+        @include('layouts.messages')
 
-    {{-- MAIN: blog posts list --}}
-    <main>
-        <div class="container main-content">
-            <div>
-                <div class="d-flex justify-content-end mb-4">
-                    <a href="{{ route('admin.blogs.create') }}" class="btn new-blog-btn d-inline-flex align-items-center">
-                        <i class="bi bi-plus-lg me-2" style="font-size:1.05rem"></i>
-                        <span>New Blog</span>
-                    </a>
+        {{-- MAIN: blog posts list --}}
+        <main>
+            <div class="container main-content">
+                <div>
+                    <div class="d-flex justify-content-end mb-4">
+                        <a href="{{ route('admin.blogs.create') }}"
+                            class="btn new-blog-btn d-inline-flex align-items-center">
+                            <i class="bi bi-plus-lg me-2" style="font-size:1.05rem"></i>
+                            <span>New Blog</span>
+                        </a>
+                    </div>
+
                 </div>
 
-            </div>
-
-            {{-- posts list container --}}
-            <div id="posts-area">
-                @if ($posts->count() === 0)
-                    <div class="no-results">
-                        <i class="bi bi-file-text"></i>
-                        <h4>No blog posts found</h4>
-                        <p>Try adjusting your search or create a new blog post.</p>
-                    </div>
-                @else
-                    <div class="posts-list">
-                        @foreach ($posts as $post)
-                            <div class="card blog-card p-3">
-                                <div class="row g-3 align-items-center">
-                                    {{-- IMAGE LEFT --}}
-                                    <div class="col-md-5">
-                                        @php
-                                            $img = $post->image
-                                                ? asset('images/Blog/' . $post->image)
-                                                : asset('images/Blog/default_blog.jpg');
-                                        @endphp
-                                        <div class="ratio ratio-16x9 rounded" style="overflow:hidden;">
-                                            <img src="{{ $img }}" alt="{{ $post->title }}" class="img-left">
+                {{-- posts list container --}}
+                <div id="posts-area">
+                    @if ($posts->count() === 0)
+                        <div class="no-results">
+                            <i class="bi bi-file-text"></i>
+                            <h4>No blog posts found</h4>
+                            <p>Try adjusting your search or create a new blog post.</p>
+                        </div>
+                    @else
+                        <div class="posts-list">
+                            @foreach ($posts as $post)
+                                <div class="card blog-card p-3">
+                                    <div class="row g-3 align-items-center">
+                                        {{-- IMAGE LEFT --}}
+                                        <div class="col-md-5">
+                                            @php
+                                                $img = $post->image
+                                                    ? asset('images/Blog/' . $post->image)
+                                                    : asset('assets/default_blog.jpg');
+                                            @endphp
+                                            <div class="ratio ratio-16x9 rounded" style="overflow:hidden;">
+                                                <img src="{{ $img }}" alt="{{ $post->title }}"
+                                                    class="img-left">
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    {{-- RIGHT CONTENT --}}
-                                    <div class="col-md-7">
-                                        <div class="card-body card-body-vertical p-0 ps-md-3">
-                                            {{-- Title --}}
-                                            <h2 class="post-title">
-                                                <a href="{{ route('blogs.show', $post->blogPost_id) }}">
-                                                    {{ $post->title }}
-                                                </a>
-                                            </h2>
+                                        {{-- RIGHT CONTENT --}}
+                                        <div class="col-md-7">
+                                            <div class="card-body card-body-vertical p-0 ps-md-3">
+                                                {{-- Title --}}
+                                                <h2 class="post-title">
+                                                    <a href="{{ route('blogs.show', $post->blogPost_id) }}">
+                                                        {{ $post->title }}
+                                                    </a>
+                                                </h2>
 
-                                            {{-- summary or Excerpt --}}
-                                            <p class="excerpt">
-                                                @if (!empty($post->blogSummary))
-                                                    {!! $post->blogSummary !!}
-                                                @else
-                                                    {!! \Illuminate\Support\Str::limit(strip_tags($post->content), 300, '...') !!}
-                                                @endif
-                                            </p>
+                                                {{-- summary or Excerpt --}}
+                                                <p class="excerpt">
+                                                    @if (!empty($post->blogSummary))
+                                                        {!! $post->blogSummary !!}
+                                                    @else
+                                                        {!! \Illuminate\Support\Str::limit(strip_tags($post->content), 300, '...') !!}
+                                                    @endif
+                                                </p>
 
-                                            {{-- Meta table - matches the image exactly --}}
-                                            <table class="meta-table">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Category</th>
-                                                        <th>Publication Date</th>
-                                                        <th>Author</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr>
-                                                        <td class="category">
-                                                            {{ $post->custom_category ? $post->custom_category : optional($post->category)->categoryName ?? 'Uncategorized' }}
-                                                        </td>
+                                                {{-- Meta table - matches the image exactly --}}
+                                                <table class="meta-table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Category</th>
+                                                            <th>Publication Date</th>
+                                                            <th>Author</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr>
+                                                            <td class="category">
+                                                                {{ $post->custom_category ? $post->custom_category : optional($post->category)->categoryName ?? 'Uncategorized' }}
+                                                            </td>
 
-                                                        <td class="publication-date">
-                                                            @if ($post->published_at)
-                                                                {{ \Carbon\Carbon::parse($post->published_at)->format('F d, Y') }}
-                                                            @else
-                                                                <span class="text-muted">Not published</span>
-                                                            @endif
-                                                        </td>
+                                                            <td class="publication-date">
+                                                                @if ($post->published_at)
+                                                                    {{ \Carbon\Carbon::parse($post->published_at)->format('F d, Y') }}
+                                                                @else
+                                                                    <span class="text-muted">Not published</span>
+                                                                @endif
+                                                            </td>
 
-                                                        <td class="author">
-                                                            @php
-                                                                $author = optional($post->user);
-                                                            @endphp
+                                                            <td class="author">
+                                                                @php
+                                                                    $author = optional($post->user);
+                                                                @endphp
 
-                                                            @if ($author && $author->id)
-                                                                <a href="{{ route('volunteer.profile.show', $author->id) }}"
-                                                                    class="text-primary text-decoration-none"
-                                                                    title="View volunteer profile">
+                                                                @if ($author && $author->id)
+                                                                    <a href="{{ route('volunteer.profile.show', $author->id) }}"
+                                                                        class="text-primary text-decoration-none"
+                                                                        title="View volunteer profile">
+                                                                        {{ $author->name ?? 'Unknown' }}
+                                                                    </a>
+                                                                @else
                                                                     {{ $author->name ?? 'Unknown' }}
-                                                                </a>
-                                                            @else
-                                                                {{ $author->name ?? 'Unknown' }}
-                                                            @endif
-                                                        </td>
-                                                    </tr>
-                                                </tbody>
+                                                                @endif
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
 
-                                            </table>
+                                                </table>
 
-                                            {{-- Read more button --}}
-                                            <div class="read-more-wrap">
-                                                <a href="{{ route('blogs.show', $post->blogPost_id) }}"
-                                                    class="btn btn-read-more d-inline-flex align-items-center">
-                                                    Read More
-                                                    <i class="bi bi-arrow-right-short ms-2"
-                                                        style="font-size:1.25rem;line-height:1"></i>
-                                                </a>
+                                                {{-- Read more button --}}
+                                                <div class="read-more-wrap">
+                                                    <a href="{{ route('blogs.show', $post->blogPost_id) }}"
+                                                        class="btn btn-read-more d-inline-flex align-items-center">
+                                                        Read More
+                                                        <i class="bi bi-arrow-right-short ms-2"
+                                                            style="font-size:1.25rem;line-height:1"></i>
+                                                    </a>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        @endforeach
+                            @endforeach
+                        </div>
+                    @endif
+                </div>
+
+                {{-- Pagination --}}
+                @if ($posts->count() > 0)
+                    <div class="mt-5 d-flex justify-content-center">
+                        {{ $posts->withQueryString()->links() }}
                     </div>
                 @endif
             </div>
-
-            {{-- Pagination --}}
-            @if ($posts->count() > 0)
-                <div class="mt-5 d-flex justify-content-center">
-                    {{ $posts->withQueryString()->links() }}
-                </div>
-            @endif
-        </div>
-    </main>
+        </main>
 
     </div> {{-- end wrapper margin-left:40px --}}
 
