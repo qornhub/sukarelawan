@@ -141,11 +141,7 @@
         $volunteerProfile = $user ? $user->volunteerProfile : null;
 
         $eventImage = $event->eventImage ?? null;
-        if ($imageFile && file_exists(public_path('images/events/' . $imageFile))) {
-            $eventHeroUrl = asset('images/events/' . $imageFile);
-        } else {
-            $eventHeroUrl = asset('assets/default_event.jpg');
-        }
+        $eventHeroUrl = $imageFile !== '' ? asset('images/events/' . $imageFile) : asset('assets/default_event.jpg');
     @endphp
 
     <!-- HERO -->

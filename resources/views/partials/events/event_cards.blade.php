@@ -5,6 +5,7 @@
             <img src="{{ $event->eventImage ? asset('images/events/' . $event->eventImage) : asset('assets/default_event.jpg') }}"
                 alt="{{ $event->eventTitle }}" class="event-image">
 
+                
             <span class="category-tag">
                 @if (!empty($event->custom_category))
                     {{ $event->custom_category }}
