@@ -141,6 +141,7 @@
         $volunteerProfile = $user ? $user->volunteerProfile : null;
 
         $eventImage = $event->eventImage ?? null;
+        $imageFile = trim($event->eventImage ?? '');
         $eventHeroUrl = $imageFile !== '' ? asset('images/events/' . $imageFile) : asset('assets/default_event.jpg');
     @endphp
 

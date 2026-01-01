@@ -29,6 +29,7 @@
     @php
         // image helpers
         $eventImage = $event->eventImage ?? null;
+        $imageFile = trim($event->eventImage ?? '');
         $eventHeroUrl = $imageFile !== '' ? asset('images/events/' . $imageFile) : asset('assets/default_event.jpg');
 
         // dates
