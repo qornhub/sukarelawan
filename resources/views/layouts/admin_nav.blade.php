@@ -525,7 +525,7 @@
     <aside class="admin-sidebar" id="adminSidebar" aria-label="Admin Sidebar">
         <div class="logo-section">
             <!-- Replace with user's logo -->
-            <img src="{{ asset('images/sukarelawan_logo.png') }}" alt="SukaRelawan logo" class="logo-img">
+            <img src="{{ asset('assets/sukarelawan_logo.png') }}" alt="SukaRelawan logo" class="logo-img">
             <div class="logo-text">SukaRelawan</div>
         </div>
 
