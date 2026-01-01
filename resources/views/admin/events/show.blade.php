@@ -113,7 +113,11 @@
     @php
         // image helpers
         $eventImage = $event->eventImage ?? null;
-        $eventHeroUrl = $eventImage ? asset('images/events/' . $eventImage) : asset('assets/default_event.jpg');
+        if ($imageFile && file_exists(public_path('images/events/' . $imageFile))) {
+            $eventHeroUrl = asset('images/events/' . $imageFile);
+        } else {
+            $eventHeroUrl = asset('assets/default_event.jpg');
+        }
 
         // dates
         $start = $event->eventStart ? \Carbon\Carbon::parse($event->eventStart) : null;

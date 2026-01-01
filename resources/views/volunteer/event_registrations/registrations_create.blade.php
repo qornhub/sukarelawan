@@ -204,7 +204,11 @@
 
     @php
         $eventImage = $event->eventImage ?? null;
-        $eventHeroUrl = $eventImage ? asset('images/events/' . $eventImage) : asset('assets/default_event.jpg');
+        if ($imageFile && file_exists(public_path('images/events/' . $imageFile))) {
+            $eventHeroUrl = asset('images/events/' . $imageFile);
+        } else {
+            $eventHeroUrl = asset('assets/default_event.jpg');
+        }
     @endphp
 
     <!-- HERO -->
