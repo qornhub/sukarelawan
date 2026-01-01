@@ -2,7 +2,7 @@
     {{-- We already filtered to future events in the controller --}}
     <div class="event-card">
         <div class="image-container">
-            <img src="{{ asset('assets' . ($event->eventImage ?? 'default_event.jpg')) }}"
+            <img src="{{ asset('assets/' . ($event->eventImage ?? 'default_event.jpg')) }}"
                 alt="{{ $event->eventTitle }}" class="event-image">
 
             <span class="category-tag">
