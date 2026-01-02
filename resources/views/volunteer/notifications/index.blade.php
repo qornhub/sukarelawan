@@ -203,9 +203,12 @@
     </div>
   </main>
 
-  {{-- Pusher / Echo --}}
-  <script src="https://js.pusher.com/8.2/pusher.min.js"></script>
-  <script src="{{ asset('js/echo.js') }}"></script>
+ {{-- Remove these old tags --}}
+{{-- <script src="https://js.pusher.com/8.2/pusher.min.js"></script> --}}
+{{-- <script src="{{ asset('js/echo.js') }}"></script> --}}
+
+{{-- Replace them with this --}}
+@vite(['resources/js/app.js'])
 
   <script>
   (function() {
