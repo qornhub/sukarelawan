@@ -1,5 +1,4 @@
 <?php
-
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Bus\Queueable;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -12,9 +11,6 @@ class SendParticipantEmailJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public string $connection = 'database';
-    public string $queue = 'emails';
-
     public int $tries = 3;
     public int $timeout = 120;
 
@@ -25,6 +21,10 @@ class SendParticipantEmailJob implements ShouldQueue
     {
         $this->email = $email;
         $this->payload = $payload;
+
+     
+        $this->onConnection('database');
+        $this->onQueue('emails');
     }
 
     public function handle()
