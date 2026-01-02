@@ -1,20 +1,16 @@
-// resources/js/echo-listener.js
 import Echo from 'laravel-echo';
 import Pusher from 'pusher-js';
 
 window.Pusher = Pusher;
 
-// Read an auth endpoint that we inject via Blade into the page.
-// This handles cases where the app runs from a subfolder (eg: /1fyp/fyp/public).
-// If not provided, fall back to the default relative path.
+// 1. Force TLS to always be true for Railway
+const forceTLS = true; 
+
+// 2. Define the Auth Endpoint
 const authEndpoint = (typeof window !== 'undefined' && window.__BROADCAST_AUTH_ENDPOINT)
   ? window.__BROADCAST_AUTH_ENDPOINT
   : '/broadcasting/auth';
 
-// Use TLS in production builds; disable for local dev (use import.meta.env.PROD)
-const forceTLS = Boolean(import.meta.env.PROD);
-
-// Create Echo once
 if (!window.Echo) {
   window.Echo = new Echo({
     broadcaster: 'pusher',
@@ -22,9 +18,10 @@ if (!window.Echo) {
     cluster: import.meta.env.VITE_PUSHER_APP_CLUSTER,
     authEndpoint: authEndpoint,
     forceTLS: forceTLS,
+    encrypted: true,        // Add this line
+    disableStats: true,     // Optional: Cleaner logs
     auth: {
       headers: {
-        // ensure the page has <meta name="csrf-token" content="{{ csrf_token() }}">
         'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]') || {}).getAttribute?.('content') || ''
       }
     }
