@@ -423,35 +423,57 @@
         }
     }
 
-    @media (max-width:768px) {
-        .volunteer-header-component .volunteer-header {
-            padding: .75rem 1rem;
-            position: relative
-        }
-
-        .volunteer-header-component .volunteer-mobile-menu-btn {
-            display: block
-        }
-
-        .volunteer-header-component .volunteer-nav-section,
-        .volunteer-header-component .desktop-profile {
-            display: none
-        }
-
-        .volunteer-header-component .volunteer-mobile-menu-container {
-            display: block
-        }
-
-        .profile-notif-badge {
-            top: -4px;
-            right: -4px;
-            min-width: 18px;
-            height: 18px;
-            font-size: .65rem
-        }
-
-
+    /* RESPONSIVE UPDATES */
+@media (max-width: 768px) {
+    .volunteer-header-component .volunteer-header {
+        padding: .75rem 1rem;
+        display: flex;
+        justify-content: space-between; /* Ensures Logo - Nav - Burger alignment */
+        align-items: center;
     }
+
+    /* Keep the nav section visible in the header */
+    .volunteer-header-component .volunteer-nav-section {
+        display: flex !important; /* Force display */
+        gap: 1.5rem; /* Tighter gap for mobile icons */
+        margin-right: auto; /* Pushes it to the left, next to the logo */
+        margin-left: 1.5rem;
+    }
+
+    /* Hide the text inside the header nav links */
+    .volunteer-header-component .volunteer-nav-link .nav-text {
+        display: none !important;
+    }
+
+    /* Make icons larger and more tappable for mobile */
+    .volunteer-header-component .volunteer-nav-link i {
+        font-size: 1.2rem !important;
+        display: inline-block !important;
+        opacity: 1;
+    }
+
+    /* Ensure the mobile burger button stays on the far right */
+    .volunteer-header-component .volunteer-mobile-menu-btn {
+        display: block;
+        position: static; /* Remove absolute positioning to follow flex flow */
+    }
+
+    /* Keep the desktop profile hidden as you had it */
+    .volunteer-header-component .desktop-profile {
+        display: none;
+    }
+
+    /* IMPORTANT: Re-enable text inside the MOBILE DRAWER only */
+    .volunteer-mobile-menu-container .volunteer-nav-link .nav-text {
+        display: inline-block !important;
+    }
+    
+    .volunteer-mobile-menu-container .volunteer-nav-section {
+        flex-direction: column;
+        gap: 0;
+        margin-left: 0;
+    }
+}
 
     /* MOBILE — show text only, hide icons; slightly smaller font */
     @media (max-width:768px) {

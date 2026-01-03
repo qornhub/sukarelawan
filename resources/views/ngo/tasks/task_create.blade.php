@@ -142,7 +142,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 insertTaskCard(task);
                 //insertManageTaskRow(task);
-                syncManageTaskCreate(task);
+                // FIX: Change 'newTask' to 'task'
+                if (typeof syncManageTaskCreate === 'function') {
+                    syncManageTaskCreate(task); 
+                }
 
 
                 form.reset();
