@@ -488,126 +488,149 @@
 
 
                             <!-- Blog Posts Tab (NGO) -->
-                            <div class="tab-pane fade {{ request()->has('tab') && request('tab') == 'blog' ? 'show active' : '' }}"
-                                id="blog" role="tabpanel" aria-labelledby="blog-tab">
+                           <div class="tab-pane fade {{ request()->has('tab') && request('tab') == 'blog' ? 'show active' : '' }}"
+    id="blog" role="tabpanel" aria-labelledby="blog-tab">
 
-                                @forelse($blogPosts as $post)
-                                    @php
-                                        $isOwner = auth()->check() && auth()->id() === $profile->user_id;
+    {{-- Container for vertical list --}}
+    <div class="d-flex flex-column gap-3">
+        @forelse($blogPosts as $post)
+            @php
+                // 1. Check Ownership (using $profile->user_id based on your snippet)
+                $isOwner = auth()->check() && auth()->id() === $profile->user_id;
 
-                                        // Excerpt logic
-                                        if (!empty($post->blogSummary)) {
-                                            $excerpt = \Illuminate\Support\Str::limit(
-                                                trim(
-                                                    preg_replace(
-                                                        '/\s+/u',
-                                                        ' ',
-                                                        html_entity_decode(strip_tags($post->blogSummary)),
-                                                    ),
-                                                ),
-                                                120,
-                                                '...',
-                                            );
-                                        } else {
-                                            $excerpt = \Illuminate\Support\Str::limit(
-                                                trim(
-                                                    preg_replace(
-                                                        '/\s+/u',
-                                                        ' ',
-                                                        html_entity_decode(strip_tags($post->content)),
-                                                    ),
-                                                ),
-                                                120,
-                                                '...',
-                                            );
-                                        }
+                // 2. Clean Excerpt Logic
+                $rawContent = !empty($post->blogSummary) ? $post->blogSummary : $post->content;
+                $excerpt = \Illuminate\Support\Str::limit(
+                    trim(preg_replace('/\s+/u', ' ', html_entity_decode(strip_tags($rawContent)))),
+                    120,
+                    '...'
+                );
 
-                                        // Image
-                                        $imageUrl = $post->image
-                                            ? asset('images/Blog/' . $post->image)
-                                            : asset('assets/default_blog.jpg');
+                // 3. Image URL
+                $imageUrl = $post->image
+                    ? asset('images/Blog/' . $post->image)
+                    : asset('assets/default_blog.jpg');
 
-                                        // Date
-                                        $displayDate = $post->published_at
-                                            ? \Carbon\Carbon::parse($post->published_at)->format('j M Y')
-                                            : ($post->created_at
-                                                ? \Carbon\Carbon::parse($post->created_at)->format('j M Y')
-                                                : '-');
+                // 4. Date Logic
+                $displayDate = $post->published_at
+                    ? \Carbon\Carbon::parse($post->published_at)->format('j M Y')
+                    : ($post->created_at
+                        ? \Carbon\Carbon::parse($post->created_at)->format('j M Y')
+                        : '-');
 
-                                        // Card link
-                                        $cardLink = route('blogs.show', $post->blogPost_id);
-                                    @endphp
+                // 5. ROUTING LOGIC (NGO Specific)
+                if ($isOwner) {
+                    if ($post->status === 'draft') {
+                        // Draft -> Direct Edit
+                        $cardLink = route('ngo.blogs.edit', $post->blogPost_id);
+                    } else {
+                        // Published -> Manage View
+                        $cardLink = route('ngo.blogs.manage', $post->blogPost_id);
+                    }
+                } else {
+                    // Visitor -> Public Show
+                    $cardLink = route('blogs.show', $post->blogPost_id);
+                }
+            @endphp
 
-                                    <a href="{{ $cardLink }}" class="text-decoration-none text-reset">
-                                        <div class="card event-card mb-3 border-0 shadow-sm h-100">
+            {{-- Full Width Card --}}
+            <div class="card event-card border-0 shadow-sm w-100 position-relative">
+                
+                {{-- Image Header --}}
+                <div class="position-relative">
+                    <img src="{{ $imageUrl }}" alt="{{ $post->title }}" class="w-100"
+                        style="height: 180px; object-fit: cover; border-radius: 10px 10px 0 0;">
 
-                                            {{-- Image + Category --}}
-                                            <div class="position-relative">
-                                                <img src="{{ $imageUrl }}" alt="{{ $post->title }}"
-                                                    class="w-100"
-                                                    style="height: 180px; object-fit: cover; border-radius: 10px 10px 0 0;">
+                    {{-- Category Badge --}}
+                    <span class="position-absolute top-0 start-0 m-2 px-3 py-1 small fw-semibold text-white"
+                        style="background: rgba(0,0,0,0.65); border-radius: 18px; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
+                        {{ $post->custom_category ?: optional($post->category)->categoryName ?? 'Uncategorized' }}
+                    </span>
+                </div>
 
-                                                {{-- Category badge --}}
-                                                <span
-                                                    class="position-absolute top-0 start-0 m-2 px-3 py-1 small fw-semibold text-white"
-                                                    style="background: rgba(0,0,0,0.65); border-radius: 18px; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
-                                                    {{ $post->custom_category ?: optional($post->category)->categoryName ?? 'Uncategorized' }}
-                                                </span>
-                                            </div>
+                {{-- Card Body --}}
+                <div class="card-body d-flex flex-column">
+                    
+                    {{-- Title & Draft Badge --}}
+                    <div class="d-flex align-items-start justify-content-between gap-2 mb-2">
+                        <h5 class="card-title mb-0">
+                            {{ $post->title }}
+                        </h5>
+                        @if ($post->status !== 'published' && $isOwner)
+                            <span class="badge bg-warning text-dark fw-semibold flex-shrink-0">
+                                Draft
+                            </span>
+                        @endif
+                    </div>
 
-                                            {{-- Card Body --}}
-                                            <div class="card-body d-flex flex-column">
+                    {{-- Excerpt --}}
+                    <p class="text-muted small mb-3">
+                        {{ $excerpt }}
+                    </p>
 
-                                                {{-- Title + Draft badge (same row) --}}
-                                                <div
-                                                    class="d-flex align-items-start justify-content-between gap-2 mb-2">
-                                                    <h5 class="card-title mb-0 flex-grow-1">
-                                                        {{ $post->title }}
-                                                    </h5>
+                    {{-- Footer: Date (Left) & 3-Dots (Right) --}}
+                    <div class="mt-auto d-flex align-items-center justify-content-between">
+                        
+                        {{-- Date --}}
+                        <div class="d-flex align-items-center gap-1 small text-secondary" style="opacity: 0.85;">
+                            <i class="fas fa-calendar-alt" style="color: #004aad;"></i>
+                            <span>{{ $displayDate }}</span>
+                        </div>
 
-                                                    <div class="d-flex align-items-center gap-2 flex-shrink-0">
-                                                        @if ($post->status !== 'published' && $isOwner)
-                                                            <span class="badge bg-warning text-dark fw-semibold">
-                                                                Draft
-                                                            </span>
-                                                        @endif
-                                                    </div>
-                                                </div>
-
-                                                {{-- Excerpt --}}
-                                                <p class="text-muted small mb-3">
-                                                    {{ $excerpt }}
-                                                </p>
-
-                                                {{-- Date at bottom-left --}}
-                                                <div class="mt-auto">
-                                                    <div class="d-flex align-items-center gap-1 small text-secondary"
-                                                        style="opacity: 0.85;">
-                                                        <i class="fas fa-calendar-alt" style="color: #004aad;"></i>
-                                                        <span>{{ $displayDate }}</span>
-                                                    </div>
-                                                </div>
-
-                                            </div>
-                                        </div>
-                                    </a>
-
-                                @empty
-                                    <div class="card">
-                                        <div class="card-body text-center py-4">
-                                            <i class="fas fa-file-alt text-muted fa-2x mb-3"></i>
-                                            <p class="text-muted mb-0">No blog posts yet</p>
-                                        </div>
-                                    </div>
-                                @endforelse
-
-                                {{-- Pagination --}}
-                                @if ($blogPosts->hasPages())
-                                    <div class="d-flex justify-content-center mt-3 events-pagination">
-                                        {{ $blogPosts->withQueryString()->links('pagination::bootstrap-5') }}
-                                    </div>
-                                @endif
+                        {{-- 3-Dot Menu (Owner Only) --}}
+                        @if($isOwner)
+                            <div class="dropdown" style="z-index: 2; position: relative;">
+                                <button class="btn btn-sm btn-light rounded-circle" type="button" 
+                                        data-bs-toggle="dropdown" aria-expanded="false" 
+                                        style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-ellipsis-v text-muted"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                                    {{-- Edit Option --}}
+                                    <li>
+                                        <a class="dropdown-item" href="{{ route('ngo.blogs.edit', $post->blogPost_id) }}">
+                                            <i class="fas fa-edit me-2 text-primary"></i> Edit
+                                        </a>
+                                    </li>
+                                    {{-- Delete Option --}}
+                                    <li>
+                                        <form action="{{ route('ngo.blogs.destroy', $post->blogPost_id) }}" method="POST"
+                                              onsubmit="return confirm('Are you sure you want to delete this blog post?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="dropdown-item text-danger">
+                                                <i class="fas fa-trash-alt me-2"></i> Delete
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
                             </div>
+                        @endif
+
+                    </div>
+                </div>
+
+                {{-- Stretched Link (Clickable Card) --}}
+                <a href="{{ $cardLink }}" class="stretched-link"></a>
+            </div>
+
+        @empty
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-file-alt text-muted fa-3x mb-3"></i>
+                    <p class="text-muted mb-0">No blog posts yet</p>
+                </div>
+            </div>
+        @endforelse
+    </div>
+
+    {{-- Pagination --}}
+    @if ($blogPosts->hasPages())
+        <div class="d-flex justify-content-center mt-3 events-pagination">
+            {{ $blogPosts->withQueryString()->links('pagination::bootstrap-5') }}
+        </div>
+    @endif
+</div>
 
                         </div>
                     </div>
