@@ -423,76 +423,36 @@
         }
     }
 
-    @media (max-width:768px) {
-    /* 1. Ensure the header stays as a flex row */
-    .volunteer-header-component .volunteer-header {
-        padding: .75rem 1rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        position: sticky;
+   @media (max-width:768px) {
+        .volunteer-header-component .volunteer-header {
+            padding: .75rem 1rem;
+            position: relative
+        }
+
+        .volunteer-header-component .volunteer-mobile-menu-btn {
+            display: block
+        }
+
+        .volunteer-header-component .volunteer-nav-section,
+        .volunteer-header-component .desktop-profile {
+            display: none
+        }
+
+        .volunteer-header-component .volunteer-mobile-menu-container {
+            display: block
+        }
+
+        .profile-notif-badge {
+            top: -4px;
+            right: -4px;
+            min-width: 18px;
+            height: 18px;
+            font-size: .65rem
+        }
+
+
     }
 
-    /* 2. SHOW the nav section in the header, but hide the text */
-    .volunteer-header-component .volunteer-nav-section {
-        display: flex !important; 
-        gap: 1.2rem;
-        margin-left: auto; /* Push it towards the right */
-        margin-right: 3.5rem; /* Make room for the burger button */
-    }
-
-    /* Hide only the text labels in the top header links */
-    .volunteer-header-component .volunteer-header .volunteer-nav-link .nav-text {
-        display: none !important;
-    }
-
-    /* Style the icons in the header for mobile */
-    .volunteer-header-component .volunteer-header .volunteer-nav-link i {
-        font-size: 1.2rem;
-        color: var(--vol-header-primary-color);
-        display: block !important;
-    }
-
-    /* 3. Keep the Burger Button functional and in place */
-    .volunteer-header-component .volunteer-mobile-menu-btn {
-        display: block;
-        z-index: 1001; /* Ensure it stays above the drawer */
-    }
-
-    /* 4. Ensure the Mobile Drawer (Panel) still shows everything correctly */
-    .volunteer-header-component .volunteer-mobile-menu-container {
-        display: block; /* Managed by the .active class in JS */
-    }
-
-    /* Re-show the text labels inside the slide-out drawer */
-    .volunteer-header-component .volunteer-mobile-menu-container .nav-text {
-        display: inline-block !important;
-    }
-
-    .volunteer-header-component .volunteer-mobile-menu-container .volunteer-nav-section {
-        display: flex !important;
-        flex-direction: column;
-        gap: 0;
-        margin: 0 0 1rem 0;
-    }
-
-    /* Hide the desktop-only profile info */
-    .volunteer-header-component .desktop-profile {
-        display: none;
-    }
-
-    /* Shrink logo text if it hits the icons */
-    .volunteer-header-component .volunteer-logo-title {
-        font-size: 1.1rem;
-    }
-}
-
-/* Extra small screens fix */
-@media (max-width: 400px) {
-    .volunteer-header-component .volunteer-logo-title {
-        display: none; /* Only show logo icon on very small phones to save space */
-    }
-}
 
     /* MOBILE — show text only, hide icons; slightly smaller font */
     @media (max-width:768px) {

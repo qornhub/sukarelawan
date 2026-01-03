@@ -141,11 +141,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const task = data.task || data;
 
                 insertTaskCard(task);
-                //insertManageTaskRow(task);
-                // FIX: Change 'newTask' to 'task'
-                if (typeof syncManageTaskCreate === 'function') {
-                    syncManageTaskCreate(task); 
-                }
+                insertManageTaskRow(task);
 
 
                 form.reset();

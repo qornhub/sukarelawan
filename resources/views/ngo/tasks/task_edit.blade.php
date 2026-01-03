@@ -204,35 +204,11 @@
 
                         const data = await resp.json();
 
-                       // Inside your success/done callback...
-if (data && data.task) {
-    // 1. Update the Card (Left side) - existing code
-    try {
-        updateTaskCard(data.task); 
-    } catch(e) { console.error("Left card update failed:", e); }
+                        if (data && data.task) {
+                            updateTaskCard(data.task); // ✅ CARD UI
+                            updateManageTaskRow(data.task); // ✅ MANAGE TABLE
+                        }
 
-    // 2. Update the Manage List (Right side) - NEW CODE
-    try {
-        // Make sure the function exists before calling it
-        if (typeof syncManageTaskUpdate === 'function') {
-            syncManageTaskUpdate(
-                data.task.task_id, 
-                data.task.title, 
-                data.task.description
-            );
-        } else {
-            console.warn("syncManageTaskUpdate function is missing!");
-        }
-    } catch (e) {
-        console.error("Manage list update failed:", e); 
-        // We log the error but DO NOT alert the user, 
-        // because the data was actually saved successfully.
-    }
-    
-    // 3. Show success message
-    flash('Task updated successfully', 'success');
-    closeModal(); // or however you close your modal
-}
                         // back to list
                         editForm.reset();
                         sectionEdit.style.display = 'none';
