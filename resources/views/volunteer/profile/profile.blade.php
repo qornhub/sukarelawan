@@ -423,12 +423,11 @@
                                 @endif
                             </div>
 
-                            <!-- Blog Posts Tab -->
-                            <div class="tab-pane fade {{ request()->has('tab') && request('tab') == 'blog' ? 'show active' : '' }}"
+                           <div class="tab-pane fade {{ request()->has('tab') && request('tab') == 'blog' ? 'show active' : '' }}"
     id="blog" role="tabpanel" aria-labelledby="blog-tab">
 
-    {{-- We use a row if you want grid columns, otherwise just list them --}}
-    <div class="row g-3"> 
+    {{-- Container for the list (No 'row' class needed for vertical stacking) --}}
+    <div class="d-flex flex-column gap-3"> 
         @forelse($blogPosts as $post)
             @php
                 // 1. Check Ownership
@@ -454,13 +453,13 @@
                         ? \Carbon\Carbon::parse($post->created_at)->format('j M Y')
                         : '-');
 
-                // 5. ROUTING LOGIC (Refined)
+                // 5. ROUTING LOGIC
                 if ($isOwner) {
                     if ($post->status === 'draft') {
                         // Draft -> Direct Edit
                         $cardLink = route('volunteer.blogs.edit', $post->blogPost_id);
                     } else {
-                        // Published -> Manage View (BlogEditDelete)
+                        // Published -> Manage View
                         $cardLink = route('volunteer.blogs.manage', $post->blogPost_id);
                     }
                 } else {
@@ -469,96 +468,96 @@
                 }
             @endphp
 
-            <div class="col-md-6"> {{-- Adjust column size as needed --}}
-                <div class="card event-card border-0 shadow-sm h-100 position-relative">
-                    
-                    {{-- Image Header --}}
-                    <div class="position-relative">
-                        <img src="{{ $imageUrl }}" alt="{{ $post->title }}" class="w-100"
-                            style="height: 180px; object-fit: cover; border-radius: 10px 10px 0 0;">
+            {{-- Full Width Card --}}
+            <div class="card event-card border-0 shadow-sm w-100 position-relative">
+                
+                {{-- Image Header --}}
+                <div class="position-relative">
+                    {{-- 
+                       NOTE: I kept the height at 180px. 
+                       If you want the image larger for a full-width card, you can increase this.
+                    --}}
+                    <img src="{{ $imageUrl }}" alt="{{ $post->title }}" class="w-100"
+                        style="height: 180px; object-fit: cover; border-radius: 10px 10px 0 0;">
 
-                        {{-- Category Badge --}}
-                        <span class="position-absolute top-0 start-0 m-2 px-3 py-1 small fw-semibold text-white"
-                            style="background: rgba(0,0,0,0.65); border-radius: 18px; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
-                            {{ $post->custom_category ?: optional($post->category)->categoryName ?? 'Uncategorized' }}
-                        </span>
-                    </div>
-
-                    {{-- Card Body --}}
-                    <div class="card-body d-flex flex-column">
-                        
-                        {{-- Title & Draft Badge --}}
-                        <div class="d-flex align-items-start justify-content-between gap-2 mb-2">
-                            <h5 class="card-title mb-0 flex-grow-1 text-truncate">
-                                {{ $post->title }}
-                            </h5>
-                            @if ($post->status !== 'published' && $isOwner)
-                                <span class="badge bg-warning text-dark fw-semibold flex-shrink-0">
-                                    Draft
-                                </span>
-                            @endif
-                        </div>
-
-                        {{-- Excerpt --}}
-                        <p class="text-muted small mb-3">
-                            {{ $excerpt }}
-                        </p>
-
-                        {{-- Footer: Date (Left) & 3-Dots (Right) --}}
-                        <div class="mt-auto d-flex align-items-center justify-content-between">
-                            
-                            {{-- Date --}}
-                            <div class="d-flex align-items-center gap-1 small text-secondary" style="opacity: 0.85;">
-                                <i class="fas fa-calendar-alt"></i>
-                                <span>{{ $displayDate }}</span>
-                            </div>
-
-                            {{-- 3-Dot Menu (Owner Only) --}}
-                            @if($isOwner)
-                                <div class="dropdown" style="z-index: 2; position: relative;">
-                                    <button class="btn btn-sm btn-light rounded-circle" type="button" 
-                                            data-bs-toggle="dropdown" aria-expanded="false" 
-                                            style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
-                                        <i class="fas fa-ellipsis-v text-muted"></i>
-                                    </button>
-                                    <ul class="dropdown-menu dropdown-menu-end shadow border-0">
-                                        {{-- Edit Option --}}
-                                        <li>
-                                            <a class="dropdown-item" href="{{ route('volunteer.blogs.edit', $post->blogPost_id) }}">
-                                                <i class="fas fa-edit me-2 text-primary"></i> Edit
-                                            </a>
-                                        </li>
-                                        {{-- Delete Option --}}
-                                        <li>
-                                            <form action="{{ route('volunteer.blogs.destroy', $post->blogPost_id) }}" method="POST"
-                                                  onsubmit="return confirm('Are you sure you want to delete this blog post?');">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="dropdown-item text-danger">
-                                                    <i class="fas fa-trash-alt me-2"></i> Delete
-                                                </button>
-                                            </form>
-                                        </li>
-                                    </ul>
-                                </div>
-                            @endif
-
-                        </div>
-                    </div>
-
-                    {{-- Stretched Link to make the whole card clickable --}}
-                    {{-- NOTE: The z-index of the dropdown above ensures it is clickable over this link --}}
-                    <a href="{{ $cardLink }}" class="stretched-link"></a>
+                    {{-- Category Badge --}}
+                    <span class="position-absolute top-0 start-0 m-2 px-3 py-1 small fw-semibold text-white"
+                        style="background: rgba(0,0,0,0.65); border-radius: 18px; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
+                        {{ $post->custom_category ?: optional($post->category)->categoryName ?? 'Uncategorized' }}
+                    </span>
                 </div>
+
+                {{-- Card Body --}}
+                <div class="card-body d-flex flex-column">
+                    
+                    {{-- Title & Draft Badge --}}
+                    <div class="d-flex align-items-start justify-content-between gap-2 mb-2">
+                        <h5 class="card-title mb-0">
+                            {{ $post->title }}
+                        </h5>
+                        @if ($post->status !== 'published' && $isOwner)
+                            <span class="badge bg-warning text-dark fw-semibold flex-shrink-0">
+                                Draft
+                            </span>
+                        @endif
+                    </div>
+
+                    {{-- Excerpt --}}
+                    <p class="text-muted small mb-3">
+                        {{ $excerpt }}
+                    </p>
+
+                    {{-- Footer: Date (Left) & 3-Dots (Right) --}}
+                    <div class="mt-auto d-flex align-items-center justify-content-between">
+                        
+                        {{-- Date --}}
+                        <div class="d-flex align-items-center gap-1 small text-secondary" style="opacity: 0.85;">
+                            <i class="fas fa-calendar-alt"></i>
+                            <span>{{ $displayDate }}</span>
+                        </div>
+
+                        {{-- 3-Dot Menu (Owner Only) --}}
+                        @if($isOwner)
+                            <div class="dropdown" style="z-index: 2; position: relative;">
+                                <button class="btn btn-sm btn-light rounded-circle" type="button" 
+                                        data-bs-toggle="dropdown" aria-expanded="false" 
+                                        style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-ellipsis-v text-muted"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                                    {{-- Edit Option --}}
+                                    <li>
+                                        <a class="dropdown-item" href="{{ route('volunteer.blogs.edit', $post->blogPost_id) }}">
+                                            <i class="fas fa-edit me-2 text-primary"></i> Edit
+                                        </a>
+                                    </li>
+                                    {{-- Delete Option --}}
+                                    <li>
+                                        <form action="{{ route('volunteer.blogs.destroy', $post->blogPost_id) }}" method="POST"
+                                                onsubmit="return confirm('Are you sure you want to delete this blog post?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="dropdown-item text-danger">
+                                                <i class="fas fa-trash-alt me-2"></i> Delete
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </div>
+                        @endif
+
+                    </div>
+                </div>
+
+                {{-- Stretched Link to make the whole card clickable --}}
+                <a href="{{ $cardLink }}" class="stretched-link"></a>
             </div>
 
         @empty
-            <div class="col-12">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body text-center py-5">
-                        <i class="fas fa-file-alt text-muted fa-3x mb-3"></i>
-                        <p class="text-muted mb-0">No blog posts yet</p>
-                    </div>
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-file-alt text-muted fa-3x mb-3"></i>
+                    <p class="text-muted mb-0">No blog posts yet</p>
                 </div>
             </div>
         @endforelse
