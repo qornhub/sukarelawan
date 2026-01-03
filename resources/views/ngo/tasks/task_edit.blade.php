@@ -206,7 +206,12 @@
 
                         if (data && data.task) {
                             updateTaskCard(data.task); // ✅ CARD UI
-                            updateManageTaskRow(data.task); // ✅ MANAGE TABLE
+                            // updateManageTaskRow(data.task); // ✅ MANAGE TABLE
+                            syncManageTaskUpdate(
+                                data.task.task_id,
+                                data.task.title,
+                                data.task.description
+                            );
                         }
 
                         // back to list
