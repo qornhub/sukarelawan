@@ -240,30 +240,46 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
     function insertManageTaskRow(task) {
-        const tbody = document.querySelector('#section-manage-tasks table tbody');
-        if (!tbody) return;
+    const container = document.querySelector(
+        '#section-manage-tasks .manage-task-card-list'
+    );
+    if (!container) return;
 
-        removePlaceholderRowsFrom(tbody);
+    const taskId = task.task_id || task.id;
 
-        const taskId = task.task_id || task.id;
+    // Remove "No tasks found" placeholder if exists
+    const empty = container.querySelector('.text-center.text-muted');
+    if (empty) empty.remove();
 
-        const row = document.createElement('tr');
-        row.dataset.taskId = taskId;
+    const card = document.createElement('div');
+    card.className = 'manage-task-card';
+    card.dataset.taskId = taskId;
+    card.dataset.assigned = '';
 
-        row.innerHTML = `
-            <td class="task-title">${escapeHtml(task.title)}</td>
-            <td>${escapeHtml(task.description)}</td>
-            <td class="assigned-users"><span class="text-muted">—</span></td>
-            <td>
-                <button class="btn btn-sm btn-outline-success assign-btn"
-                    data-task-id="${escapeHtml(taskId)}">
-                    Assign To
-                </button>
-            </td>
-        `;
+    card.innerHTML = `
+        <div class="d-flex justify-content-between align-items-start mb-2">
+            <div>
+                <h5 class="task-title mb-1">${escapeHtml(task.title)}</h5>
+                <p class="text-muted mb-0">
+                    ${escapeHtml(task.description).slice(0, 100)}
+                </p>
+            </div>
 
-        tbody.appendChild(row);
-    }
+            <button type="button"
+                class="btn btn-sm btn-outline-success assign-btn"
+                data-task-id="${escapeHtml(taskId)}">
+                Assign To
+            </button>
+        </div>
+
+        <div class="assigned-users mt-2">
+            <span class="text-muted">—</span>
+        </div>
+    `;
+
+    container.prepend(card);
+}
+
 
 });
 </script>

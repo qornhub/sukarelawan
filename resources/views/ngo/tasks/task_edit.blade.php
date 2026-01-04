@@ -274,23 +274,24 @@
             // NEW: Update row in Manage Tasks table
             // ----------------------------------------------------
             function updateManageTaskRow(task) {
-                const mRow = document.querySelector(
-                    `#section-manage-tasks tr[data-task-id="${task.task_id}"]`
-                );
-                if (!mRow) return;
+    const card = document.querySelector(
+        `#section-manage-tasks .manage-task-card[data-task-id="${task.task_id}"]`
+    );
+    if (!card) return;
 
-                const titleCell = mRow.querySelector('.task-title');
-                // description is 2nd <td> in that table
-                const tds = mRow.querySelectorAll('td');
-                const descCell = tds[1] || null;
+    const titleEl = card.querySelector('.task-title');
+    const descEl = card.querySelector('p.text-muted');
 
-                if (titleCell) titleCell.textContent = task.title || '';
+    if (titleEl) titleEl.textContent = task.title || '';
 
-                if (descCell) {
-                    const full = task.description || '';
-                    descCell.textContent = full.length > 100 ? full.slice(0, 100) + '...' : full;
-                }
-            }
+    if (descEl) {
+        const full = task.description || '';
+        descEl.textContent = full.length > 100
+            ? full.slice(0, 100) + '...'
+            : full;
+    }
+}
+
 
             // ----------------------------------------------------
             // Flash helper

@@ -215,9 +215,10 @@
                     `#task-card-list .task-card[data-task-id="${taskId}"]`
                 )?.remove();
 
-                document.querySelector(
-                    `#section-manage-tasks tr[data-task-id="${taskId}"]`
-                )?.remove();
+              document.querySelector(
+  `#section-manage-tasks .manage-task-card[data-task-id="${taskId}"]`
+)?.remove();
+
 
                 normalizeEmptyState();
                 flash(body.message || 'Task deleted', 'success');
