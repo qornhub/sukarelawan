@@ -475,47 +475,23 @@ if ($filename) {
     }
 
     @media (max-width: 768px) {
-         .ngo-header-component .ngo-logo-title {
-        display: none;
-    }
         .ngo-header-component .ngo-header {
             padding: 0.75rem 1rem;
             position: relative;
         }
 
-         .
-
         .ngo-header-component .ngo-mobile-menu-btn {
-        display: block;
-        z-index: 1100;
-    }
+            display: block;
+        }
 
         .ngo-header-component .ngo-nav-section,
         .ngo-header-component .desktop-profile {
             display: none;
         }
 
-        .ngo-header-component .ngo-nav-section {
-        flex: 1;
-        justify-content: center;
-        max-width: calc(100% - 120px);
-    }
         .ngo-header-component .ngo-mobile-menu-container {
             display: block;
         }
-
-        .ngo-header-component .ngo-nav-link {
-        font-size: 0.9rem;
-        padding: 0.25rem 0;
-    }
-
-     .ngo-header-component .ngo-nav-link i {
-        display: none;
-    }
-
-     .ngo-header-component .ngo-nav-link::after {
-        height: 2px;
-    }
     }
 </style>
 <script src="https://js.pusher.com/8.2/pusher.min.js"></script>
