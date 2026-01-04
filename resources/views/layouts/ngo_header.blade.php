@@ -475,10 +475,15 @@ if ($filename) {
     }
 
     @media (max-width: 768px) {
+         .ngo-header-component .ngo-logo-title {
+        display: none;
+    }
         .ngo-header-component .ngo-header {
             padding: 0.75rem 1rem;
             position: relative;
         }
+
+         .
 
         .ngo-header-component .ngo-mobile-menu-btn {
             display: block;
@@ -489,9 +494,26 @@ if ($filename) {
             display: none;
         }
 
+        .ngo-header-component .ngo-nav-section {
+        display: flex;
+        gap: 1rem;
+    }
         .ngo-header-component .ngo-mobile-menu-container {
             display: block;
         }
+
+        .ngo-header-component .ngo-nav-link {
+        font-size: 0.9rem;
+        padding: 0.25rem 0;
+    }
+
+     .ngo-header-component .ngo-nav-link i {
+        display: none;
+    }
+
+     .ngo-header-component .ngo-nav-link::after {
+        height: 2px;
+    }
     }
 </style>
 <script src="https://js.pusher.com/8.2/pusher.min.js"></script>
