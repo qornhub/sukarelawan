@@ -486,8 +486,9 @@ if ($filename) {
          .
 
         .ngo-header-component .ngo-mobile-menu-btn {
-            display: block;
-        }
+        display: block;
+        z-index: 1100;
+    }
 
         .ngo-header-component .ngo-nav-section,
         .ngo-header-component .desktop-profile {
@@ -495,8 +496,9 @@ if ($filename) {
         }
 
         .ngo-header-component .ngo-nav-section {
-        display: flex;
-        gap: 1rem;
+        flex: 1;
+        justify-content: center;
+        max-width: calc(100% - 120px);
     }
         .ngo-header-component .ngo-mobile-menu-container {
             display: block;
