@@ -7,11 +7,25 @@
                 <div class="volunteer-footer-col">
                     <h6 class="volunteer-footer-heading">Navigation</h6>
                     <ul class="volunteer-footer-links">
-                        <li><a href="#"><i class="fas fa-home"></i> Home</a></li>
-                        <li><a href="#"><i class="fas fa-calendar-alt"></i> Events</a></li>
-                        <li><a href="#"><i class="fas fa-blog"></i> Blog</a></li>
-                        <li><a href="#"><i class="fas fa-award"></i> Rewards</a></li>
+                        <li>
+                            <a href="{{ route('volunteer.index.public') }}">
+                                <i class="fas fa-home"></i> Home
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="{{ route('blogs.index') }}">
+                                <i class="fas fa-blog"></i> Blog
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="{{ route('volunteer.rewards.index') }}">
+                                <i class="fas fa-award"></i> Rewards
+                            </a>
+                        </li>
                     </ul>
+
                 </div>
 
                 <div class="volunteer-footer-col">
@@ -26,26 +40,30 @@
                     <h6 class="volunteer-footer-heading">Contact</h6>
                     <ul class="volunteer-footer-links">
                         <li>
-                            <a href="mailto:sukarelwan@gmail.com">
-                                <i class="fas fa-envelope"></i> sukarelwan@gmail.com
+                            <a href="mailto:sukarelawan@gmail.com">
+                                <i class="fas fa-envelope"></i> sukarelawan@gmail.com
                             </a>
                         </li>
+
                         <li>
-                            <a href="#">
+                            <a href="https://www.facebook.com" target="_blank" rel="noopener">
                                 <i class="fab fa-facebook-f"></i> Facebook
                             </a>
                         </li>
+
                         <li>
-                            <a href="#">
+                            <a href="https://www.instagram.com" target="_blank" rel="noopener">
                                 <i class="fab fa-instagram"></i> Instagram
                             </a>
                         </li>
+
                         <li>
-                            <a href="#">
+                            <a href="https://www.linkedin.com" target="_blank" rel="noopener">
                                 <i class="fab fa-linkedin-in"></i> LinkedIn
                             </a>
                         </li>
                     </ul>
+
                 </div>
 
                 <div class="volunteer-footer-col">

@@ -12,523 +12,396 @@
 
 
     <!-- Volunteer Header -->
-    <header class="volunteer-header">
-        <a href="#" class="volunteer-logo-section">
-            <img src="{{ asset('assets/sukarelawan_logo.png') }}" alt="Logo">
-            <h4 class="volunteer-logo-title">SukaRelawan</h4>
+<header class="volunteer-header">
+    <a href="#" class="volunteer-logo-section">
+        <img src="{{ asset('images/sukarelawan_logo.png') }}" alt="Logo">
+        <h4 class="volunteer-logo-title">SukaRelawan</h4>
+    </a>
+
+    <!-- Desktop Navigation and Profile -->
+    <nav class="volunteer-nav-section">
+        <a href="{{ route('volunteer.index.public') }}"
+            class="volunteer-nav-link {{ request()->routeIs('volunteer.index.public') ? 'active' : '' }}">
+            <i class="fas fa-home"></i>
+            <span class="nav-text">Home</span>
         </a>
 
-        <!-- Desktop Navigation and Profile -->
-        <nav class="volunteer-nav-section">
-            <a href="{{ route('volunteer.index.public') }}"
-                class="volunteer-nav-link {{ request()->routeIs('volunteer.index.public') ? 'active' : '' }}">
-                <i class="fas fa-home"></i>
-                <span class="nav-text">Home</span>
-            </a>
+        <a href="{{ route('blogs.index') }}"
+            class="volunteer-nav-link {{ request()->routeIs('blogs.index') ? 'active' : '' }}">
+            <i class="fas fa-blog"></i>
+            <span class="nav-text">Blog</span>
+        </a>
 
-            <a href="{{ route('blogs.index') }}"
-                class="volunteer-nav-link {{ request()->routeIs('blogs.index') ? 'active' : '' }}">
-                <i class="fas fa-blog"></i>
-                <span class="nav-text">Blog</span>
-            </a>
+        <a href="{{ route('volunteer.rewards.index') }}"
+            class="volunteer-nav-link {{ request()->routeIs('volunteer.rewards.index') ? 'active' : '' }}">
+            <i class="fas fa-award"></i>
+            <span class="nav-text">Reward</span>
+        </a>
+    </nav>
 
-            <a href="{{ route('volunteer.rewards.index') }}"
-                class="volunteer-nav-link {{ request()->routeIs('volunteer.rewards.index') ? 'active' : '' }}">
-                <i class="fas fa-award"></i>
-                <span class="nav-text">Reward</span>
-            </a>
-
-
-        </nav>
-
-        <div class="desktop-profile">
-            <div class="volunteer-profile-section">
-                <img src="{{ $filename ? asset('images/profiles/' . $filename) : asset('assets/default-profile.png') }}"
-                    alt="Profile Photo" class="volunteer-profile-img">
-                <div class="volunteer-profile-info">
-                    <p class="volunteer-profile-name">{{ $name }}</p>
-                    <p class="volunteer-profile-role">{{ ucfirst($roleName) }}</p>
-                </div>
-                <div class="volunteer-profile-dropdown">
-                    @auth
-                        @if (auth()->user()->role->roleName === 'volunteer' && Route::has('volunteer.profile.profile'))
-                            <a href="{{ route('volunteer.profile.profile') }}" class="volunteer-dropdown-item">
-                                <i class="fas fa-user-circle"></i> My Profile
-                            </a>
-                        @endif
-                    @endauth
-
-                    <a href="{{ route('volunteer.notifications.index') }}"
-                        class="volunteer-dropdown-item position-relative volunteer-notifications-link">
-                        <i class="fas fa-bell"></i> Notifications
-                    </a>
-
-                    <div class="volunteer-dropdown-divider"></div>
-                    <form method="POST" action="{{ route('logout.volunteer') }}">
-                        @csrf
-                        <button type="submit" class="volunteer-dropdown-item" aria-label="Logout">
-                            <i class="fas fa-sign-out-alt"></i> Logout
-                        </button>
-                    </form>
-
-                </div>
-            </div>
-        </div>
-
-        <!-- Mobile Menu Button -->
-        <button class="volunteer-mobile-menu-btn" id="volunteerMobileMenuBtn">
-            <i class="fas fa-bars"></i>
-        </button>
-    </header>
-
-    <!-- Mobile Menu Container -->
-    <div class="volunteer-mobile-menu-container" id="volunteerMobileMenuContainer">
-        <nav class="volunteer-nav-section">
-            <a href="{{ route('volunteer.index.public') }}" class="volunteer-nav-link active">
-                <i class="fas fa-home"></i>
-                <span class="nav-text">Home</span>
-            </a>
-
-            <a href="{{ route('blogs.index') }}" class="volunteer-nav-link">
-                <i class="fas fa-blog"></i>
-                <span class="nav-text">Blog</span>
-            </a>
-
-            <a href="{{ route('volunteer.rewards.index') }}" class="volunteer-nav-link">
-                <i class="fas fa-award"></i>
-                <span class="nav-text">Reward</span>
-            </a>
-
-        </nav>
-
-
-
+    <div class="desktop-profile">
         <div class="volunteer-profile-section">
-            <div style="position:relative; display:inline-block;">
-                <img src="{{ $filename ? asset('images/profiles/' . $filename) : asset('assets/default-profile.png') }}"
-                    alt="Profile Photo" class="volunteer-profile-img">
-
-
-            </div>
-
+            <img src="{{ $filename ? asset('images/profiles/' . $filename) : asset('images/default-profile.png') }}"
+                alt="Profile Photo" class="volunteer-profile-img">
             <div class="volunteer-profile-info">
                 <p class="volunteer-profile-name">{{ $name }}</p>
                 <p class="volunteer-profile-role">{{ ucfirst($roleName) }}</p>
             </div>
-        </div>
+            <div class="volunteer-profile-dropdown">
+                @auth
+                    @if (auth()->user()->role->roleName === 'volunteer' && Route::has('volunteer.profile.profile'))
+                        <a href="{{ route('volunteer.profile.profile') }}" class="volunteer-dropdown-item">
+                            <i class="fas fa-user-circle"></i> My Profile
+                        </a>
+                    @endif
+                @endauth
+                
+                <a href="{{ route('volunteer.notifications.index') }}"
+                    class="volunteer-dropdown-item position-relative volunteer-notifications-link">
+                    <i class="fas fa-bell"></i> Notifications
+                </a>
 
-        <div class="volunteer-mobile-menu-actions">
-            @auth
-                @if (auth()->user()->role->roleName === 'volunteer' && Route::has('volunteer.profile.profile'))
-                    <a href="{{ route('volunteer.profile.profile', auth()->id()) }}" class="volunteer-dropdown-item">
-                        <i class="fas fa-user-circle"></i> My Profile
-                    </a>
-                @endif
-            @endauth
-
-
-
-
-            <a href="{{ route('volunteer.notifications.index') }}"
-                class="volunteer-dropdown-item position-relative volunteer-notifications-link">
-                <i class="fas fa-bell"></i> Notifications
-            </a>
-            <form method="POST" action="{{ route('logout.volunteer') }}">
-                @csrf
-                <button type="submit" class="volunteer-dropdown-item">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </button>
-            </form>
+                <div class="volunteer-dropdown-divider"></div>
+                <form method="POST" action="{{ route('logout.volunteer') }}">
+                    @csrf
+                    <button type="submit" class="volunteer-dropdown-item" aria-label="Logout">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
+
+    <!-- Mobile Menu Button -->
+    <button class="volunteer-mobile-menu-btn" id="volunteerMobileMenuBtn">
+        <i class="fas fa-bars"></i>
+    </button>
+</header>
+
+<!-- Mobile Menu Container -->
+<div class="volunteer-mobile-menu-container" id="volunteerMobileMenuContainer">
+    <!-- REMOVED DUPLICATE NAVIGATION - Now only contains profile actions -->
+    <div class="volunteer-profile-section">
+        <div style="position:relative; display:inline-block;">
+            <img src="{{ $filename ? asset('images/profiles/' . $filename) : asset('images/default-profile.png') }}"
+                alt="Profile Photo" class="volunteer-profile-img">
+        </div>
+
+        <div class="volunteer-profile-info">
+            <p class="volunteer-profile-name">{{ $name }}</p>
+            <p class="volunteer-profile-role">{{ ucfirst($roleName) }}</p>
+        </div>
+    </div>
+
+    <div class="volunteer-mobile-menu-actions">
+        @auth
+            @if (auth()->user()->role->roleName === 'volunteer' && Route::has('volunteer.profile.profile'))
+                <a href="{{ route('volunteer.profile.profile', auth()->id()) }}" class="volunteer-dropdown-item">
+                    <i class="fas fa-user-circle"></i> My Profile
+                </a>
+            @endif
+        @endauth
+
+        <a href="{{ route('volunteer.notifications.index') }}"
+            class="volunteer-dropdown-item position-relative volunteer-notifications-link">
+            <i class="fas fa-bell"></i> Notifications
+        </a>
+        
+        <form method="POST" action="{{ route('logout.volunteer') }}">
+            @csrf
+            <button type="submit" class="volunteer-dropdown-item">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </form>
+    </div>
+</div>
 </div>
 
 <style>
-    .volunteer-header-component {
-        --vol-header-primary-color: #004AAD;
-        --vol-header-primary-light: #3a506b;
-        --vol-header-accent-color: #3498db;
-        --vol-header-text-light: #f8f9fa;
-        --vol-header-text-gray: #6c757d;
-        --vol-header-border-color: #e0e0e0;
-        --vol-header-hover-bg: rgba(255, 255, 255, .1);
-        --vol-header-transition: all .3s ease;
-        --vol-header-shadow: 0 4px 12px rgba(0, 0, 0, .05);
+.volunteer-header-component {
+    --vol-header-primary-color: #004AAD;
+    --vol-header-primary-light: #3a506b;
+    --vol-header-accent-color: #3498db;
+    --vol-header-text-light: #f8f9fa;
+    --vol-header-text-gray: #6c757d;
+    --vol-header-border-color: #e0e0e0;
+    --vol-header-hover-bg: rgba(255,255,255,.1);
+    --vol-header-transition: all .3s ease;
+    --vol-header-shadow: 0 4px 12px rgba(0,0,0,.05);
+}
+
+/* HEADER */
+.volunteer-header-component .volunteer-header{
+    background:#fff;
+    padding:.75rem 2rem;
+    box-shadow:var(--vol-header-shadow);
+    border-bottom:1px solid var(--vol-header-border-color);
+    position:sticky;top:0;z-index:1000;
+    display:flex;justify-content:space-between;align-items:center;
+    flex-wrap:wrap;margin:0
+}
+
+/* LOGO */
+.volunteer-header-component .volunteer-logo-section{
+    display:flex;align-items:center;gap:.75rem;
+    text-decoration:none;transition:var(--vol-header-transition)
+}
+.volunteer-header-component .volunteer-logo-section:hover{transform:translateY(-2px)}
+.volunteer-header-component .volunteer-logo-section img{height:40px;transition:var(--vol-header-transition)}
+.volunteer-header-component .volunteer-logo-title{
+    font-weight:700;font-size:1.35rem;
+    color:var(--vol-header-primary-color);margin:0
+}
+
+/* NAV */
+.volunteer-header-component .volunteer-nav-section{display:flex;gap:4rem}
+.volunteer-header-component .volunteer-nav-link{
+    position:relative;display:flex;align-items:center;gap:.5rem;
+    color:var(--vol-header-text-gray);font-weight:500;
+    text-decoration:none;padding:.5rem 0;transition:var(--vol-header-transition)
+}
+.volunteer-header-component .volunteer-nav-link i{font-size:.9rem;opacity:.8}
+.volunteer-header-component .volunteer-nav-link:hover,
+.volunteer-header-component .volunteer-nav-link.active{
+    color:var(--vol-header-primary-color)
+}
+.volunteer-header-component .volunteer-nav-link:hover::after,
+.volunteer-header-component .volunteer-nav-link.active::after{
+    content:'';position:absolute;bottom:0;left:0;width:100%;height:3px;
+    border-radius:2px;background:var(--vol-header-accent-color)
+}
+
+/* PROFILE */
+.volunteer-header-component .volunteer-profile-section{
+    display:flex;align-items:center;gap:1rem;
+    position:relative;cursor:pointer
+}
+.volunteer-header-component .volunteer-profile-img{
+    height:40px;width:40px;border-radius:50%;object-fit:cover;
+    border:2px solid #e0e0e0;transition:var(--vol-header-transition)
+}
+.volunteer-header-component .volunteer-profile-section:hover .volunteer-profile-img{
+    border-color:var(--vol-header-accent-color);transform:scale(1.05)
+}
+.volunteer-header-component .volunteer-profile-info{text-align:right}
+.volunteer-header-component .volunteer-profile-name{
+    font-weight:600;font-size:.95rem;margin:0;
+    color:var(--vol-header-primary-color)
+}
+.volunteer-header-component .volunteer-profile-role{
+    font-size:.8rem;margin:0;color:var(--vol-header-text-gray)
+}
+
+/* DROPDOWN */
+.volunteer-header-component .volunteer-profile-dropdown{
+    position:absolute;top:100%;right:-1rem;width:200px;
+    background:#fff;border-radius:8px;box-shadow:var(--vol-header-shadow);
+    padding:.5rem 0;margin-top:1rem;
+    opacity:0;visibility:hidden;transform:translateY(10px);
+    transition:var(--vol-header-transition);
+    display:flex;flex-direction:column;gap:.25rem;z-index:1000
+}
+.volunteer-header-component .volunteer-profile-section:hover .volunteer-profile-dropdown{
+    opacity:1;visibility:visible;transform:translateY(0)
+}
+
+/* DROPDOWN ITEMS — unified for <a> + <button> */
+.volunteer-header-component .volunteer-dropdown-item{
+    -webkit-appearance:none;appearance:none;
+    background:none;border:none;
+    width:100%;margin:0;
+    padding:.75rem 1.5rem;
+    display:flex;align-items:center;gap:.75rem;
+    text-align:left;cursor:pointer;
+    text-decoration:none;
+    color:var(--vol-header-text-gray);
+    font:inherit;font-weight:500;font-size:.95rem;
+    letter-spacing:.2px;
+    transition:var(--vol-header-transition)
+}
+.volunteer-header-component .volunteer-dropdown-item:hover{
+    background:#f8f9fa;color:var(--vol-header-primary-color)
+}
+.volunteer-header-component .volunteer-dropdown-divider{
+    height:1px;background:var(--vol-header-border-color);margin:.5rem 0
+}
+
+/* MOBILE MENU TOGGLER */
+.volunteer-header-component .volunteer-mobile-menu-btn{
+    display:none;background:none;border:none;
+    font-size:1.5rem;color:var(--vol-header-primary-color);
+    cursor:pointer;position:absolute;right:1.5rem;top:1rem
+}
+
+/* MOBILE PANEL */
+.volunteer-header-component .volunteer-mobile-menu-container{
+    display:none;position:fixed;
+    top:70px;left:0;right:0;bottom:0;
+    background:rgba(255,255,255,.95);
+    z-index:999;padding:1.5rem;
+    overflow-y:auto;
+    transform:translateX(100%);
+    transition:transform .3s ease
+}
+.volunteer-header-component .volunteer-mobile-menu-container.active{
+    transform:translateX(0)
+}
+
+/* Mobile profile section in panel */
+.volunteer-header-component .volunteer-mobile-menu-container .volunteer-profile-section{
+    padding:1rem;
+    background:#f8f9fa;
+    border-radius:8px;
+    flex-direction:row;
+    align-items:center;
+    margin-bottom:1.5rem
+}
+
+/* Mobile dropdown links */
+.volunteer-header-component .volunteer-mobile-menu-actions .volunteer-dropdown-item{
+    padding:1.1rem 0;
+    border-bottom:1px solid #f0f0f0
+}
+.volunteer-header-component .volunteer-mobile-menu-actions .volunteer-dropdown-item:last-child{
+    border-bottom:none
+}
+
+/* NOTIFICATION BADGE */
+.profile-notif-badge{
+    position:absolute;top:-6px;right:-6px;
+    min-width:20px;height:20px;line-height:18px;padding:0 6px;
+    background:#dc3545;color:#fff;
+    border-radius:999px;font-size:.7rem;font-weight:600;
+    text-align:center;
+    box-shadow:0 1px 3px rgba(0,0,0,.15);
+    pointer-events:none
+}
+
+/* RESPONSIVE */
+@media (max-width:992px){
+    .volunteer-header-component .volunteer-header{padding:.75rem 1.5rem}
+    .volunteer-header-component .volunteer-nav-section{gap:1rem}
+}
+
+@media (max-width:768px){
+    .volunteer-header-component .volunteer-header{
+        padding:.75rem 1rem;
+        position:relative;
+        justify-content: flex-start; /* Align items to start */
     }
 
-    /* HEADER */
-    .volunteer-header-component .volunteer-header {
-        background: #fff;
-        padding: .75rem 2rem;
-        box-shadow: var(--vol-header-shadow);
-        border-bottom: 1px solid var(--vol-header-border-color);
-        position: sticky;
-        top: 0;
-        z-index: 1000;
+    .volunteer-header-component .volunteer-mobile-menu-btn{
+        display:block;
+        position: static; /* Remove absolute positioning */
+        margin-left: auto; /* Push to the right */
+    }
+
+    /* Hide desktop profile dropdown on mobile */
+    .volunteer-header-component .desktop-profile{
+        display:none
+    }
+
+    /* Keep navigation visible but hide text, show only icons */
+    .volunteer-header-component .volunteer-nav-section{
         display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-wrap: wrap;
-        margin: 0
+        gap: 3rem; /* Reduced gap for mobile */
+        margin: 0 auto; /* Center the navigation */
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
     }
 
-    /* LOGO */
-    .volunteer-header-component .volunteer-logo-section {
-        display: flex;
-        align-items: center;
-        gap: .75rem;
-        text-decoration: none;
-        transition: var(--vol-header-transition)
-    }
-
-    .volunteer-header-component .volunteer-logo-section:hover {
-        transform: translateY(-2px)
-    }
-
-    .volunteer-header-component .volunteer-logo-section img {
-        height: 40px;
-        transition: var(--vol-header-transition)
-    }
-
-    .volunteer-header-component .volunteer-logo-title {
-        font-weight: 700;
-        font-size: 1.35rem;
-        color: var(--vol-header-primary-color);
-        margin: 0
-    }
-
-    /* NAV */
-    .volunteer-header-component .volunteer-nav-section {
-        display: flex;
-        gap: 4rem
+    /* Hide text in navigation links on mobile, show only icons */
+    .volunteer-header-component .volunteer-nav-link .nav-text {
+        display: none;
     }
 
     .volunteer-header-component .volunteer-nav-link {
-        position: relative;
-        display: flex;
-        align-items: center;
-        gap: .5rem;
-        color: var(--vol-header-text-gray);
-        font-weight: 500;
-        text-decoration: none;
-        padding: .5rem 0;
-        transition: var(--vol-header-transition)
+        padding: 0.5rem;
+        font-size: 1.2rem;
     }
 
     .volunteer-header-component .volunteer-nav-link i {
-        font-size: .9rem;
-        opacity: .8
+        font-size: 1.2rem;
+        margin: 0;
     }
 
-    .volunteer-header-component .volunteer-nav-link:hover,
-    .volunteer-header-component .volunteer-nav-link.active {
-        color: var(--vol-header-primary-color)
-    }
-
+    /* Remove underline effect on mobile */
     .volunteer-header-component .volunteer-nav-link:hover::after,
     .volunteer-header-component .volunteer-nav-link.active::after {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        height: 3px;
-        border-radius: 2px;
-        background: var(--vol-header-accent-color)
-    }
-
-    /* PROFILE */
-    .volunteer-header-component .volunteer-profile-section {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        position: relative;
-        cursor: pointer
-    }
-
-    .volunteer-header-component .volunteer-profile-img {
-        height: 40px;
-        width: 40px;
-        border-radius: 50%;
-        object-fit: cover;
-        border: 2px solid #e0e0e0;
-        transition: var(--vol-header-transition)
-    }
-
-    .volunteer-header-component .volunteer-profile-section:hover .volunteer-profile-img {
-        border-color: var(--vol-header-accent-color);
-        transform: scale(1.05)
-    }
-
-    .volunteer-header-component .volunteer-profile-info {
-        text-align: right
-    }
-
-    .volunteer-header-component .volunteer-profile-name {
-        font-weight: 600;
-        font-size: .95rem;
-        margin: 0;
-        color: var(--vol-header-primary-color)
-    }
-
-    .volunteer-header-component .volunteer-profile-role {
-        font-size: .8rem;
-        margin: 0;
-        color: var(--vol-header-text-gray)
-    }
-
-    /* DROPDOWN */
-    .volunteer-header-component .volunteer-profile-dropdown {
-        position: absolute;
-        top: 100%;
-        right: -1rem;
-        width: 200px;
-        background: #fff;
-        border-radius: 8px;
-        box-shadow: var(--vol-header-shadow);
-        padding: .5rem 0;
-        margin-top: 1rem;
-        opacity: 0;
-        visibility: hidden;
-        transform: translateY(10px);
-        transition: var(--vol-header-transition);
-        display: flex;
-        flex-direction: column;
-        gap: .25rem;
-        z-index: 1000
-    }
-
-    .volunteer-header-component .volunteer-profile-section:hover .volunteer-profile-dropdown {
-        opacity: 1;
-        visibility: visible;
-        transform: translateY(0)
-    }
-
-    /* DROPDOWN ITEMS — unified for <a> + <button> */
-    .volunteer-header-component .volunteer-dropdown-item {
-        -webkit-appearance: none;
-        appearance: none;
-        background: none;
-        border: none;
-        width: 100%;
-        margin: 0;
-        padding: .75rem 1.5rem;
-        display: flex;
-        align-items: center;
-        gap: .75rem;
-        text-align: left;
-        cursor: pointer;
-        text-decoration: none;
-        color: var(--vol-header-text-gray);
-        font: inherit;
-        font-weight: 500;
-        font-size: .95rem;
-        letter-spacing: .2px;
-        transition: var(--vol-header-transition)
-    }
-
-    .volunteer-header-component .volunteer-dropdown-item:hover {
-        background: #f8f9fa;
-        color: var(--vol-header-primary-color)
-    }
-
-    .volunteer-header-component .volunteer-dropdown-divider {
-        height: 1px;
-        background: var(--vol-header-border-color);
-        margin: .5rem 0
-    }
-
-    /* MOBILE MENU TOGGLER */
-    .volunteer-header-component .volunteer-mobile-menu-btn {
         display: none;
-        background: none;
-        border: none;
-        font-size: 1.5rem;
-        color: var(--vol-header-primary-color);
-        cursor: pointer;
-        position: absolute;
-        right: 1.5rem;
-        top: 1rem
     }
 
-    /* MOBILE PANEL */
+    .volunteer-header-component .volunteer-mobile-menu-container{
+        display:block;
+    }
+
+    /* Hide the logo title on mobile */
+    .volunteer-header-component .volunteer-logo-title {
+        display: none;
+    }
+
+    /* Adjust logo positioning */
+    .volunteer-header-component .volunteer-logo-section {
+        margin-right: 1rem;
+    }
+
+    /* Mobile menu container styling - only for profile now */
     .volunteer-header-component .volunteer-mobile-menu-container {
-        display: none;
-        position: fixed;
         top: 70px;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(255, 255, 255, .95);
-        z-index: 999;
-        padding: 1.5rem;
-        overflow-y: auto;
-        transform: translateX(100%);
-        transition: transform .3s ease
+        padding: 1rem;
     }
 
-    .volunteer-header-component .volunteer-mobile-menu-container.active {
-        transform: translateX(0)
+    .volunteer-header-component .volunteer-mobile-menu-container .volunteer-profile-section {
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 8px;
+        flex-direction: row;
+        align-items: center;
+        margin-bottom: 1.5rem;
     }
 
-    /* Mobile nav inside panel */
-    .volunteer-header-component .volunteer-mobile-menu-container .volunteer-nav-section {
-        flex-direction: column;
-        gap: 0;
-        margin-bottom: .3rem
+    .volunteer-header-component .volunteer-mobile-menu-container .volunteer-profile-info {
+        text-align: left;
+        flex-grow: 1;
     }
 
-    .volunteer-header-component .volunteer-mobile-menu-container .volunteer-nav-link {
-        padding: 1.1rem 0;
-        border-bottom: 1px solid #f0f0f0
-    }
-
-    /* Mobile dropdown links */
     .volunteer-header-component .volunteer-mobile-menu-actions .volunteer-dropdown-item {
         padding: 1.1rem 0;
-        border-bottom: 1px solid #f0f0f0
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        color: var(--vol-header-text-gray);
+        text-decoration: none;
+        transition: var(--vol-header-transition);
+        border-bottom: 1px solid #f0f0f0;
     }
 
     .volunteer-header-component .volunteer-mobile-menu-actions .volunteer-dropdown-item:last-child {
-        border-bottom: none
+        border-bottom: none;
     }
 
-    /* NOTIFICATION BADGE */
-    .profile-notif-badge {
-        position: absolute;
-        top: -6px;
-        right: -6px;
-        min-width: 20px;
-        height: 20px;
-        line-height: 18px;
-        padding: 0 6px;
-        background: #dc3545;
-        color: #fff;
-        border-radius: 999px;
-        font-size: .7rem;
-        font-weight: 600;
-        text-align: center;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, .15);
-        pointer-events: none
+    .profile-notif-badge{
+        top:-4px;right:-4px;
+        min-width:18px;height:18px;font-size:.65rem
     }
+}
 
-    /* RESPONSIVE */
-    @media (max-width:992px) {
-        .volunteer-header-component .volunteer-header {
-            padding: .75rem 1.5rem
-        }
-
-        .volunteer-header-component .volunteer-nav-section {
-            gap: 1rem
-        }
+/* For very small screens */
+@media (max-width: 480px) {
+    .volunteer-header-component .volunteer-nav-section {
+        gap: 1rem; /* Even smaller gap on very small screens */
     }
-
-   @media (max-width:768px) {
-        .volunteer-header-component .volunteer-header {
-            padding: .75rem 1rem;
-            position: relative
-        }
-
-        .volunteer-header-component .volunteer-mobile-menu-btn {
-            display: block
-        }
-
-        .volunteer-header-component .volunteer-nav-section,
-        .volunteer-header-component .desktop-profile {
-            display: none
-        }
-
-        .volunteer-header-component .volunteer-mobile-menu-container {
-            display: block
-        }
-
-        .profile-notif-badge {
-            top: -4px;
-            right: -4px;
-            min-width: 18px;
-            height: 18px;
-            font-size: .65rem
-        }
-
-
+    
+    .volunteer-header-component .volunteer-nav-link {
+        padding: 0.4rem;
+        font-size: 0.9rem;
     }
-
-
-    /* MOBILE — show text only, hide icons; slightly smaller font */
-    @media (max-width:768px) {
-
-        /* hide icons in nav links (top + drawer) */
-        .volunteer-header-component .volunteer-nav-link i {
-            display: none !important;
-            width: 0;
-            margin: 0;
-            opacity: 0;
-        }
-
-        /* show the text span, slightly smaller */
-        .volunteer-header-component .volunteer-nav-link .nav-text {
-            display: inline-block !important;
-            font-size: 0.95rem;
-            /* adjust smaller if needed */
-            font-weight: 600;
-            letter-spacing: .2px;
-            line-height: 1;
-            padding: .45rem .35rem;
-            /* touchable area */
-        }
-
-        /* keep links readable and left-aligned in the header */
-        .volunteer-header-component .volunteer-nav-section {
-            gap: .6rem;
-            align-items: center;
-        }
-
-        .volunteer-header-component .volunteer-nav-link {
-            gap: .4rem;
-            justify-content: flex-start;
-        }
-
-        /* If you want the mobile drawer to keep icons, override only top header:
-     uncomment the rule below and comment the general icon-hide above:
-  .volunteer-header-component > .volunteer-mobile-menu-container .volunteer-nav-link i {
-    display: inline-block !important;
-    opacity: 1;
-    margin-right: .5rem;
-  }
-  */
-
-        /* shrink logo text */
-        .volunteer-header-component .volunteer-logo-title {
-            font-size: 1rem;
-        }
-
-        /* adjust profile name size inside mobile panel */
-        .volunteer-header-component .volunteer-profile-name {
-            font-size: 0.95rem;
-        }
-
-        /* notification badge smaller */
-        .profile-notif-badge {
-            min-width: 18px;
-            height: 18px;
-            line-height: 18px;
-            font-size: .65rem;
-            top: -4px;
-            right: -4px;
-        }
+    
+    .volunteer-header-component .volunteer-nav-link i {
+        font-size: 0.9rem;
     }
-
-    /* extra-tiny phones */
-    @media (max-width:420px) {
-        .volunteer-header-component .volunteer-nav-link .nav-text {
-            font-size: 0.92rem;
-            padding: .35rem .25rem;
-        }
-
-        .volunteer-header-component .volunteer-logo-title {
-            font-size: .95rem;
-        }
-    }
+}
 </style>
 
 
@@ -787,7 +660,7 @@
                                     `<span class="me-2 text-capitalize small text-muted">[${escapeHtml(status)}]</span>` :
                                     '';
                                 const nid = notification.id || payload.id || ('n-' + Math.floor(Math
-                                    .random() * 100000));
+                                .random() * 100000));
                                 wrapper.setAttribute('data-id', nid);
                                 wrapper.innerHTML = `
                 <div class="d-flex align-items-start justify-content-between">
@@ -861,7 +734,7 @@
                         .remove('active'));
                     this.classList.add('active');
                     if (mobileMenuContainer && mobileMenuContainer.classList.contains(
-                            'active')) {
+                        'active')) {
                         mobileMenuContainer.classList.remove('active');
                         const icon = mobileMenuBtn.querySelector('i');
                         if (icon) {

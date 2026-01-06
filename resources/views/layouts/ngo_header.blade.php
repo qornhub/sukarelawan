@@ -17,7 +17,7 @@ $roleNameLower = strtolower(optional($user->role)->roleName ?? 'ngo');
 $filename = $ngoProfile->profilePhoto ?? null;
 
 // Default avatar
-$profileImageUrl = asset('assets/default-profile.png');
+$profileImageUrl = asset('images/default-profile.png');
 
 if ($filename) {
     $basename = basename($filename);
@@ -48,7 +48,7 @@ if ($filename) {
     }
 
     // If none existed but the stored value looks like a storage path, prefer storage url
-    if ($profileImageUrl === asset('assets/default-profile.png')) {
+    if ($profileImageUrl === asset('images/default-profile.png')) {
         if (
             Str::startsWith($filename, 'profiles/') ||
             Str::startsWith($filename, 'covers/') ||
@@ -67,25 +67,28 @@ if ($filename) {
     <!-- NGO Header -->
     <header class="ngo-header">
         <a href="{{ route('ngo.events.index') }}" class="ngo-logo-section">
-            <img src="{{ asset('assets/sukarelawan_logo.png') }}" alt="Logo">
+            <img src="{{ asset('images/sukarelawan_logo.png') }}" alt="Logo">
             <h4 class="ngo-logo-title">SukaRelawan</h4>
         </a>
 
         <!-- Desktop Navigation and Profile -->
         <nav class="ngo-nav-section">
-            <a href="{{ route('ngo.dashboard') }}"
-                class="ngo-nav-link {{ request()->routeIs('ngo.dashboard') ? 'active' : '' }}">
-                <i class="fas fa-home"></i> Home
+            <a href="{{ route('ngo.dashboard') }}"  
+            class="ngo-nav-link {{ request()->routeIs('ngo.dashboard') ? 'active' : '' }}">
+                <i class="fas fa-home"></i>
+                <span class="nav-text">Home</span>
             </a>
 
             <a href="{{ route('ngo.events.index') }}"
                 class="ngo-nav-link {{ request()->routeIs('ngo.events.*') ? 'active' : '' }}">
-                <i class="fas fa-calendar-alt"></i> Event
+                <i class="fas fa-calendar-alt"></i> 
+                <span class="nav-text">Events</span>
             </a>
 
             <a href="{{ route('blogs.index') }}"
                 class="ngo-nav-link {{ request()->routeIs('blogs.index') ? 'active' : '' }}">
-                <i class="fas fa-blog"></i> Blog
+                <i class="fas fa-blog"></i>
+                <span class="nav-text">Blog</span>
             </a>
 
         </nav>
@@ -135,12 +138,6 @@ if ($filename) {
 
     <!-- Mobile Menu Container -->
     <div class="ngo-mobile-menu-container" id="ngoMobileMenuContainer">
-        <nav class="ngo-nav-section">
-            <a href="{{ route('ngo.events.index') }}" class="ngo-nav-link active"><i class="fas fa-home"></i> Home</a>
-            <a href="{{ route('ngo.events.index') }}" class="ngo-nav-link"><i class="fas fa-calendar-alt"></i>
-                Event</a>
-            <a href="{{ route('blogs.index') }}" class="ngo-nav-link"><i class="fas fa-blog"></i> Blog</a>
-        </nav>
 
         <div class="ngo-profile-section">
             <img src="{{ $profileImageUrl }}" alt="Profile Photo" class="ngo-profile-img">
@@ -393,13 +390,13 @@ if ($filename) {
         transform: translateX(0);
     }
 
-    .ngo-header-component .ngo-mobile-menu-container .ngo-nav-section {
+    .ngo-header-component .ngo-mobile-menu-container .ngo-mobile-nav {
         flex-direction: column;
         gap: 0;
         margin-bottom: 1.5rem;
     }
 
-    .ngo-header-component .ngo-mobile-menu-container .ngo-nav-link {
+    .ngo-header-component .ngo-mobile-menu-container .ngo-mobile-nav .ngo-nav-link {
         padding: 1.1rem 0;
         border-bottom: 1px solid #f0f0f0;
     }
@@ -478,19 +475,108 @@ if ($filename) {
         .ngo-header-component .ngo-header {
             padding: 0.75rem 1rem;
             position: relative;
+            justify-content: flex-start;
+            /* Align items to start */
         }
 
         .ngo-header-component .ngo-mobile-menu-btn {
             display: block;
+            position: static;
+            /* Remove absolute positioning */
+            margin-left: auto;
+            /* Push to the right */
         }
 
-        .ngo-header-component .ngo-nav-section,
+        /* Hide desktop profile dropdown on mobile */
         .ngo-header-component .desktop-profile {
+            display: none;
+        }
+
+        /* Keep navigation visible but hide text, show only icons */
+        .ngo-header-component .ngo-nav-section {
+            display: flex;
+            gap: 3rem;
+            /* Reduced gap for mobile */
+            margin: 0 auto;
+            /* Center the navigation */
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .ngo-header-component .ngo-nav-link>span,
+        .ngo-header-component .ngo-nav-link>.nav-text {
+            display: none;
+        }
+
+        .ngo-header-component .ngo-nav-link .nav-text {
+    display: none;
+  }
+
+       /* Icon sizing */
+.ngo-header-component .ngo-nav-link {
+    padding: 0.5rem;
+    font-size: 1.2rem;
+}
+
+.ngo-header-component .ngo-nav-link i {
+    font-size: 1.2rem;
+    margin: 0;
+}
+
+        /* Remove underline effect on mobile */
+        .ngo-header-component .ngo-nav-link:hover::after,
+        .ngo-header-component .ngo-nav-link.active::after {
             display: none;
         }
 
         .ngo-header-component .ngo-mobile-menu-container {
             display: block;
+        }
+
+        /* Hide the logo title on mobile */
+        .ngo-header-component .ngo-logo-title {
+            display: none;
+        }
+
+        /* Adjust logo positioning */
+        .ngo-header-component .ngo-logo-section {
+            margin-right: 1rem;
+        }
+
+        /* Mobile menu container styling - only for profile now */
+        .ngo-header-component .ngo-mobile-menu-container {
+            top: 70px;
+            padding: 1rem;
+        }
+
+        .ngo-header-component .ngo-mobile-menu-container .ngo-profile-section {
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            flex-direction: row;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .ngo-header-component .ngo-mobile-menu-container .ngo-profile-info {
+            text-align: left;
+            flex-grow: 1;
+        }
+
+        .ngo-header-component .ngo-mobile-menu-actions .ngo-dropdown-item {
+            padding: 1.1rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--text-gray);
+            text-decoration: none;
+            transition: var(--transition);
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .ngo-header-component .ngo-mobile-menu-actions .ngo-dropdown-item:last-child {
+            border-bottom: none;
         }
     }
 </style>
