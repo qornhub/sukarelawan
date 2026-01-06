@@ -205,7 +205,7 @@ if ($user) {
                 'userPoint_id' => (string) \Illuminate\Support\Str::uuid(),
                 'user_id'      => $attendance->user_id,
                 'points'       => -30,
-                'activityType' => 'late_deduction',
+                'activityType' => 'Late Deduction',
                 'event_id'     => $attendance->event_id,
                 'attendance_id'=> $attendance->attendance_id,
             ]);
@@ -219,7 +219,7 @@ if ($user) {
         // Remove any previous late deduction for this attendance (restore points)
         UserPoint::where('user_id', $attendance->user_id)
             ->where('attendance_id', $attendance->attendance_id)
-            ->where('activityType', 'late_deduction')
+            ->where('activityType', 'Late Deduction')
             ->delete();
     }
 
