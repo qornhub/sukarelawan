@@ -87,15 +87,33 @@
    Buttons
 =================================*/
 
+/* ===============================
+   Unified Action Buttons
+=================================*/
+.btn-edit-attendance,
 .btn-delete-attendance {
-  padding: 6px 10px;
+  padding: 6px 12px;
+  min-width: 64px;
   border-radius: var(--rounded-sm);
   font-size: 0.88rem;
-  line-height: 1;
+  line-height: 1.2;
+  font-weight: 600;
 }
 
+/* Edit button style */
+.btn-edit-attendance.btn-outline-primary {
+  border: 1px solid rgba(13,110,253,0.12);
+  color: #1d4ed8;
+  background: #fff;
+}
+
+.btn-edit-attendance.btn-outline-primary:hover {
+  background: rgba(13,110,253,0.06);
+}
+
+/* Delete button keeps danger tone */
 .btn-delete-attendance.btn-outline-danger {
-  border: 1px solid rgba(220,53,69,0.08);
+  border: 1px solid rgba(220,53,69,0.12);
   color: #b91c1c;
   background: #fff;
 }
@@ -104,8 +122,9 @@
   background: rgba(220,53,69,0.06);
 }
 
-/* Disabled delete button visual */
-.btn-delete-attendance.is-disabled {
+/* Disabled visual (shared) */
+.btn-edit-attendance:disabled,
+.btn-delete-attendance:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
@@ -150,4 +169,51 @@
   opacity: 0;
   transform: translateY(-6px);
   transition: .25s ease;
+}
+
+/* ===============================
+   Attendance Edit Modal
+=================================*/
+#attendanceEditModal .modal-content {
+  border-radius: var(--rounded-sm);
+  border: 0;
+  box-shadow: var(--card-shadow);
+}
+
+#attendanceEditModal .modal-header {
+  padding: 14px 18px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+#attendanceEditModal .modal-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+#attendanceEditModal .modal-body {
+  padding: 16px 18px;
+}
+
+#attendanceEditModal .form-label {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #334155;
+}
+
+#attendanceEditModal .form-select {
+  font-size: 0.9rem;
+  border-radius: var(--rounded-sm);
+}
+
+#attendanceEditModal .modal-footer {
+  padding: 12px 18px;
+  border-top: 1px solid #f1f5f9;
+}
+
+/* Modal buttons */
+#attendanceEditModal .btn {
+  font-size: 0.85rem;
+  padding: 6px 12px;
+  border-radius: var(--rounded-sm);
 }

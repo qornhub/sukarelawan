@@ -250,14 +250,29 @@
       }
     });
 
-    function flash(text, type = 'success') {
-      const container = document.getElementById('attendance-list-flash');
-      const el = document.createElement('div');
-      el.className = 'alert alert-' + (type === 'success' ? 'success' : 'danger');
-      el.textContent = text;
-      container.prepend(el);
-      setTimeout(() => el.remove(), 3000);
-    }
+  function flash(text, type = 'success', { duration = 2400 } = {}) {
+  let container = document.querySelector('#attendance-list-flash');
+  if (!container) return;
+
+  const el = document.createElement('div');
+  el.className = 'task-flash enter ' + (type === 'success' ? 'success' : 'error');
+  el.setAttribute('role', 'status');
+  el.textContent = text;
+
+  container.prepend(el);
+
+  requestAnimationFrame(() => {
+    el.classList.remove('enter');
+    el.classList.add('enter-active');
+  });
+
+  setTimeout(() => {
+    el.classList.remove('enter-active');
+    el.classList.add('exit');
+    setTimeout(() => el.remove(), 300);
+  }, duration);
+}
+
 
   })();
   </script>
