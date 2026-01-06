@@ -10,11 +10,11 @@
     <table class="table table-sm attendance-table align-middle mb-0">
       <thead>
         <tr>
-           <th style="width:30%;">Volunteer</th>
+           <th style="width:20%;">Volunteer</th>
     <th style="width:30%;">Email</th>
-    <th style="width:15%;">Status</th>
-    <th style="width:15%;">Attended At</th>
-    <th style="width:10%;" class="text-center">Actions</th>
+    <th style="width:10%;">Status</th>
+    <th style="width:20%;">Attended At</th>
+    <th style="width:20%;" class="text-center">Actions</th>
         </tr>
       </thead>
       <tbody>
