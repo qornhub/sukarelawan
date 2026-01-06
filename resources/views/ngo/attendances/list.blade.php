@@ -10,10 +10,11 @@
     <table class="table table-sm attendance-table align-middle mb-0">
       <thead>
         <tr>
-          <th style="width:35%;">Volunteer</th>
-          <th style="width:35%;">Email</th>
-          <th style="width:20%;">Status</th>
-          <th style="width:10%;" class="text-center">Actions</th>
+           <th style="width:30%;">Volunteer</th>
+    <th style="width:30%;">Email</th>
+    <th style="width:15%;">Status</th>
+    <th style="width:15%;">Attended At</th>
+    <th style="width:10%;" class="text-center">Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -41,6 +42,16 @@
                 <span>{{ $isLate ? 'Late' : 'Present' }}</span>
               </div>
             </td>
+<td>
+  @if($attendance->attendanceTime)
+    <span title="{{ $attendance->attendanceTime }}">
+      {{ \Carbon\Carbon::parse($attendance->attendanceTime)->format('d M Y, h:i A') }}
+    </span>
+  @else
+    <span class="text-muted">—</span>
+  @endif
+</td>
+
 
             <td class="text-center">
               @if(!$disabled)
