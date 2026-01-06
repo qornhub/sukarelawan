@@ -210,6 +210,7 @@ Route::middleware(['auth', 'isNGO'])
         $event = Event::findOrFail($event);
         return view('ngo.attendances.qr', compact('event'));
     })->name('attendance.qr');
+    Route::patch('/events/{event}/attendances/{attendance}', [AttendanceController::class, 'update'])->name('attendances.update');
 
     // <-- Fix: call the plural method that actually exists in controller
     Route::get('/attendance-list/{eventId}', [AttendanceController::class, 'attendancesList'])->name('attendances.list');

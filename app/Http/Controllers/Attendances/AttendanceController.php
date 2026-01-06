@@ -168,6 +168,68 @@ if ($user) {
         return view('ngo.attendances.list', compact('event','attendances'));
     }
 
+    public function update(Request $request, $eventId, $attendanceId)
+{
+    $validated = $request->validate([
+        'status' => 'required|in:present,late',
+    ]);
+
+    $attendance = Attendance::where('event_id', $eventId)
+        ->where('attendance_id', $attendanceId)
+        ->firstOrFail();
+
+    // No change -> exit early
+    if ($attendance->status === $validated['status']) {
+        return response()->json([
+            'message' => 'No changes made',
+            'attendance' => $attendance,
+        ]);
+    }
+
+    $oldStatus = $attendance->status;
+    $newStatus = $validated['status'];
+
+    // 1) Update attendance status
+    $attendance->status = $newStatus;
+    $attendance->save();
+
+    // 2) Handle point deduction / restoration
+    // Use activityType 'late_deduction' to mark deduction rows
+    if ($newStatus === 'late') {
+        // compute total points of the user
+        $totalPoints = (int) UserPoint::where('user_id', $attendance->user_id)->sum('points');
+
+        // Only deduct if total >= 30
+        if ($totalPoints >= 30) {
+            UserPoint::create([
+                'userPoint_id' => (string) \Illuminate\Support\Str::uuid(),
+                'user_id'      => $attendance->user_id,
+                'points'       => -30,
+                'activityType' => 'late_deduction',
+                'event_id'     => $attendance->event_id,
+                'attendance_id'=> $attendance->attendance_id,
+            ]);
+        } else {
+            // optional: you can log or return info that deduction skipped
+            Log::info("Late deduction skipped for user {$attendance->user_id} (total points = {$totalPoints})");
+        }
+    }
+
+    if ($newStatus === 'present') {
+        // Remove any previous late deduction for this attendance (restore points)
+        UserPoint::where('user_id', $attendance->user_id)
+            ->where('attendance_id', $attendance->attendance_id)
+            ->where('activityType', 'late_deduction')
+            ->delete();
+    }
+
+    return response()->json([
+        'message' => 'Attendance updated successfully',
+        'attendance' => $attendance->fresh('user.volunteerProfile'),
+    ]);
+}
+
+
     public function destroy($eventId, $attendanceId)
     {
         $attendance = Attendance::where('event_id', $eventId)
