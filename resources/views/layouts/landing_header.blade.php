@@ -9,7 +9,7 @@
         <div class="lhc-inner">
             <!-- Logo -->
             <a href="{{ route('landing.home') }}" class="lhc-logo" aria-label="SukaRelawan home">
-                <img src="{{ asset('images/sukarelawan_logo.png') }}" alt="SukaRelawan logo" />
+                <img src="{{ asset('assets/sukarelawan_logo.png') }}" alt="SukaRelawan logo" />
                 <span class="lhc-brand">SukaRelawan</span>
             </a>
 

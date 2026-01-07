@@ -8,7 +8,7 @@
                 <div class="col-md-6 mb-4 mb-md-0">
                     <div class="lfc-brand-section animate__animated" data-animate="fadeInLeft">
                         <a href="{{ route('landing.home') }}" class="d-inline-flex align-items-center text-decoration-none">
-                            <img src="{{ asset('images/sukarelawan_logo.png') }}" alt="SukaRelawan Logo" height="40" class="me-3">
+                            <img src="{{ asset('assets/sukarelawan_logo.png') }}" alt="SukaRelawan Logo" height="40" class="me-3">
                             <span class="h4 fw-bold text-primary mb-0">SukaRelawan</span>
                         </a>
                         <p class="text-muted mt-2 small">
