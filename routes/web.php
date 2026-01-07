@@ -63,9 +63,9 @@ Route::get('/', function () {
     return view('landing.home');
 })->name('landing.home');
 
-/*Route::get('/about', function () {
+Route::get('/about', function () {
     return view('landing.about');
-})->name('landing.about');*/
+})->name('landing.about');
 
 /*authenticated user routes*/   
 Route::middleware(['auth'])->group(function () {
