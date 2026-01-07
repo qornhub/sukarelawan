@@ -14,7 +14,7 @@
     <!-- Volunteer Header -->
 <header class="volunteer-header">
     <a href="#" class="volunteer-logo-section">
-        <img src="{{ asset('images/sukarelawan_logo.png') }}" alt="Logo">
+        <img src="{{ asset('assets/sukarelawan_logo.png') }}" alt="Logo">
         <h4 class="volunteer-logo-title">SukaRelawan</h4>
     </a>
 
@@ -41,7 +41,7 @@
 
     <div class="desktop-profile">
         <div class="volunteer-profile-section">
-            <img src="{{ $filename ? asset('images/profiles/' . $filename) : asset('images/default-profile.png') }}"
+            <img src="{{ $filename ? asset('images/profiles/' . $filename) : asset('assets/default-profile.png') }}"
                 alt="Profile Photo" class="volunteer-profile-img">
             <div class="volunteer-profile-info">
                 <p class="volunteer-profile-name">{{ $name }}</p>
@@ -83,7 +83,7 @@
     <!-- REMOVED DUPLICATE NAVIGATION - Now only contains profile actions -->
     <div class="volunteer-profile-section">
         <div style="position:relative; display:inline-block;">
-            <img src="{{ $filename ? asset('images/profiles/' . $filename) : asset('images/default-profile.png') }}"
+            <img src="{{ $filename ? asset('images/profiles/' . $filename) : asset('assets/default-profile.png') }}"
                 alt="Profile Photo" class="volunteer-profile-img">
         </div>
 
