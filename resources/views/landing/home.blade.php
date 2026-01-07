@@ -626,7 +626,7 @@
                     <div class="slider-track" id="sliderTrack">
                         <!-- Slide 1 -->
                         <div class="slider-slide">
-                            <img src="{{ asset('images/assets/event1.jpg') }}" 
+                            <img src="{{ asset('assets/event1.jpg') }}" 
                                  alt="Community Event" 
                                  class="slider-image"
                                  onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1545235617-9465d2a55698?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80';">
@@ -638,7 +638,7 @@
                         
                         <!-- Slide 2 -->
                         <div class="slider-slide">
-                            <img src="{{ asset('images/assets/event2.jpg') }}" 
+                            <img src="{{ asset('assets/event2.jpg') }}" 
                                  alt="Volunteer Activity" 
                                  class="slider-image"
                                  onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1529156069898-49953e39b3ac?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80';">
@@ -650,7 +650,7 @@
                         
                         <!-- Slide 3 -->
                         <div class="slider-slide">
-                            <img src="{{ asset('images/assets/event3.jpg') }}" 
+                            <img src="{{ asset('assets/event3.jpg') }}" 
                                  alt="Team Building" 
                                  class="slider-image"
                                  onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1532635241-17e820acc59f?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80';">
@@ -679,7 +679,7 @@
                 </div>
             </div>
         </section>
-
+@include('layouts.landing_badges')
         {{-- ROLES SECTION --}}
         <section class="roles" id="login-section">
             <div class="container">
