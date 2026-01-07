@@ -53,7 +53,7 @@
             <nav class="lhc-mobile-nav" role="navigation" aria-label="Mobile navigation">
                 <a href="{{ route('landing.home') }}" class="lhc-mobile-link">Home</a>
                 <a href="{{ route('landing.about') }}" class="lhc-mobile-link">About Us</a>
-                <a href="{{ route('login') }}" class="lhc-mobile-link lhc-mobile-login">Login</a>
+                <a href="{{ route('login.volunteer') }}" class="lhc-mobile-link lhc-mobile-login">Login</a>
             </nav>
         </div>
         <!-- background overlay (click to close) -->
