@@ -28,7 +28,8 @@
 
             <!-- CTA -->
             <div class="lhc-cta">
-                <a href="{{ route('login') }}" class="lhc-btn lhc-btn-primary">Login</a>
+               <a href="{{ route('login.volunteer') }}" class="lhc-btn lhc-btn-primary">
+
             </div>
 
             <!-- Mobile Menu Toggle -->
