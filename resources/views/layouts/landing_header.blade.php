@@ -26,10 +26,11 @@
                 </a>
             </nav>
 
-            <!-- CTA -->
+            <!-- CTA - FIXED: Added closing tag and button text -->
             <div class="lhc-cta">
-               <a href="{{ route('login.volunteer') }}" class="lhc-btn lhc-btn-primary">
-
+                <a href="{{ route('login.volunteer') }}" class="lhc-btn lhc-btn-primary">
+                    Login
+                </a>
             </div>
 
             <!-- Mobile Menu Toggle -->
@@ -51,8 +52,8 @@
             </button>
 
             <nav class="lhc-mobile-nav" role="navigation" aria-label="Mobile navigation">
-                <a href="{{ route('landing.home') }}" class="lhc-mobile-link">Home</a>
-                <a href="{{ route('landing.about') }}" class="lhc-mobile-link">About Us</a>
+                <a href="{{ route('landing.home') }}" class="lhc-mobile-link {{ request()->routeIs('landing.home') ? 'active' : '' }}">Home</a>
+                <a href="{{ route('landing.about') }}" class="lhc-mobile-link {{ request()->routeIs('landing.about') ? 'active' : '' }}">About Us</a>
                 <a href="{{ route('login.volunteer') }}" class="lhc-mobile-link lhc-mobile-login">Login</a>
             </nav>
         </div>
@@ -121,7 +122,8 @@
         display: flex;
         gap: 2rem;
         align-items: center;
-        margin-left: 1rem;
+        margin-left: auto; /* Changed from margin-left: 1rem to auto for better spacing */
+        margin-right: 2rem; /* Added to create space between nav and CTA button */
     }
     .landing-header-component .lhc-nav-link{
         color: var(--lhc-muted);
@@ -157,7 +159,7 @@
 
     /* CTA */
     .landing-header-component .lhc-cta {
-        margin-left: auto;
+        flex-shrink: 0; /* Prevent button from shrinking */
     }
     .landing-header-component .lhc-btn {
         display: inline-flex;
@@ -169,12 +171,12 @@
         text-decoration: none;
         border: none;
         cursor: pointer;
+        transition: transform .12s ease, box-shadow .12s ease;
     }
     .landing-header-component .lhc-btn-primary{
         background: var(--lhc-primary);
         color: #fff;
         box-shadow: 0 6px 18px rgba(4, 42, 91, 0.08);
-        transition: transform .12s ease, box-shadow .12s ease;
     }
     .landing-header-component .lhc-btn-primary:hover{
         transform: translateY(-2px);
@@ -189,18 +191,20 @@
         font-size: 1.25rem;
         color: var(--lhc-primary);
         cursor: pointer;
+        padding: 0.5rem;
     }
 
     /* ===== mobile menu (panel) ===== */
     .landing-header-component .lhc-mobile-menu{
         display: none; /* activated via .active by JS */
+        position: fixed;
+        inset: 0;
+        z-index: 1400;
+        pointer-events: none;
     }
 
     .landing-header-component .lhc-mobile-menu.active{
         display: block;
-        position: fixed;
-        inset: 0;
-        z-index: 1400;
         pointer-events: auto;
     }
 
@@ -211,12 +215,17 @@
         height: 100%;
         background: var(--lhc-bg);
         box-shadow: 0 20px 60px rgba(6,8,20,0.15);
-        transform: translateX(-4%);
+        transform: translateX(-100%);
         animation: lhcSlideIn .32s ease both;
         padding: 1.25rem;
         display: flex;
         flex-direction: column;
         gap: 1rem;
+        z-index: 1401;
+    }
+
+    .landing-header-component .lhc-mobile-menu.active .lhc-mobile-inner {
+        transform: translateX(0);
     }
 
     .landing-header-component .lhc-mobile-backdrop{
@@ -224,7 +233,13 @@
         inset: 0;
         background: rgba(12,16,25,0.45);
         transition: opacity .18s ease;
-        animation: lhcBackdropFade .28s ease both;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .landing-header-component .lhc-mobile-menu.active .lhc-mobile-backdrop {
+        opacity: 1;
+        pointer-events: auto;
     }
 
     .landing-header-component .lhc-mobile-close{
@@ -249,9 +264,14 @@
         font-weight: 700;
         padding: .8rem 1rem;
         border-radius: 8px;
+        transition: background-color .18s ease;
     }
     .landing-header-component .lhc-mobile-link:hover{
         background: #f6f8fb;
+    }
+    .landing-header-component .lhc-mobile-link.active {
+        color: var(--lhc-primary);
+        background: rgba(0, 74, 173, 0.05);
     }
     .landing-header-component .lhc-mobile-login{
         margin-top: .7rem;
@@ -263,12 +283,8 @@
 
     /* Animations */
     @keyframes lhcSlideIn {
-        from { transform: translateX(-8%); opacity: 0; }
+        from { transform: translateX(-100%); opacity: 0; }
         to { transform: translateX(0); opacity: 1; }
-    }
-    @keyframes lhcBackdropFade {
-        from { opacity: 0; }
-        to { opacity: 1; }
     }
 
     /* ===== responsive rules ===== */
@@ -278,6 +294,7 @@
         }
         .landing-header-component .lhc-nav{
             gap: 1.25rem;
+            margin-right: 1rem;
         }
     }
 
@@ -290,13 +307,6 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-        }
-        /* mobile styles: mobile menu container is shown via .active */
-        .landing-header-component .lhc-mobile-menu{
-            display: none;
-        }
-        .landing-header-component .lhc-mobile-menu.active{
-            display: block;
         }
     }
 
@@ -333,15 +343,11 @@
             mobileMenu.classList.toggle('active', !!isOpen);
             mobileMenu.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
 
-            // show/hide backdrop by toggling class on mobileMenu (backdrop present inside)
-            if (backdrop) backdrop.style.pointerEvents = isOpen ? 'auto' : 'none';
-
             if (isOpen) {
                 // save the previously focused element to restore later
                 scope.__prevFocus = document.activeElement;
-                // focus the first focusable element inside menu
-                const firstFocusable = findFocusable(mobileMenu)[0];
-                if (firstFocusable) firstFocusable.focus();
+                // focus the close button first
+                if (closeBtn) closeBtn.focus();
                 document.body.style.overflow = 'hidden'; // lock body scroll
                 document.addEventListener('keydown', onKeyDown, true);
             } else {
@@ -403,13 +409,12 @@
 
         // outside click (backdrop) closes menu
         function onBackdropClick(e) {
-            // clicking backdrop closes
             setMenuOpen(false);
         }
 
         // handle link click -> close menu
         function onMobileLinkClick(e) {
-            // allow normal navigation, but close menu immediately for UX
+            // Allow normal navigation, but close menu immediately for UX
             setMenuOpen(false);
         }
 
@@ -418,24 +423,12 @@
             setMenuOpen(false);
         }
 
-        // close on outside clicks if click not within mobileInner
-        function onDocumentClick(e) {
-            if (!mobileMenu.classList.contains('active')) return;
-            // if clicked outside the menu content (mobileInner) and not on menuBtn, close.
-            if (!mobileInner.contains(e.target) && !menuBtn.contains(e.target)) {
-                setMenuOpen(false);
-            }
-        }
-
         // Attach events
         try {
             if (menuBtn) menuBtn.addEventListener('click', onToggleClick);
             if (backdrop) backdrop.addEventListener('click', onBackdropClick);
             if (closeBtn) closeBtn.addEventListener('click', onCloseClick);
             mobileLinks.forEach(a => a.addEventListener('click', onMobileLinkClick));
-
-            // allow clicking outside (document) to close as a fallback
-            document.addEventListener('click', onDocumentClick);
         } catch (err) {
             console.warn('landing header script init failed', err);
         }
@@ -444,7 +437,6 @@
         (function initAria() {
             if (menuBtn) menuBtn.setAttribute('aria-expanded', 'false');
             if (mobileMenu) mobileMenu.setAttribute('aria-hidden', 'true');
-            if (backdrop) backdrop.style.pointerEvents = 'none';
         })();
     })();
     </script>
