@@ -9,7 +9,7 @@
         <div class="lhc-inner">
             <!-- Logo -->
             <a href="{{ route('landing.home') }}" class="lhc-logo" aria-label="SukaRelawan home">
-                <img src="{{ asset('assets/sukarelawan_logo.png') }}" alt="SukaRelawan logo" />
+                <img src="{{ asset('images/sukarelawan_logo.png') }}" alt="SukaRelawan logo" />
                 <span class="lhc-brand">SukaRelawan</span>
             </a>
 
@@ -28,9 +28,12 @@
 
             <!-- CTA - FIXED: Added closing tag and button text -->
             <div class="lhc-cta">
-                <a href="{{ route('login.volunteer') }}" class="lhc-btn lhc-btn-primary">
-                    Login
-                </a>
+               <a href="{{ route('landing.home') }}#login-section"
+   class="lhc-btn lhc-btn-primary lhc-btn-cta">
+    <span>Get Started</span>
+    <i class="fas fa-arrow-right"></i>
+</a>
+
             </div>
 
             <!-- Mobile Menu Toggle -->
@@ -54,7 +57,10 @@
             <nav class="lhc-mobile-nav" role="navigation" aria-label="Mobile navigation">
                 <a href="{{ route('landing.home') }}" class="lhc-mobile-link {{ request()->routeIs('landing.home') ? 'active' : '' }}">Home</a>
                 <a href="{{ route('landing.about') }}" class="lhc-mobile-link {{ request()->routeIs('landing.about') ? 'active' : '' }}">About Us</a>
-                <a href="{{ route('login.volunteer') }}" class="lhc-mobile-link lhc-mobile-login">Login</a>
+               <a href="{{ route('landing.home') }}#login-section"
+   class="lhc-mobile-link lhc-mobile-login">
+    Get Started
+</a>
             </nav>
         </div>
         <!-- background overlay (click to close) -->
