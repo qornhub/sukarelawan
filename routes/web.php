@@ -52,6 +52,21 @@ use App\Http\Controllers\Admin\AdminDashboardEventsController;
 use App\Http\Controllers\Events\AdminEventDiscoveryController;
 use App\Http\Controllers\Events\AdminEventManagementController;
 
+
+/*
+|--------------------------------------------------------------------------
+| Landing Page (Public – No Login Required)
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/', function () {
+    return view('landing.home');
+})->name('landing.home');
+
+/*Route::get('/about', function () {
+    return view('landing.about');
+})->name('landing.about');*/
+
 /*authenticated user routes*/   
 Route::middleware(['auth'])->group(function () {
     // Create
@@ -103,7 +118,7 @@ Route::get('/volunteer', [EventDiscoveryController::class, 'index'])->name('volu
 Route::get('/preview/header-footer', fn () => view('layouts.preview-header-footer'));
 
 // Default redirect to Volunteer Registration
-Route::get('/', fn () => redirect('/register/volunteer'));
+//Route::get('/', fn () => redirect('/register/volunteer'));
 
 // Publicly accessible NGO profile (anyone can see)
 //Route::get('/ngo/profile/{id}', [NGOProfileController::class, 'show'])->name('ngo.profile.show');
