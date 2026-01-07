@@ -679,7 +679,7 @@
                 </div>
             </div>
         </section>
-@include('layouts.landing_badges')
+@include('landing.badges')
         {{-- ROLES SECTION --}}
         <section class="roles" id="login-section">
             <div class="container">
