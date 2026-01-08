@@ -686,7 +686,7 @@
             <div class="container">
                 <h2 class="section-title animate__animated animate__fadeInUp">Get Started Based on Your Role</h2>
                 <p class="section-subtitle animate__animated animate__fadeInUp animate__delay-1s">
-                    Select your role to access tailored features and personalized dashboard.
+                    Select your role to access tailored features 
                 </p>
                 
                 <div class="roles-grid">

@@ -2,7 +2,8 @@
     <div class="container">
 
         {{-- Section Header --}}
-        <div class="landing-blog-header">
+        <div class="landing-blog-header animate-on-scroll">
+
             <h2 class="landing-blog-title">Stories That Inspire Change</h2>
             <p class="landing-blog-subtitle">
                 Real experiences shared by volunteers from our community.
@@ -19,7 +20,8 @@
                             : asset('images/Blog/default_blog.jpg');
                     @endphp
 
-                    <article class="landing-blog-card">
+                    <article class="landing-blog-card animate-blog-card">
+
                         <img src="{{ $img }}" alt="{{ $post->title }}">
 
                         <div class="landing-blog-content">
@@ -54,7 +56,7 @@
 /* ===== Blog Section ===== */
 .landing-blog {
     padding: 5rem 1.25rem;
-    background: #ffffff;
+    background: #e4f1fd;
 }
 
 .landing-blog .container {
@@ -72,12 +74,12 @@
     font-size: 2.1rem;
     font-weight: 800;
     margin-bottom: .75rem;
-    color: #1a1a1a;
+    color: #003d8c;
 }
 
 .landing-blog-subtitle {
     font-size: 1.05rem;
-    color: #6c757d;
+    color: #666;
 }
 
 /* ===== Blog Grid ===== */
@@ -127,7 +129,7 @@
 /* ===== CTA ===== */
 .landing-blog-cta {
     text-align: center;
-    margin-top: 3.5rem;
+    margin-top: 4rem;
 }
 
 .landing-blog-btn {
@@ -135,7 +137,7 @@
     padding: .8rem 1.6rem;
     font-weight: 700;
     border-radius: 10px;
-    background: #0004ad;
+    background: #004aad;
     color: #ffffff;
     text-decoration: none;
     transition: transform .2s ease, box-shadow .2s ease;
@@ -143,8 +145,13 @@
 
 .landing-blog-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 10px 28px rgba(114, 9, 183, 0.35);
+    box-shadow: 0 10px 28px rgba(9, 70, 183, 0.35);
 }
+
+.landing-blog-card img {
+    transition: transform 0.4s ease;
+}
+
 
 /* ===== Responsive ===== */
 @media (max-width: 768px) {
@@ -157,3 +164,67 @@
     }
 }
 </style>
+
+@push('scripts')
+    <!-- GSAP -->
+    <script src="https://unpkg.com/gsap@3/dist/gsap.min.js"></script>
+    <script src="https://unpkg.com/gsap@3/dist/ScrollTrigger.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            gsap.registerPlugin(ScrollTrigger);
+
+            /* =========================
+               Header Fade-In
+            ========================= */
+            gsap.from('.landing-blog-header', {
+                scrollTrigger: {
+                    trigger: '.landing-blog-header',
+                    start: 'top 80%',
+                },
+                opacity: 0,
+                y: 40,
+                duration: 0.8,
+                ease: 'power3.out'
+            });
+
+            /* =========================
+               Blog Cards Stagger Reveal
+            ========================= */
+            gsap.from('.animate-blog-card', {
+                scrollTrigger: {
+                    trigger: '.landing-blog-grid',
+                    start: 'top 85%',
+                },
+                opacity: 0,
+                y: 50,
+                duration: 0.8,
+                ease: 'power3.out',
+                stagger: 0.2
+            });
+
+            /* =========================
+               Subtle Image Hover Effect
+            ========================= */
+            document.querySelectorAll('.landing-blog-card').forEach(card => {
+                const img = card.querySelector('img');
+
+                card.addEventListener('mouseenter', () => {
+                    gsap.to(img, {
+                        scale: 1.08,
+                        duration: 0.4,
+                        ease: 'power3.out'
+                    });
+                });
+
+                card.addEventListener('mouseleave', () => {
+                    gsap.to(img, {
+                        scale: 1,
+                        duration: 0.4,
+                        ease: 'power3.out'
+                    });
+                });
+            });
+        });
+    </script>
+@endpush
