@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     {{-- Animate.css --}}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
-    <link rel="stylesheet" href="{{ asset('css/landing_badges.css') }}">
+     <link rel="stylesheet" href="{{ asset('css/landing_badges.css') }}">
     <style>
         :root {
             --primary-gradient: linear-gradient(135deg, #004aad 0%, #0066cc 100%);
@@ -626,7 +626,7 @@
                     <div class="slider-track" id="sliderTrack">
                         <!-- Slide 1 -->
                         <div class="slider-slide">
-                            <img src="{{ asset('assets/event1.jpg') }}" 
+                            <img src="{{ asset('images/assets/event1.jpg') }}" 
                                  alt="Community Event" 
                                  class="slider-image"
                                  onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1545235617-9465d2a55698?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80';">
@@ -638,7 +638,7 @@
                         
                         <!-- Slide 2 -->
                         <div class="slider-slide">
-                            <img src="{{ asset('assets/event2.jpg') }}" 
+                            <img src="{{ asset('images/assets/event2.jpg') }}" 
                                  alt="Volunteer Activity" 
                                  class="slider-image"
                                  onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1529156069898-49953e39b3ac?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80';">
@@ -650,7 +650,7 @@
                         
                         <!-- Slide 3 -->
                         <div class="slider-slide">
-                            <img src="{{ asset('assets/event3.jpg') }}" 
+                            <img src="{{ asset('images/assets/event3.jpg') }}" 
                                  alt="Team Building" 
                                  class="slider-image"
                                  onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1532635241-17e820acc59f?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80';">
@@ -731,6 +731,8 @@
     {{-- GSAP --}}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script src="https://unpkg.com/gsap@3/dist/gsap.min.js"></script>
+
 
     <script>
         // Simple image fallback function
@@ -984,6 +986,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 </script>
+@stack('scripts')
 
 </body>
 </html>

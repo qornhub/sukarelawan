@@ -50,14 +50,7 @@
 /* =====================================================
    Badges Grid Layout
 ===================================================== */
-.landing-badge-grid {
-    display: flex;
-    gap: 24px;
-    justify-content: center;
-    align-items: stretch;
-    flex-wrap: wrap;
-    margin-top: 32px;
-}
+
 
 /* =====================================================
    Badge Card
@@ -67,10 +60,18 @@
     border-radius: 18px;
     padding: 22px 16px;
     width: 160px;
+
+    /* ✅ FIX */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
     text-align: center;
     box-shadow: 0 10px 24px rgba(114, 9, 183, 0.25);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
+
 
 .landing-badge-card:hover {
     transform: translateY(-6px) scale(1.02);
@@ -80,6 +81,14 @@
 /* =====================================================
    Badge Image
 ===================================================== */
+
+.badge-image-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
 .landing-badge-image {
     width: 80px;
     height: 80px;
@@ -124,11 +133,35 @@
         transparent 70%
     );
 }
+/* Rail wrapper */
+.landing-badge-rail {
+    overflow: hidden;
+    width: 100%;
+    position: relative;
+}
+
+.landing-badge-grid {
+    display: flex;
+    gap: 24px;
+    width: max-content;
+
+    /* ✅ CRITICAL FIX */
+    flex-wrap: nowrap;
+    align-items: center;
+}
 
 /* =====================================================
    Responsive Adjustments
 ===================================================== */
 @media (max-width: 768px) {
+
+     .landing-badge-grid {
+        flex-wrap: nowrap;       /* 🔒 lock horizontal */
+    }
+
+    .landing-badge-rail {
+        overflow-x: hidden;      /* 🔒 no horizontal scroll */
+    }
     .badges-title {
         font-size: 1.8rem;
     }
