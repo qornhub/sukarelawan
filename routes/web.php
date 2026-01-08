@@ -51,7 +51,7 @@ use App\Http\Controllers\Events\NGOEventManagementController;
 use App\Http\Controllers\Admin\AdminDashboardEventsController;
 use App\Http\Controllers\Events\AdminEventDiscoveryController;
 use App\Http\Controllers\Events\AdminEventManagementController;
-
+use App\Http\Controllers\HomeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -59,9 +59,8 @@ use App\Http\Controllers\Events\AdminEventManagementController;
 |--------------------------------------------------------------------------
 */
 
-Route::get('/', function () {
-    return view('landing.home');
-})->name('landing.home');
+Route::get('/', [HomeController::class, 'index'])->name('landing.home');
+
 
 Route::get('/about', function () {
     return view('landing.about');

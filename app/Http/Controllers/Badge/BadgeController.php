@@ -43,6 +43,14 @@ public function index(Request $request)
     return view('admin.badge.badge-list', compact('badges', 'categories'));
 }
 
+public function landingBadges()
+{
+    $badges = Badge::orderBy('created_at', 'asc')
+        ->take(6) // limit for landing page
+        ->get();
+
+    return $badges;
+}
 
     /**
      * Show create form

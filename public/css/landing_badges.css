@@ -1,7 +1,24 @@
+/* =====================================================
+   Purple Theme Variables
+===================================================== */
+:root {
+    --primary-purple: #7209b7;
+    --secondary-purple: #b5179e;
+    --light-purple: #e4caed;
+}
 
+/* =====================================================
+   Landing Badges Section
+===================================================== */
 .landing-badges {
     padding: 5rem 1.25rem;
-    background: linear-gradient(180deg, #f8fbff, #ffffff);
+    background: linear-gradient(
+        180deg,
+        var(--primary-purple),
+        var(--secondary-purple)
+    );
+    position: relative;
+    overflow: hidden;
 }
 
 .landing-badges .container {
@@ -9,6 +26,9 @@
     margin: 0 auto;
 }
 
+/* =====================================================
+   Section Header
+===================================================== */
 .badges-header {
     text-align: center;
     max-width: 680px;
@@ -18,73 +38,108 @@
 .badges-title {
     font-size: 2.2rem;
     font-weight: 800;
-    color: #004aad;
-    margin-bottom: .75rem;
+    color: #ffffff;
+    margin-bottom: 0.75rem;
 }
 
 .badges-subtitle {
-    color: #6c757d;
     font-size: 1.05rem;
+    color: rgba(255, 255, 255, 0.85);
 }
 
-.badges-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 2rem;
-}
-
-.badge-card {
-    background: #fff;
-    border-radius: 16px;
-    padding: 2rem 1.5rem;
-    text-align: center;
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.06);
-    transition: transform .25s ease, box-shadow .25s ease;
-}
-
-.badge-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.1);
-}
-
-.badge-icon {
-    width: 64px;
-    height: 64px;
-    border-radius: 50%;
-    display: inline-flex;
-    align-items: center;
+/* =====================================================
+   Badges Grid Layout
+===================================================== */
+.landing-badge-grid {
+    display: flex;
+    gap: 24px;
     justify-content: center;
-    margin-bottom: 1rem;
-    color: #fff;
-    font-size: 1.6rem;
+    align-items: stretch;
+    flex-wrap: wrap;
+    margin-top: 32px;
 }
 
-.badge-icon.gold { background: linear-gradient(135deg, #f6c343, #f39c12); }
-.badge-icon.blue { background: linear-gradient(135deg, #4facfe, #00c6fb); }
-.badge-icon.green { background: linear-gradient(135deg, #43e97b, #38f9d7); }
-.badge-icon.purple { background: linear-gradient(135deg, #a18cd1, #fbc2eb); }
-
-.badge-card h3 {
-    font-size: 1.1rem;
-    font-weight: 700;
-    margin-bottom: .5rem;
-}
-
-.badge-card p {
-    font-size: .95rem;
-    color: #6c757d;
-}
-
-.badges-footer {
-    margin-top: 3rem;
+/* =====================================================
+   Badge Card
+===================================================== */
+.landing-badge-card {
+    background: var(--light-purple);
+    border-radius: 18px;
+    padding: 22px 16px;
+    width: 160px;
     text-align: center;
-    font-weight: 600;
-    color: #333;
+    box-shadow: 0 10px 24px rgba(114, 9, 183, 0.25);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-/* Responsive */
+.landing-badge-card:hover {
+    transform: translateY(-6px) scale(1.02);
+    box-shadow: 0 18px 36px rgba(114, 9, 183, 0.35);
+}
+
+/* =====================================================
+   Badge Image
+===================================================== */
+.landing-badge-image {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    margin-bottom: 12px;
+    filter: drop-shadow(0 6px 10px rgba(114, 9, 183, 0.25));
+}
+
+/* =====================================================
+   Badge Name
+===================================================== */
+.landing-badge-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--primary-purple);
+    margin-top: 4px;
+}
+
+/* =====================================================
+   Empty State
+===================================================== */
+.landing-badges .text-muted {
+    color: rgba(255, 255, 255, 0.75);
+    text-align: center;
+    margin-top: 2rem;
+}
+
+/* =====================================================
+   Decorative Glow Effect
+===================================================== */
+.landing-badges::after {
+    content: "";
+    position: absolute;
+    bottom: -60px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 600px;
+    height: 120px;
+    background: radial-gradient(
+        ellipse,
+        rgba(255, 255, 255, 0.25),
+        transparent 70%
+    );
+}
+
+/* =====================================================
+   Responsive Adjustments
+===================================================== */
 @media (max-width: 768px) {
     .badges-title {
         font-size: 1.8rem;
+    }
+
+    .landing-badge-card {
+        width: 140px;
+        padding: 20px 14px;
+    }
+
+    .landing-badge-image {
+        width: 70px;
+        height: 70px;
     }
 }
