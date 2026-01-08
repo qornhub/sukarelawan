@@ -680,6 +680,7 @@
             </div>
         </section>
 @include('landing.badges')
+@include('landing.blog')
         {{-- ROLES SECTION --}}
         <section class="roles" id="login-section">
             <div class="container">
