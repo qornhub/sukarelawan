@@ -105,7 +105,7 @@ if ($filename) {
                     @auth
                         @if ($roleNameLower === 'ngo' && Route::has('ngo.profile.self'))
                             <a href="{{ route('ngo.profile.self') }}" class="ngo-dropdown-item">
-                                <i class="fas fa-user-circle"></i> My Profile
+                                <i class="fas fa-user-circle"></i> Profile $ Activities
                             </a>
                         @endif
                     @endauth
@@ -152,7 +152,7 @@ if ($filename) {
             @auth
                 @if ($roleNameLower === 'ngo' && Route::has('ngo.profile.self'))
                     <a href="{{ route('ngo.profile.self') }}" class="ngo-dropdown-item">
-                        <i class="fas fa-user-circle"></i> My Profile
+                        <i class="fas fa-user-circle"></i> Profile & Activities
                     </a>
                 @endif
             @endauth

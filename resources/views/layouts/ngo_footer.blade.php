@@ -28,13 +28,7 @@
 
                 </div>
 
-                <div class="volunteer-footer-col">
-                    <h6 class="volunteer-footer-heading">Information</h6>
-                    <ul class="volunteer-footer-links">
-                        <li><a href="#"><i class="fas fa-question-circle"></i> FAQ</a></li>
-                        <li><a href="#"><i class="fas fa-headset"></i> Help</a></li>
-                    </ul>
-                </div>
+               
 
                 <div class="volunteer-footer-col">
                     <h6 class="volunteer-footer-heading">Contact</h6>

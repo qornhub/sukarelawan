@@ -51,7 +51,7 @@
                     @auth
                         @if (auth()->user()->role->roleName === 'volunteer' && Route::has('volunteer.profile.profile'))
                             <a href="{{ route('volunteer.profile.profile') }}" class="volunteer-dropdown-item">
-                                <i class="fas fa-user-circle"></i> My Profile
+                                <i class="fas fa-user-circle"></i> Profile & Participation
                             </a>
                         @endif
                     @endauth
@@ -97,7 +97,7 @@
             @auth
                 @if (auth()->user()->role->roleName === 'volunteer' && Route::has('volunteer.profile.profile'))
                     <a href="{{ route('volunteer.profile.profile', auth()->id()) }}" class="volunteer-dropdown-item">
-                        <i class="fas fa-user-circle"></i> My Profile
+                        <i class="fas fa-user-circle"></i> Profile & Participation
                     </a>
                 @endif
             @endauth

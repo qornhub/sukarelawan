@@ -225,17 +225,17 @@
                     <div style="font-weight:700;margin-bottom:8px">Participants</div>
 
                     <a class="side-btn active" data-show="registered" role="button">
-                        <span>Registered Participants </span>
+                        <span>Registered Volunteers </span>
                         <span class="badge" id="badge-registered">{{ $registered->count() }}</span>
                     </a>
 
                     <a class="side-btn" data-show="confirmed" role="button">
-                        <span>Confirmed Participants </span>
+                        <span>Confirmed Volunteers </span>
                         <span class="badge" id="badge-confirmed">{{ $confirmed->count() }}</span>
                     </a>
 
                     <a class="side-btn" data-show="rejected" role="button">
-                        <span>Rejected Participants </span>
+                        <span>Rejected Volunteers </span>
                         <span class="badge" id="badge-rejected">{{ $rejected->count() }}</span>
                     </a>
                 </div>
@@ -257,7 +257,7 @@
                     <div style="font-weight:700;margin-bottom:8px">Communications</div>
                     <a class="side-btn" data-show="email"
                         href="{{ route('ngo.events.manage', $event->event_id) }}#email" role="button">
-                        Email Participants
+                        Email Volunteers
                     </a>
                 </div>
 
@@ -282,7 +282,7 @@
                     <div
                         style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; margin-bottom: 20px;">
                         <h4 style="margin:0;">
-                            Registered Participants:
+                            Registered Volunteers:
                             <span class="badge badge-registered">{{ $registered->count() }}</span>
                         </h4>
 
@@ -354,7 +354,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="9" class="text-center">No registered participants</td>
+                                        <td colspan="9" class="text-center">No registered volunteers</td>
                                     </tr>
                                 @endforelse
                             </tbody>
@@ -367,7 +367,7 @@
                     <div
                         style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; margin-bottom: 20px;">
                         <h4 style="margin:0;">
-                            Confirmed Participants:
+                            Confirmed Volunteers:
                             <span class="badge badge-confirmed">{{ $confirmed->count() }}</span>
                         </h4>
 
@@ -430,7 +430,7 @@
                                     </tr>
                                 @empty
                                     <tr class="empty-row">
-                                        <td colspan="9" class="text-center">No confirmed participants</td>
+                                        <td colspan="9" class="text-center">No confirmed volunteers</td>
                                     </tr>
                                 @endforelse
                             </tbody>
@@ -443,7 +443,7 @@
                     <div
                         style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; margin-bottom: 20px;">
                         <h4 style="margin:0;">
-                            Rejected Participants:
+                            Rejected Volunteers:
                             <span class="badge badge-rejected">{{ $rejected->count() }}</span>
                         </h4>
 
@@ -505,7 +505,7 @@
                                     </tr>
                                 @empty
                                     <tr class="empty-row">
-                                        <td colspan="9" class="text-center">No rejected participants</td>
+                                        <td colspan="9" class="text-center">No rejected Volunteers</td>
                                     </tr>
                                 @endforelse
                             </tbody>
