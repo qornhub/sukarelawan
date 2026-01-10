@@ -49,7 +49,7 @@
             </div>
             
             <div class="volunteer-footer-bottom">
-                <img src="{{ asset('images/sukarelawan_logo.png') }}" alt="Logo" class="volunteer-footer-logo">
+                <img src="{{ asset('assets/sukarelawan_logo.png') }}" alt="Logo" class="volunteer-footer-logo">
                 <span class="volunteer-copyright">&copy; 2026 SukaRelawan. All rights reserved.</span>
             </div>
         </div>

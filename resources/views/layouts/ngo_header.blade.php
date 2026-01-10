@@ -17,7 +17,7 @@
         $filename = $ngoProfile->profilePhoto ?? null;
 
         // Default avatar
-        $profileImageUrl = asset('images/default-profile.png');
+        $profileImageUrl = asset('assets/default-profile.png');
 
         if ($filename) {
             $basename = basename($filename);
@@ -48,7 +48,7 @@
             }
 
             // If none existed but the stored value looks like a storage path, prefer storage url
-            if ($profileImageUrl === asset('images/default-profile.png')) {
+            if ($profileImageUrl === asset('assets/default-profile.png')) {
                 if (
                     Str::startsWith($filename, 'profiles/') ||
                     Str::startsWith($filename, 'covers/') ||
@@ -66,7 +66,7 @@
 
     <header class="ngo-header">
         <a href="{{ route('ngo.events.index') }}" class="ngo-logo-section">
-            <img src="{{ asset('images/sukarelawan_logo.png') }}" alt="Logo">
+            <img src="{{ asset('assets/sukarelawan_logo.png') }}" alt="Logo">
             <h4 class="ngo-logo-title">SukaRelawan</h4>
         </a>
 
