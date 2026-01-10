@@ -642,6 +642,53 @@
   font-size: 1rem;        /* slightly smaller text to match the narrower width */
   box-sizing: border-box;
 }
+/* ===== Floating Scroll Button (same as home) ===== */
+.floating-scroll-top {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    z-index: 9999;                 /* high so footer / overlays don't cover it */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(12px);
+    transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s;
+    pointer-events: none;
+}
+
+.floating-scroll-top.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.scroll-top-btn {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--primary), var(--primary-light));
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.12);
+    font-size: 1.25rem;
+    transition: all 0.25s ease;
+}
+
+.scroll-top-btn:hover {
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 15px 30px rgba(0,74,173,0.18);
+}
+
+/* smaller on very small screens */
+@media (max-width: 480px) {
+    .floating-scroll-top { right: 20px; bottom: 20px; }
+    .scroll-top-btn { width: 48px; height: 48px; font-size: 1rem; }
+}
+
   </style>
 </head>
 <body>
@@ -845,6 +892,12 @@
   </section>
 
   @include('layouts.landing_footer')
+<!-- FLOATING SCROLL TO TOP BUTTON -->
+<div class="floating-scroll-top" id="scrollTopBtn" aria-hidden="true">
+  <button class="scroll-top-btn" aria-label="Scroll to top">
+    <i class="fas fa-chevron-up" aria-hidden="true"></i>
+  </button>
+</div>
 
   <script>
     // Simple hover animations for cards
@@ -883,5 +936,48 @@
       });
     });
   </script>
+
+  <script>
+  (function() {
+    document.addEventListener('DOMContentLoaded', function () {
+      const scrollTopBtn = document.getElementById('scrollTopBtn');
+      if (!scrollTopBtn) return;
+
+      function handleScroll() {
+        const y = window.pageYOffset || document.documentElement.scrollTop;
+        if (y > 300) {
+          scrollTopBtn.classList.add('show');
+        } else {
+          scrollTopBtn.classList.remove('show');
+        }
+      }
+
+      // Use passive listener for performance
+      window.addEventListener('scroll', handleScroll, { passive: true });
+
+      // Click to scroll to top
+      const button = scrollTopBtn.querySelector('.scroll-top-btn');
+      if (button) {
+        button.addEventListener('click', function () {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+      }
+
+      // initial state
+      handleScroll();
+
+      // Optional: if you have hash navigation on load, keep it
+      if (location.hash) {
+        const target = document.querySelector(location.hash);
+        if (target) {
+          setTimeout(() => {
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }, 100);
+        }
+      }
+    });
+  })();
+</script>
+
 </body>
 </html>
