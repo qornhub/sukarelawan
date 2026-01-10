@@ -81,6 +81,126 @@
 .podium-current-3 a {
     color: #1a1a1a !important;
 }
+/* === Responsive badge grid & cards === */
+
+/* make badge grid flexible and centerable */
+.badge-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: flex-start; /* default: left on desktop */
+  align-items: stretch;
+  margin-left: 0;
+}
+
+/* badge card: flexible width + consistent internal spacing */
+/* This will override inline width:300px using !important */
+.badge-card {
+  flex: 1 1 300px;      /* grow, shrink, base 300px */
+  max-width: 320px;     /* prevents huge cards on large screens */
+  width: auto !important; /* override inline style */
+  min-width: 220px;     /* keep a usable minimum */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-radius: 10px;
+  box-shadow: 0 6px 18px rgba(20,20,40,0.04);
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+
+/* hover lift */
+.badge-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 10px 28px rgba(20,20,40,0.06);
+}
+
+/* center the badge image and make it responsive */
+.badge-image-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+.badge-image-container img {
+  max-width: 120px;
+  max-height: 120px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
+
+/* keep text readable and flexible */
+.badge-content { flex: 1 1 auto; padding: 0.35rem 0.35rem 0.25rem 0.35rem; }
+.badge-header { gap: 0.5rem; display:flex; align-items:flex-start; justify-content:space-between; }
+.badge-name { margin: 0; line-height: 1.1; font-size: 1.05rem; }
+.badge-description { margin-bottom: 0.5rem; }
+
+/* points row */
+.badge-points { display:flex; gap:0.5rem; align-items:center; color: #444; }
+.badge-points i { font-size: 0.95rem; }
+
+/* footer small text */
+.badge-footer { padding-top: 0.4rem; color: #6c757d; font-size: 0.85rem; }
+
+/* make claim button full width inside card when present */
+.badge-card form button.btn { margin-top: 0.45rem; }
+
+/* === Mobile / small screens === */
+@media (max-width: 768px) {
+  .badge-grid { gap: 0.9rem; justify-content: center; } /* soft center on tablet */
+  .badge-card { flex: 1 1 46%; max-width: 46%; min-width: 44%; } /* two per row on small tablets */
+  .badge-image-container img { max-width: 100px; max-height: 100px; }
+}
+
+/* Phone: single column, centered items */
+@media (max-width: 576px) {
+  .badge-grid {
+    gap: 0.85rem;
+    justify-content: center;  /* center all items horizontally on phones */
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+
+  /* single column cards that are centered and not full-width, but roomy */
+  .badge-card {
+    flex: 0 0 auto;
+    width: 92% !important;    /* keep a nice margin on phones */
+    max-width: 420px;
+    min-width: unset;
+  }
+
+  /* make image slightly smaller on phones */
+  .badge-image-container img { max-width: 88px; max-height: 88px; }
+
+  /* stack header contents if long */
+  .badge-header { flex-direction: column; align-items: flex-start; gap: 0.4rem; }
+  .badge-name { font-size: 1rem; }
+
+  /* center the badge footer text */
+  .badge-footer { text-align: center; }
+}
+
+/* Very small phones */
+@media (max-width: 420px) {
+  .badge-card { width: 96% !important; }
+  .badge-name { font-size: 0.98rem; }
+  .badge-description { font-size: 0.92rem; min-height: 36px; }
+}
+
+/* === Modal responsiveness: stack left/right on small screens === */
+.badge-detail-row { display: flex; gap: 1.25rem; align-items: flex-start; }
+.badge-detail-left { flex: 0 0 180px; }
+.badge-detail-right { flex: 1 1 auto; min-width: 0; }
+.badge-modal-img { max-width: 180px; width: 100%; height: auto; object-fit: contain; }
+
+@media (max-width: 576px) {
+  .badge-detail-row { flex-direction: column; align-items: center; text-align: center; }
+  .badge-detail-left { flex: none; }
+  .badge-detail-right { width: 100%; }
+  .badge-modal-img { max-width: 140px; }
+}
 
     </style>
 </head>
@@ -465,7 +585,7 @@
             </div>
         </div>
     </div>
-
+ @include('layouts.volunteer_footer')
     <!-- bootstrap -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>

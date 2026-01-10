@@ -12,109 +12,109 @@
 
 
     <!-- Volunteer Header -->
-    <header class="volunteer-header">
-        <a href="#" class="volunteer-logo-section">
-            <img src="{{ asset('assets/sukarelawan_logo.png') }}" alt="Logo">
-            <h4 class="volunteer-logo-title">SukaRelawan</h4>
+<header class="volunteer-header">
+    <a href="#" class="volunteer-logo-section">
+        <img src="{{ asset('images/sukarelawan_logo.png') }}" alt="Logo">
+        <h4 class="volunteer-logo-title">SukaRelawan</h4>
+    </a>
+
+    <!-- Desktop Navigation and Profile -->
+    <nav class="volunteer-nav-section">
+        <a href="{{ route('volunteer.index.public') }}"
+            class="volunteer-nav-link {{ request()->routeIs('volunteer.index.public') ? 'active' : '' }}">
+            <i class="fas fa-home"></i>
+            <span class="nav-text">Home</span>
         </a>
 
-        <!-- Desktop Navigation and Profile -->
-        <nav class="volunteer-nav-section">
-            <a href="{{ route('volunteer.index.public') }}"
-                class="volunteer-nav-link {{ request()->routeIs('volunteer.index.public') ? 'active' : '' }}">
-                <i class="fas fa-home"></i>
-                <span class="nav-text">Home</span>
-            </a>
+        <a href="{{ route('blogs.index') }}"
+            class="volunteer-nav-link {{ request()->routeIs('blogs.index') ? 'active' : '' }}">
+            <i class="fas fa-blog"></i>
+            <span class="nav-text">Blog</span>
+        </a>
 
-            <a href="{{ route('blogs.index') }}"
-                class="volunteer-nav-link {{ request()->routeIs('blogs.index') ? 'active' : '' }}">
-                <i class="fas fa-blog"></i>
-                <span class="nav-text">Blog</span>
-            </a>
+        <a href="{{ route('volunteer.rewards.index') }}"
+            class="volunteer-nav-link {{ request()->routeIs('volunteer.rewards.index') ? 'active' : '' }}">
+            <i class="fas fa-award"></i>
+            <span class="nav-text">Reward</span>
+        </a>
+    </nav>
 
-            <a href="{{ route('volunteer.rewards.index') }}"
-                class="volunteer-nav-link {{ request()->routeIs('volunteer.rewards.index') ? 'active' : '' }}">
-                <i class="fas fa-award"></i>
-                <span class="nav-text">Reward</span>
-            </a>
-        </nav>
-
-        <div class="desktop-profile">
-            <div class="volunteer-profile-section">
-                <img src="{{ $filename ? asset('images/profiles/' . $filename) : asset('assets/default-profile.png') }}"
-                    alt="Profile Photo" class="volunteer-profile-img">
-                <div class="volunteer-profile-info">
-                    <p class="volunteer-profile-name">{{ $name }}</p>
-                    <p class="volunteer-profile-role">{{ ucfirst($roleName) }}</p>
-                </div>
-                <div class="volunteer-profile-dropdown">
-                    @auth
-                        @if (auth()->user()->role->roleName === 'volunteer' && Route::has('volunteer.profile.profile'))
-                            <a href="{{ route('volunteer.profile.profile') }}" class="volunteer-dropdown-item">
-                                <i class="fas fa-user-circle"></i>My Profile 
-                            </a>
-                        @endif
-                    @endauth
-
-                    <a href="{{ route('volunteer.notifications.index') }}"
-                        class="volunteer-dropdown-item position-relative volunteer-notifications-link">
-                        <i class="fas fa-bell"></i> Notifications
-                    </a>
-
-                    <div class="volunteer-dropdown-divider"></div>
-                    <form method="POST" action="{{ route('logout.volunteer') }}">
-                        @csrf
-                        <button type="submit" class="volunteer-dropdown-item" aria-label="Logout">
-                            <i class="fas fa-sign-out-alt"></i> Logout
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <!-- Mobile Menu Button -->
-        <button class="volunteer-mobile-menu-btn" id="volunteerMobileMenuBtn">
-            <i class="fas fa-bars"></i>
-        </button>
-    </header>
-
-    <!-- Mobile Menu Container -->
-    <div class="volunteer-mobile-menu-container" id="volunteerMobileMenuContainer">
-        <!-- REMOVED DUPLICATE NAVIGATION - Now only contains profile actions -->
+    <div class="desktop-profile">
         <div class="volunteer-profile-section">
-            <div style="position:relative; display:inline-block;">
-                <img src="{{ $filename ? asset('images/profiles/' . $filename) : asset('assets/default-profile.png') }}"
-                    alt="Profile Photo" class="volunteer-profile-img">
-            </div>
-
+            <img src="{{ $filename ? asset('images/profiles/' . $filename) : asset('images/default-profile.png') }}"
+                alt="Profile Photo" class="volunteer-profile-img">
             <div class="volunteer-profile-info">
                 <p class="volunteer-profile-name">{{ $name }}</p>
                 <p class="volunteer-profile-role">{{ ucfirst($roleName) }}</p>
             </div>
-        </div>
+            <div class="volunteer-profile-dropdown">
+                @auth
+                    @if (auth()->user()->role->roleName === 'volunteer' && Route::has('volunteer.profile.profile'))
+                        <a href="{{ route('volunteer.profile.profile') }}" class="volunteer-dropdown-item">
+                            <i class="fas fa-user-circle"></i> My Profile
+                        </a>
+                    @endif
+                @endauth
+                
+                <a href="{{ route('volunteer.notifications.index') }}"
+                    class="volunteer-dropdown-item position-relative volunteer-notifications-link">
+                    <i class="fas fa-bell"></i> Notifications
+                </a>
 
-        <div class="volunteer-mobile-menu-actions">
-            @auth
-                @if (auth()->user()->role->roleName === 'volunteer' && Route::has('volunteer.profile.profile'))
-                    <a href="{{ route('volunteer.profile.profile', auth()->id()) }}" class="volunteer-dropdown-item">
-                        <i class="fas fa-user-circle"></i> My Profile
-                    </a>
-                @endif
-            @endauth
-
-            <a href="{{ route('volunteer.notifications.index') }}"
-                class="volunteer-dropdown-item position-relative volunteer-notifications-link">
-                <i class="fas fa-bell"></i> Notifications
-            </a>
-
-            <form method="POST" action="{{ route('logout.volunteer') }}">
-                @csrf
-                <button type="submit" class="volunteer-dropdown-item">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </button>
-            </form>
+                <div class="volunteer-dropdown-divider"></div>
+                <form method="POST" action="{{ route('logout.volunteer') }}">
+                    @csrf
+                    <button type="submit" class="volunteer-dropdown-item" aria-label="Logout">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
+
+    <!-- Mobile Menu Button -->
+    <button class="volunteer-mobile-menu-btn" id="volunteerMobileMenuBtn">
+        <i class="fas fa-bars"></i>
+    </button>
+</header>
+
+<!-- Mobile Menu Container -->
+<div class="volunteer-mobile-menu-container" id="volunteerMobileMenuContainer">
+    <!-- REMOVED DUPLICATE NAVIGATION - Now only contains profile actions -->
+    <div class="volunteer-profile-section">
+        <div style="position:relative; display:inline-block;">
+            <img src="{{ $filename ? asset('images/profiles/' . $filename) : asset('images/default-profile.png') }}"
+                alt="Profile Photo" class="volunteer-profile-img">
+        </div>
+
+        <div class="volunteer-profile-info">
+            <p class="volunteer-profile-name">{{ $name }}</p>
+            <p class="volunteer-profile-role">{{ ucfirst($roleName) }}</p>
+        </div>
+    </div>
+
+    <div class="volunteer-mobile-menu-actions">
+        @auth
+            @if (auth()->user()->role->roleName === 'volunteer' && Route::has('volunteer.profile.profile'))
+                <a href="{{ route('volunteer.profile.profile', auth()->id()) }}" class="volunteer-dropdown-item">
+                    <i class="fas fa-user-circle"></i> My Profile
+                </a>
+            @endif
+        @endauth
+
+        <a href="{{ route('volunteer.notifications.index') }}"
+            class="volunteer-dropdown-item position-relative volunteer-notifications-link">
+            <i class="fas fa-bell"></i> Notifications
+        </a>
+        
+        <form method="POST" action="{{ route('logout.volunteer') }}">
+            @csrf
+            <button type="submit" class="volunteer-dropdown-item">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </form>
+    </div>
+</div>
 </div>
 
 <style>
@@ -400,15 +400,12 @@
             padding: .75rem 1rem;
             position: relative;
             justify-content: flex-start;
-            /* Align items to start */
         }
 
         .volunteer-header-component .volunteer-mobile-menu-btn {
             display: block;
             position: static;
-            /* Remove absolute positioning */
             margin-left: auto;
-            /* Push to the right */
         }
 
         /* Hide desktop profile dropdown on mobile */
@@ -416,54 +413,56 @@
             display: none
         }
 
-        /* Keep navigation visible but hide text, show only icons */
+        /* CENTER NAV & SHOW TEXT */
         .volunteer-header-component .volunteer-nav-section {
             display: flex;
-            gap: 3rem;
-            /* Reduced gap for mobile */
+            /* CHANGED: Reduced gap so text fits */
+            gap: 1.5rem; 
             margin: 0 auto;
-            /* Center the navigation */
             position: absolute;
             left: 50%;
             transform: translateX(-50%);
         }
 
-        /* Hide text in navigation links on mobile, show only icons */
+        /* CHANGED: Show text, Hide Icon */
         .volunteer-header-component .volunteer-nav-link .nav-text {
-            display: none;
+            display: inline-block;
+            font-size: 0.95rem; /* Readable text size */
+            font-weight: 600;
+        }
+
+        .volunteer-header-component .volunteer-nav-link i {
+            display: none; /* Hide the icon */
         }
 
         .volunteer-header-component .volunteer-nav-link {
             padding: 0.5rem;
-            font-size: 1.2rem;
         }
 
-        .volunteer-header-component .volunteer-nav-link i {
-            font-size: 1.2rem;
-            margin: 0;
-        }
-
-        /* Remove underline effect on mobile */
+        /* Keep underline effect on mobile if you want, 
+           or remove this block to keep underline hidden */
         .volunteer-header-component .volunteer-nav-link:hover::after,
         .volunteer-header-component .volunteer-nav-link.active::after {
             display: none;
+        }
+        
+        /* Make active text color distinct */
+        .volunteer-header-component .volunteer-nav-link.active .nav-text {
+             color: var(--vol-header-primary-color);
         }
 
         .volunteer-header-component .volunteer-mobile-menu-container {
             display: block;
         }
 
-        /* Hide the logo title on mobile */
         .volunteer-header-component .volunteer-logo-title {
             display: none;
         }
 
-        /* Adjust logo positioning */
         .volunteer-header-component .volunteer-logo-section {
             margin-right: 1rem;
         }
 
-        /* Mobile menu container styling - only for profile now */
         .volunteer-header-component .volunteer-mobile-menu-container {
             top: 70px;
             padding: 1rem;
@@ -510,17 +509,11 @@
     /* For very small screens */
     @media (max-width: 480px) {
         .volunteer-header-component .volunteer-nav-section {
-            gap: 1rem;
-            /* Even smaller gap on very small screens */
+            gap: 1rem; /* Even smaller gap on tiny screens */
         }
 
-        .volunteer-header-component .volunteer-nav-link {
-            padding: 0.4rem;
-            font-size: 0.9rem;
-        }
-
-        .volunteer-header-component .volunteer-nav-link i {
-            font-size: 0.9rem;
+        .volunteer-header-component .volunteer-nav-link .nav-text {
+            font-size: 0.85rem; /* Slightly smaller text */
         }
     }
 </style>
@@ -781,7 +774,7 @@
                                     `<span class="me-2 text-capitalize small text-muted">[${escapeHtml(status)}]</span>` :
                                     '';
                                 const nid = notification.id || payload.id || ('n-' + Math.floor(Math
-                                    .random() * 100000));
+                                .random() * 100000));
                                 wrapper.setAttribute('data-id', nid);
                                 wrapper.innerHTML = `
                 <div class="d-flex align-items-start justify-content-between">
@@ -855,7 +848,7 @@
                         .remove('active'));
                     this.classList.add('active');
                     if (mobileMenuContainer && mobileMenuContainer.classList.contains(
-                            'active')) {
+                        'active')) {
                         mobileMenuContainer.classList.remove('active');
                         const icon = mobileMenuBtn.querySelector('i');
                         if (icon) {

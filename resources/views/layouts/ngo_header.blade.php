@@ -8,80 +8,78 @@
         $ngoProfile = optional($user)->ngoProfile; // NGOProfile or null
 
         // Name: prefer organizationName from NGO profile, then user's name, then Anonymous
-$name = $ngoProfile->organizationName ?? ($user->name ?? 'Anonymous');
+        $name = $ngoProfile->organizationName ?? ($user->name ?? 'Anonymous');
 
-// Role: normalized to lowercase (fallback to 'ngo')
-$roleNameLower = strtolower(optional($user->role)->roleName ?? 'ngo');
+        // Role: normalized to lowercase (fallback to 'ngo')
+        $roleNameLower = strtolower(optional($user->role)->roleName ?? 'ngo');
 
-// Profile photo filename (as stored in DB) or null
-$filename = $ngoProfile->profilePhoto ?? null;
+        // Profile photo filename (as stored in DB) or null
+        $filename = $ngoProfile->profilePhoto ?? null;
 
-// Default avatar
-$profileImageUrl = asset('assets/default-profile.png');
+        // Default avatar
+        $profileImageUrl = asset('images/default-profile.png');
 
-if ($filename) {
-    $basename = basename($filename);
+        if ($filename) {
+            $basename = basename($filename);
 
-    // candidate filesystem paths (public and storage)
-    $paths = [
-        public_path("images/profiles/{$filename}"),
-        public_path("images/profiles/{$basename}"),
-        public_path("images/{$filename}"),
-        public_path("storage/{$filename}"),
-        public_path("storage/profiles/{$basename}"),
-    ];
+            // candidate filesystem paths (public and storage)
+            $paths = [
+                public_path("images/profiles/{$filename}"),
+                public_path("images/profiles/{$basename}"),
+                public_path("images/{$filename}"),
+                public_path("storage/{$filename}"),
+                public_path("storage/profiles/{$basename}"),
+            ];
 
-    // map paths to asset URL templates to use when found
-    $assetTemplates = [
-        asset("images/profiles/{$filename}"),
-        asset("images/profiles/{$basename}"),
-        asset("images/{$filename}"),
-        asset("storage/{$filename}"),
-        asset("storage/profiles/{$basename}"),
-    ];
+            // map paths to asset URL templates to use when found
+            $assetTemplates = [
+                asset("images/profiles/{$filename}"),
+                asset("images/profiles/{$basename}"),
+                asset("images/{$filename}"),
+                asset("storage/{$filename}"),
+                asset("storage/profiles/{$basename}"),
+            ];
 
-    foreach ($paths as $i => $p) {
-        if (file_exists($p)) {
-            $profileImageUrl = $assetTemplates[$i];
-            break;
-        }
-    }
+            foreach ($paths as $i => $p) {
+                if (file_exists($p)) {
+                    $profileImageUrl = $assetTemplates[$i];
+                    break;
+                }
+            }
 
-    // If none existed but the stored value looks like a storage path, prefer storage url
-    if ($profileImageUrl === asset('assets/default-profile.png')) {
-        if (
-            Str::startsWith($filename, 'profiles/') ||
-            Str::startsWith($filename, 'covers/') ||
-            Str::contains($filename, 'storage')
-        ) {
-            $profileImageUrl = asset('storage/' . ltrim($filename, '/'));
-        } else {
-            // fallback: try images/profiles with basename
-            $profileImageUrl = asset('images/profiles/' . $basename);
+            // If none existed but the stored value looks like a storage path, prefer storage url
+            if ($profileImageUrl === asset('images/default-profile.png')) {
+                if (
+                    Str::startsWith($filename, 'profiles/') ||
+                    Str::startsWith($filename, 'covers/') ||
+                    Str::contains($filename, 'storage')
+                ) {
+                    $profileImageUrl = asset('storage/' . ltrim($filename, '/'));
+                } else {
+                    // fallback: try images/profiles with basename
+                    $profileImageUrl = asset('images/profiles/' . $basename);
                 }
             }
         }
     @endphp
 
 
-    <!-- NGO Header -->
     <header class="ngo-header">
         <a href="{{ route('ngo.events.index') }}" class="ngo-logo-section">
-            <img src="{{ asset('assets/sukarelawan_logo.png') }}" alt="Logo">
+            <img src="{{ asset('images/sukarelawan_logo.png') }}" alt="Logo">
             <h4 class="ngo-logo-title">SukaRelawan</h4>
         </a>
 
-        <!-- Desktop Navigation and Profile -->
         <nav class="ngo-nav-section">
-            <a href="{{ route('ngo.dashboard') }}"  
-            class="ngo-nav-link {{ request()->routeIs('ngo.dashboard') ? 'active' : '' }}">
+            <a href="{{ route('ngo.dashboard') }}"
+                class="ngo-nav-link {{ request()->routeIs('ngo.dashboard') ? 'active' : '' }}">
                 <i class="fas fa-home"></i>
                 <span class="nav-text">Home</span>
             </a>
 
             <a href="{{ route('ngo.events.index') }}"
                 class="ngo-nav-link {{ request()->routeIs('ngo.events.*') ? 'active' : '' }}">
-                <i class="fas fa-calendar-alt"></i> 
+                <i class="fas fa-calendar-alt"></i>
                 <span class="nav-text">Events</span>
             </a>
 
@@ -106,11 +104,9 @@ if ($filename) {
                         @if ($roleNameLower === 'ngo' && Route::has('ngo.profile.self'))
                             <a href="{{ route('ngo.profile.self') }}" class="ngo-dropdown-item">
                                 <i class="fas fa-user-circle"></i> My Profile
+                            </a>
                         @endif
                     @endauth
-
-
-
 
                     <a href="{{ route('ngo.notifications.index') }}"
                         class="ngo-dropdown-item position-relative ngo-notifications-link">
@@ -129,13 +125,11 @@ if ($filename) {
             </div>
         </div>
 
-        <!-- Mobile Menu Button -->
         <button class="ngo-mobile-menu-btn" id="ngoMobileMenuBtn">
             <i class="fas fa-bars"></i>
         </button>
     </header>
 
-    <!-- Mobile Menu Container -->
     <div class="ngo-mobile-menu-container" id="ngoMobileMenuContainer">
 
         <div class="ngo-profile-section">
@@ -151,7 +145,7 @@ if ($filename) {
             @auth
                 @if ($roleNameLower === 'ngo' && Route::has('ngo.profile.self'))
                     <a href="{{ route('ngo.profile.self') }}" class="ngo-dropdown-item">
-                        <i class="fas fa-user-circle"></i> My Profile 
+                        <i class="fas fa-user-circle"></i> My Profile
                     </a>
                 @endif
             @endauth
@@ -475,15 +469,12 @@ if ($filename) {
             padding: 0.75rem 1rem;
             position: relative;
             justify-content: flex-start;
-            /* Align items to start */
         }
 
         .ngo-header-component .ngo-mobile-menu-btn {
             display: block;
             position: static;
-            /* Remove absolute positioning */
             margin-left: auto;
-            /* Push to the right */
         }
 
         /* Hide desktop profile dropdown on mobile */
@@ -491,42 +482,42 @@ if ($filename) {
             display: none;
         }
 
-        /* Keep navigation visible but hide text, show only icons */
+        /* Nav Section on Mobile: Centered */
         .ngo-header-component .ngo-nav-section {
             display: flex;
-            gap: 3rem;
-            /* Reduced gap for mobile */
+            gap: 1.5rem; /* Reduced gap to fit text */
             margin: 0 auto;
-            /* Center the navigation */
             position: absolute;
             left: 50%;
             transform: translateX(-50%);
         }
 
-        .ngo-header-component .ngo-nav-link>span,
-        .ngo-header-component .ngo-nav-link>.nav-text {
+        /* Show the TEXT on mobile */
+        .ngo-header-component .ngo-nav-link .nav-text {
+            display: inline-block;
+            font-size: 0.95rem; /* Readable text size */
+        }
+
+        /* Hide the ICON on mobile */
+        .ngo-header-component .ngo-nav-link i {
             display: none;
         }
 
-        .ngo-header-component .ngo-nav-link .nav-text {
-    display: none;
-  }
-
-       /* Icon sizing */
-.ngo-header-component .ngo-nav-link {
-    padding: 0.5rem;
-    font-size: 1.2rem;
-}
-
-.ngo-header-component .ngo-nav-link i {
-    font-size: 1.2rem;
-    margin: 0;
-}
+        /* Nav link general styling for mobile */
+        .ngo-header-component .ngo-nav-link {
+            padding: 0.5rem 0;
+        }
 
         /* Remove underline effect on mobile */
         .ngo-header-component .ngo-nav-link:hover::after,
         .ngo-header-component .ngo-nav-link.active::after {
             display: none;
+        }
+
+        /* Active state for text on mobile */
+        .ngo-header-component .ngo-nav-link.active .nav-text {
+            color: var(--primary-color);
+            font-weight: 700;
         }
 
         .ngo-header-component .ngo-mobile-menu-container {
@@ -543,7 +534,7 @@ if ($filename) {
             margin-right: 1rem;
         }
 
-        /* Mobile menu container styling - only for profile now */
+        /* Mobile menu container styling */
         .ngo-header-component .ngo-mobile-menu-container {
             top: 70px;
             padding: 1rem;
