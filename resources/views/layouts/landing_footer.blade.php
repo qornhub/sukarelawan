@@ -68,7 +68,9 @@
         --lfc-border: #dee2e6;
         font-family: Inter, system-ui, -apple-system, sans-serif;
     }
-
+.text-primary {
+        color: var(--lfc-primary) !important;
+    }
     .lfc-footer {
         background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
         position: relative;
