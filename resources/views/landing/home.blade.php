@@ -5,579 +5,689 @@
     <meta charset="UTF-8">
     <title>SukaRelawan | Volunteer Platform</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="SukaRelawan — Connect with meaningful causes, join impactful events, and build stronger communities through our volunteer platform.">
+    
+    {{-- Fonts --}}
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
     {{-- Font Awesome --}}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <!-- Bootstrap Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    
     {{-- Animate.css --}}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
-     <link rel="stylesheet" href="{{ asset('css/landing_badges.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/landing_badges.css') }}">
+    
     <style>
-        :root {
-            --primary-gradient: linear-gradient(135deg, #004aad 0%, #0066cc 100%);
-            --secondary-gradient: linear-gradient(135deg, #ff6b6b 0%, #ff9a3c 100%);
-        }
+    /* ===== CSS Variables ===== */
+    :root {
+        --primary: #004aad;
+        --primary-light: #0066cc;
+        --secondary: #00b4d8;
+        --accent: #10b981;
+        --light: #f8fafc;
+        --dark: #002855;
+        --text: #334155;
+        --text-light: #64748b;
+        --border: #e2e8f0;
+        --card-bg: #ffffff;
+        --radius: 16px;
+        --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.12);
+        --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
 
-        /* ================= RESET & BASE ================= */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+    /* ===== Reset & Base Styles ===== */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
 
-        html, body {
-            height: 100%;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: #333;
-            background: #f8fafc;
-            scroll-behavior: smooth;
-            overflow-x: hidden;
-        }
+    html {
+        scroll-behavior: smooth;
+    }
 
-        img {
-            max-width: 100%;
-            height: auto;
-            display: block;
-        }
+    body {
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        color: var(--text);
+        line-height: 1.6;
+        background: var(--light);
+        overflow-x: hidden;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
 
-        a {
-            text-decoration: none;
-            color: inherit;
-        }
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 24px;
+    }
 
-        button {
-            cursor: pointer;
-            border: none;
-            font-family: inherit;
-        }
+    /* ===== Typography ===== */
+    h1, h2, h3, h4, h5, h6 {
+        font-weight: 700;
+        line-height: 1.2;
+        color: var(--dark);
+    }
 
+    h1 {
+        font-size: 3.5rem;
+        margin-bottom: 1.5rem;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    h2 {
+        font-size: 2.5rem;
+        margin-bottom: 1.5rem;
+        position: relative;
+        display: inline-block;
+    }
+
+    h2:after {
+        content: '';
+        position: absolute;
+        bottom: -8px;
+        left: 0;
+        width: 60px;
+        height: 4px;
+        background: linear-gradient(90deg, var(--secondary), var(--primary));
+        border-radius: 2px;
+    }
+
+    h3 {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    p {
+        margin-bottom: 1.5rem;
+        color: var(--text);
+        line-height: 1.7;
+    }
+
+    .text-lead {
+        font-size: 1.125rem;
+        color: var(--text-light);
+        font-weight: 500;
+        line-height: 1.8;
+    }
+
+    .text-center {
+        text-align: center;
+    }
+
+    .text-center h2:after {
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    /* ===== Hero Section ===== */
+    .home-hero {
+        padding: 8rem 0 6rem;
+        background: linear-gradient(135deg, 
+            rgba(0, 74, 173, 0.05) 0%, 
+            rgba(0, 180, 216, 0.03) 100%);
+        position: relative;
+        overflow: hidden;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+    }
+
+    .hero-content {
+        max-width: 800px;
+        text-align: center;
+        margin: 0 auto;
+        position: relative;
+        z-index: 2;
+    }
+
+    .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        background: rgba(0, 74, 173, 0.1);
+        padding: 12px 24px;
+        border-radius: 50px;
+        font-weight: 600;
+        margin-bottom: 2rem;
+        border: 1px solid rgba(0, 74, 173, 0.2);
+        backdrop-filter: blur(10px);
+        color: var(--primary);
+    }
+
+    .hero-stats {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        margin-top: 4rem;
+        flex-wrap: wrap;
+    }
+
+    .stat-card {
+        background: var(--card-bg);
+        padding: 2rem 2.5rem;
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        text-align: center;
+        min-width: 180px;
+        transition: var(--transition);
+        border: 1px solid var(--border);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stat-card:before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        background: linear-gradient(to bottom, var(--secondary), var(--primary));
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--shadow-lg);
+        border-color: var(--secondary);
+    }
+
+    .stat-card:hover:before {
+        opacity: 1;
+    }
+
+    .stat-number {
+        font-size: 2.75rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        display: block;
+        line-height: 1;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+        font-size: 0.875rem;
+        color: var(--text-light);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 600;
+    }
+
+    /* ===== Buttons ===== */
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1rem 2.5rem;
+        font-weight: 600;
+        text-decoration: none;
+        border-radius: 12px;
+        transition: var(--transition);
+        border: 2px solid transparent;
+        cursor: pointer;
+        font-size: 1.125rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, var(--primary), var(--primary-light));
+        color: white;
+        width: 100%;
+        max-width: 255px;
+        box-shadow: 0 4px 15px rgba(0, 74, 173, 0.2);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0, 74, 173, 0.3);
+        background: linear-gradient(135deg, var(--primary-light), var(--primary));
+    }
+
+    .btn-secondary {
+        background: transparent;
+        color: var(--primary);
+        border-color: var(--border);
+    }
+
+    .btn-secondary:hover {
+        background: rgba(0, 74, 173, 0.05);
+        border-color: var(--primary);
+        transform: translateY(-3px);
+    }
+
+    .btn-group {
+        display: flex;
+        gap: 1.5rem;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-top: 3rem;
+    }
+
+    /* ===== Showcase Section ===== */
+    .showcase-section {
+        padding: 6rem 0;
+        background: var(--card-bg);
+    }
+
+    .showcase-slider {
+        background: var(--card-bg);
+        border-radius: var(--radius);
+        overflow: hidden;
+        box-shadow: var(--shadow);
+        border: 1px solid var(--border);
+        transition: var(--transition);
+        max-width: 900px;
+        margin: 3rem auto 0;
+    }
+
+    .showcase-slider:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .slider-track {
+        display: flex;
+        transition: transform 0.5s ease;
+        height: 500px;
+    }
+
+    .slider-slide {
+        min-width: 100%;
+        height: 100%;
+        flex-shrink: 0;
+        position: relative;
+    }
+
+    .slider-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .slide-caption {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(to top, rgba(0, 42, 85, 0.9), transparent);
+        color: white;
+        padding: 2rem;
+    }
+
+    /* Add these rules to ensure text is white */
+.slide-caption h3,
+.slide-caption p {
+    color: white !important; /* Using !important to override any other styles */
+}
+
+.slide-caption h3 {
+    margin-bottom: 0.5rem;
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.slide-caption p {
+    margin-bottom: 0;
+    font-size: 1rem;
+    opacity: 0.9; /* Slightly transparent for better contrast */
+}
+
+    .slider-controls {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 20px;
+        margin-top: 2rem;
+    }
+
+    .slider-btn {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: var(--card-bg);
+        border: 2px solid var(--primary);
+        color: var(--primary);
+        font-size: 1.2rem;
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .slider-btn:hover {
+        background: var(--primary);
+        color: white;
+        transform: scale(1.1);
+    }
+
+    .slider-dots {
+        display: flex;
+        gap: 10px;
+    }
+
+    .slider-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: var(--border);
+        border: none;
+        transition: var(--transition);
+        cursor: pointer;
+    }
+
+    .slider-dot.active {
+        background: var(--primary);
+        transform: scale(1.2);
+    }
+
+    /* ===== Roles Section ===== */
+    .roles-section {
+        padding: 6rem 0;
+        background: linear-gradient(135deg, 
+            rgba(0, 180, 216, 0.05) 0%, 
+            rgba(0, 74, 173, 0.03) 100%);
+    }
+
+    .roles-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 2.5rem;
+        margin-top: 3rem;
+        max-width: 900px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .role-card {
+        background: var(--card-bg);
+        padding: 3rem;
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        transition: var(--transition);
+        border: 1px solid var(--border);
+        position: relative;
+        overflow: hidden;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .role-card:before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        background: linear-gradient(to bottom, var(--secondary), var(--primary));
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .role-card:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--shadow-lg);
+        border-color: var(--secondary);
+    }
+
+    .role-card:hover:before {
+        opacity: 1;
+    }
+
+    .role-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 2rem;
+        color: white;
+        font-size: 2rem;
+        transition: var(--transition);
+    }
+
+    .role-card:hover .role-icon {
+        transform: scale(1.1) rotate(5deg);
+    }
+
+    .role-card h3 {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        color: var(--dark);
+    }
+
+    .role-card p {
+        color: var(--text-light);
+        flex-grow: 1;
+        margin-bottom: 2rem;
+    }
+
+    /* ===== Floating Scroll Button ===== */
+    .floating-scroll-top {
+        position: fixed;
+        right: 24px;
+        bottom: 24px;
+        z-index: 9999;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(12px);
+        transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s;
+        pointer-events: none;
+    }
+
+    .floating-scroll-top.show {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+        pointer-events: auto;
+    }
+
+    .scroll-top-btn {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, var(--primary), var(--primary-light));
+        color: white;
+        cursor: pointer;
+        box-shadow: var(--shadow-lg);
+        font-size: 1.25rem;
+        transition: var(--transition);
+    }
+
+    .scroll-top-btn:hover {
+        transform: translateY(-5px) scale(1.1);
+        box-shadow: 0 15px 30px rgba(0, 74, 173, 0.3);
+    }
+
+    /* ===== Decorative Elements ===== */
+    .floating-element {
+        position: absolute;
+        border-radius: 50%;
+        background: linear-gradient(135deg, 
+            rgba(0, 180, 216, 0.1) 0%, 
+            rgba(0, 74, 173, 0.05) 100%);
+        pointer-events: none;
+        z-index: 1;
+    }
+    .hero-cta-btn {
+    /* This ensures the button is only as wide as its content */
+    width: auto;
+    display: inline-flex; /* Already set by .btn class */
+}
+
+
+    /* ===== Responsive Design ===== */
+    @media (max-width: 992px) {
+        h1 {
+            font-size: 2.75rem;
+        }
+        
+        h2 {
+            font-size: 2.25rem;
+        }
+        
+        .roles-grid {
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        }
+        
+        .slider-track {
+            height: 400px;
+        }
+    }
+
+    @media (max-width: 768px) {
         .container {
-            width: 100%;
-            max-width: 1200px;
-            margin: 0 auto;
             padding: 0 20px;
         }
-
-        /* ================= HERO SECTION ================= */
-        .hero {
-            min-height: 100vh;
-            background: linear-gradient(135deg, #004aad 0%, #0066cc 100%);
-            color: white;
-            display: flex;
-            align-items: center;
-            padding: 80px 0 60px;
-            position: relative;
-            overflow: hidden;
+        
+        .home-hero {
+            padding: 6rem 0 4rem;
+            min-height: auto;
         }
-
-        .hero::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: 
-                radial-gradient(circle at 20% 80%, rgba(108, 138, 236, 0.2) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(255, 107, 107, 0.15) 0%, transparent 50%);
-            z-index: 1;
+         .hero-cta-btn {
+        width: auto !important;
+        max-width: none !important;
+    }
+    
+    .home-hero .btn-group {
+        /* If you want the button group to not stretch full width */
+        width: auto;
+        display: inline-flex;
+    }
+        
+        .showcase-section,
+        .roles-section {
+            padding: 4rem 0;
         }
-
-        .hero-content {
-            position: relative;
-            z-index: 2;
-            text-align: center;
-            max-width: 800px;
-            margin: 0 auto;
+        
+        h1 {
+            font-size: 2.5rem;
         }
-
-        .hero-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            background: rgba(255, 255, 255, 0.15);
-            padding: 10px 20px;
-            border-radius: 50px;
-            font-weight: 600;
-            margin-bottom: 30px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(10px);
+        
+        h2 {
+            font-size: 2rem;
         }
-
-        .hero-title {
-            font-size: clamp(2rem, 5vw, 3.5rem);
-            font-weight: 800;
-            line-height: 1.2;
-            margin-bottom: 20px;
-        }
-
-        .hero-title span {
-            color: #ffd166;
-            display: inline-block;
-        }
-
-        .hero-subtitle {
-            font-size: 1.1rem;
-            line-height: 1.6;
-            color: rgba(255, 255, 255, 0.9);
-            max-width: 600px;
-            margin: 0 auto 40px;
-        }
-
-        .cta-group {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-bottom: 60px;
-        }
-
-        /* ENHANCED GET STARTED BUTTON */
-        .hero-cta {
-            display: inline-flex;
-            align-items: center;
-            gap: 12px;
-            padding: 18px 40px;
-            border-radius: 12px;
-            font-weight: 700;
-            font-size: 1.2rem;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            background: var(--secondary-gradient);
-            color: white;
-            box-shadow: 0 8px 30px rgba(255, 107, 107, 0.3);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .hero-cta::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #ff9a3c 0%, #ff6b6b 100%);
-            opacity: 0;
-            transition: opacity 0.4s ease;
-        }
-
-        .hero-cta:hover {
-            transform: translateY(-5px) scale(1.05);
-            box-shadow: 0 15px 40px rgba(255, 107, 107, 0.4);
-        }
-
-        .hero-cta:hover::before {
-            opacity: 1;
-        }
-
-        .hero-cta span {
-            position: relative;
-            z-index: 1;
-        }
-
-        .hero-cta i {
-            position: relative;
-            z-index: 1;
-            transition: transform 0.4s ease;
-        }
-
-        .hero-cta:hover i {
-            transform: translateX(8px);
-        }
-
+        
         .hero-stats {
-            display: flex;
-            justify-content: center;
-            gap: 40px;
-            flex-wrap: wrap;
+            gap: 1.5rem;
         }
-
-        .stat-item {
-            text-align: center;
+        
+        .stat-card {
+            min-width: 160px;
+            padding: 1.75rem 2rem;
         }
-
+        
         .stat-number {
-            display: block;
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: #ffd166;
-            margin-bottom: 5px;
+            font-size: 2.25rem;
         }
-
-        .stat-label {
-            font-size: 0.9rem;
-            color: rgba(255, 255, 255, 0.8);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        /* ================= SHOWCASE SECTION ================= */
-        .showcase {
-            padding: 80px 0;
-            background: #f8fafc;
-        }
-
-        .section-title {
-            text-align: center;
-            color: #004aad;
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 10px;
-        }
-
-        .section-subtitle {
-            text-align: center;
-            color: #666;
-            max-width: 600px;
-            margin: 0 auto 50px;
-            font-size: 1.1rem;
-            line-height: 1.6;
-        }
-
-        .showcase-slider {
-            width: 100%;
-            max-width: 900px;
-            margin: 0 auto;
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
-            position: relative;
-        }
-
-        .slider-track {
-            display: flex;
-            transition: transform 0.5s ease;
-            height: 500px;
-        }
-
-        .slider-slide {
-            min-width: 100%;
-            height: 100%;
-            flex-shrink: 0;
-            position: relative;
-        }
-
-        .slider-image {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .slide-caption {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
-            color: white;
-            padding: 30px;
-        }
-
-        .slider-controls {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 20px;
-            margin-top: 30px;
-        }
-
-        .slider-btn {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: white;
-            border: 2px solid #004aad;
-            color: #004aad;
-            font-size: 1.2rem;
-            transition: all 0.3s ease;
-        }
-
-        .slider-btn:hover {
-            background: #004aad;
-            color: white;
-            transform: scale(1.1);
-        }
-
-        .slider-dots {
-            display: flex;
-            gap: 10px;
-        }
-
-        .slider-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: #ddd;
-            border: none;
-            transition: all 0.3s ease;
-        }
-
-        .slider-dot.active {
-            background: #004aad;
-            transform: scale(1.2);
-        }
-
-        /* ================= ROLES SECTION ================= */
-        .roles {
-            padding: 80px 0;
-            background: white;
-            position: relative;
-            z-index: 1;
-        }
-
-        .roles-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-            max-width: 900px;
-            margin: 0 auto;
-        }
-
+        
         .role-card {
-            background: #fff;
-            border-radius: 15px;
-            padding: 40px 30px;
-            text-align: center;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
-            display: flex;
+            padding: 2rem;
+        }
+        
+        .btn-group {
             flex-direction: column;
             align-items: center;
         }
-
-        .role-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-            border-color: #004aad;
-        }
-
-        .role-icon {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, #004aad, #0066cc);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 25px;
-            color: white;
-            font-size: 2rem;
-        }
-
-        .role-card:hover .role-icon {
-            transform: rotate(10deg) scale(1.1);
-        }
-
-        .role-card h3 {
-            color: #004aad;
-            font-size: 1.8rem;
-            margin-bottom: 15px;
-            font-weight: 700;
-        }
-
-        .role-card p {
-            color: #666;
-            line-height: 1.6;
-            margin-bottom: 25px;
-            flex-grow: 1;
-        }
-
-        .role-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            padding: 12px 30px;
-            background: #004aad;
-            color: white;
-            border-radius: 50px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-
-        .role-btn:hover {
-            background: #003580;
-            transform: translateX(5px);
-            box-shadow: 0 10px 20px rgba(0, 74, 173, 0.3);
-        }
-
-        /* ================= FLOATING BUTTON - FIXED ================= */
-        .floating-scroll-top {
-            position: fixed;
-  right: 20px;
-  bottom: 24px;
-  z-index: 9999;
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(12px);
-  transition: opacity .25s ease, transform .25s ease, visibility .25s;
-  pointer-events: none; /* disable clicks while hidden */
-        }
-
-        .floating-scroll-top.show {
-            opacity: 1;
-  visibility: visible;
-  transform: translateY(0);
-  pointer-events: auto;
-        }
-
-        .scroll-top-btn {
-             width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  border: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: #0d6efd;
-  color: #fff;
-  cursor: pointer;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.15);
-  font-size: 16px;
-        }
-
-        .scroll-top-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
+        
+        .btn {
             width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.1);
-            transform: scaleX(0);
-            transform-origin: right;
-            transition: transform 0.5s ease;
+            max-width: 300px;
+            justify-content: center;
         }
+        
+        .slider-track {
+            height: 350px;
+        }
+    }
 
-        .scroll-top-btn:hover::before {
-            transform: scaleX(1);
-            transform-origin: left;
+    @media (max-width: 480px) {
+        h1 {
+            font-size: 2.25rem;
         }
+        
+        h2 {
+            font-size: 1.75rem;
+        }
+        
+        .hero-stats {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .stat-card {
+            width: 100%;
+            max-width: 280px;
+        }
+        
+        .roles-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .role-card {
+            padding: 1.75rem;
+        }
+        
+        .btn {
+            padding: 0.875rem 2rem;
+        }
+        
+        .slider-track {
+            height: 250px;
+        }
+        
+        .floating-scroll-top {
+            right: 20px;
+            bottom: 20px;
+        }
+        
+        .scroll-top-btn {
+            width: 48px;
+            height: 48px;
+        }
+    }
 
-        .scroll-top-btn:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0, 74, 173, 0.6);
-            animation: bounce 0.5s ease infinite alternate;
-        }
+    /* ✅ FIX role buttons not showing */
+.role-card a.btn {
+    margin-top: auto;
+    display: inline-flex !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    position: relative;
+    z-index: 10;
+}
 
-        @keyframes bounce {
-            from { transform: translateY(-5px); }
-            to { transform: translateY(-10px); }
-        }
+.role-card {
+    overflow: visible !important;
+}
 
-        /* ================= UTILITIES ================= */
-        .hidden {
-            opacity: 0;
-            transform: translateY(30px);
-        }
+.role-card a.btn.btn-primary,
+.role-card a.btn.btn-secondary{
+    width: 100%;
+    max-width: 280px;
+    justify-content: center;
+}
 
-        .visible {
-            opacity: 1;
-            transform: translateY(0);
-            transition: all 0.8s ease;
-        }
-
-        /* ================= RESPONSIVE ================= */
-        @media (max-width: 768px) {
-            .hero-title {
-                font-size: 2.5rem;
-            }
-            
-            .hero-subtitle {
-                font-size: 1rem;
-                padding: 0 20px;
-            }
-            
-            .cta-group {
-                flex-direction: column;
-                align-items: center;
-                gap: 15px;
-            }
-            
-            .hero-cta {
-                width: 280px;
-                justify-content: center;
-                padding: 16px 30px;
-                font-size: 1.1rem;
-            }
-            
-            .hero-stats {
-                gap: 30px;
-            }
-            
-            .stat-number {
-                font-size: 2rem;
-            }
-            
-            .slider-track {
-                height: 300px;
-            }
-            
-            .section-title {
-                font-size: 2rem;
-                padding: 0 20px;
-            }
-            
-            .section-subtitle {
-                padding: 0 20px;
-            }
-            
-            .roles-grid {
-                grid-template-columns: 1fr;
-                max-width: 400px;
-            }
-            
-            .role-card {
-                padding: 30px 20px;
-            }
-            
-            .floating-scroll-top {
-                bottom: 20px;
-                right: 20px;
-            }
-            
-            .scroll-top-btn {
-                width: 50px;
-                height: 50px;
-                font-size: 1.1rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .hero-title {
-                font-size: 2rem;
-            }
-            
-            .slider-track {
-                height: 250px;
-            }
-            
-            .slider-btn {
-                width: 40px;
-                height: 40px;
-                font-size: 1rem;
-            }
-            
-            .hero-stats {
-                gap: 20px;
-            }
-            
-            .stat-number {
-                font-size: 1.8rem;
-            }
-            
-            .stat-label {
-                font-size: 0.8rem;
-            }
-            
-            .hero-cta {
-                width: 250px;
-                padding: 14px 25px;
-                font-size: 1rem;
-            }
-        }
     </style>
 </head>
 
@@ -587,7 +697,7 @@
 
     <main>
         {{-- HERO SECTION --}}
-        <section class="hero" id="hero">
+        <section class="home-hero" id="hero">
             <div class="container">
                 <div class="hero-content">
                     <div class="hero-badge animate__animated animate__fadeInDown">
@@ -595,32 +705,40 @@
                         <span>Community-Powered Volunteering Platform</span>
                     </div>
                     
-                    <h1 class="hero-title animate__animated animate__fadeInUp">
-                        Ready to Make a Difference with <span>SukaRelawan</span>?
+                    <h1 class="animate__animated animate__fadeInUp">
+                        Ready to Make a Difference with SukaRelawan?
                     </h1>
                     
-                    <p class="hero-subtitle animate__animated animate__fadeInUp animate__delay-1s">
+                    <p class="text-lead animate__animated animate__fadeInUp animate__delay-1s">
                         Connect with meaningful causes, join impactful events, and build stronger communities 
                         through our all-in-one volunteer management platform.
                     </p>
                     
-                    <div class="cta-group">
-                        <button id="scrollToLogin" class="hero-cta animate__animated animate__fadeInUp animate__delay-2s">
-                            <span>Get Started Now</span>
-                            <i class="fas fa-arrow-right"></i>
-                        </button>
+                    <div class="btn-group">
+                       <button id="scrollToLogin" class="btn btn-primary hero-cta-btn animate__animated animate__fadeInUp animate__delay-2s">
+    <span>Get Started Now</span>
+    <i class="fas fa-arrow-right"></i>
+</button>
                     </div>
+                    
+                   
                 </div>
             </div>
+            
+            <!-- Floating Elements -->
+            <div class="floating-element" style="width: 300px; height: 300px; top: 10%; left: 5%;"></div>
+            <div class="floating-element" style="width: 200px; height: 200px; bottom: 20%; right: 10%;"></div>
         </section>
 
         {{-- SHOWCASE SECTION --}}
-        <section class="showcase" id="showcase">
+        <section class="showcase-section" id="showcase">
             <div class="container">
-                <h2 class="section-title animate__animated animate__fadeInUp">Community Impact in Action</h2>
-                <p class="section-subtitle animate__animated animate__fadeInUp animate__delay-1s">
-                    Discover recent events where volunteers made real differences in their communities.
-                </p>
+                <div class="text-center">
+                    <h2>Community Impact in Action</h2>
+                    <p class="text-lead" style="max-width: 800px; margin: 0 auto;">
+                        Discover recent events where volunteers made real differences in their communities.
+                    </p>
+                </div>
                 
                 <div class="showcase-slider">
                     <div class="slider-track" id="sliderTrack">
@@ -679,38 +797,42 @@
                 </div>
             </div>
         </section>
-@include('landing.badges')
-@include('landing.blog')
+
+        @include('landing.badges')
+        @include('landing.blog')
+
         {{-- ROLES SECTION --}}
-        <section class="roles" id="login-section">
+        <section class="roles-section" id="login-section">
             <div class="container">
-                <h2 class="section-title animate__animated animate__fadeInUp">Get Started Based on Your Role</h2>
-                <p class="section-subtitle animate__animated animate__fadeInUp animate__delay-1s">
-                    Select your role to access tailored features 
-                </p>
+                <div class="text-center">
+                    <h2>Get Started Based on Your Role</h2>
+                    <p class="text-lead" style="max-width: 800px; margin: 0 auto;">
+                        Select your role to access tailored features and personalized dashboard.
+                    </p>
+                </div>
                 
                 <div class="roles-grid">
                     <!-- Volunteer Card -->
-                    <div class="role-card animate__animated animate__fadeInUp">
+                    <div class="role-card">
                         <div class="role-icon">
                             <i class="fas fa-hands-helping"></i>
                         </div>
                         <h3>Volunteer</h3>
                         <p>Discover events, earn rewards, and make a real impact in your community. Track your volunteering journey and connect with like-minded individuals.</p>
-                        <a href="{{ route('login.volunteer') }}" class="role-btn">
+                        <a href="{{ route('login.volunteer') }}" class="btn btn-primary">
                             <span>Login as Volunteer</span>
                             <i class="fas fa-arrow-right"></i>
                         </a>
                     </div>
                     
                     <!-- NGO Card -->
-                    <div class="role-card animate__animated animate__fadeInUp animate__delay-1s">
+                    <div class="role-card">
                         <div class="role-icon">
                             <i class="fas fa-building"></i>
                         </div>
                         <h3>NGO / Organization</h3>
                         <p>Manage events, coordinate volunteers, and measure community impact with our powerful management tools. Streamline your operations and grow your reach.</p>
-                        <a href="{{ route('login.ngo') }}" class="role-btn">
+                        <a href="{{ route('login.ngo') }}" class="btn btn-primary">
                             <span>Login as NGO</span>
                             <i class="fas fa-arrow-right"></i>
                         </a>
@@ -732,11 +854,9 @@
     {{-- GSAP --}}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-    <script src="https://unpkg.com/gsap@3/dist/gsap.min.js"></script>
-
 
     <script>
-        // Simple image fallback function
+        // Image fallback function
         function setImageFallback(element) {
             const fallbackImages = [
                 'https://images.unsplash.com/photo-1545235617-9465d2a55698?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
@@ -751,8 +871,6 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('Page loaded - debugging scroll-to-top button');
-            
             // Set up image fallbacks
             document.querySelectorAll('.slider-image').forEach(img => {
                 setImageFallback(img);
@@ -771,10 +889,8 @@
             function updateSlider() {
                 if (!sliderTrack) return;
                 
-                // Move the slider track
                 sliderTrack.style.transform = `translateX(-${currentSlide * 100}%)`;
                 
-                // Update dots
                 dots.forEach((dot, index) => {
                     dot.classList.toggle('active', index === currentSlide);
                 });
@@ -832,77 +948,42 @@
                 });
             }
             
-            (function() {
-  const scrollTopBtn = document.getElementById('scrollTopBtn');
-  if (!scrollTopBtn) return;
-
-  // If your app uses a custom scrollable container instead of the window,
-  // set this selector to that container (e.g. '.main', '#app', etc.).
-  // Leave as null to use the window/document scroll.
-  const customScrollContainerSelector = null; // or '.main' if you have one
-
-  const getScrollContainer = () => {
-    if (customScrollContainerSelector) {
-      return document.querySelector(customScrollContainerSelector);
-    }
-    // document.scrollingElement is the element that scrolls (html or body)
-    return window;
-  };
-
-  const scroller = getScrollContainer();
-
-  const getScrollY = () => {
-    if (scroller === window) {
-      return window.pageYOffset || document.documentElement.scrollTop || 0;
-    } else {
-      return scroller.scrollTop;
-    }
-  };
-
-  function handleScroll() {
-    const y = getScrollY();
-    // lower threshold for easier testing
-    const SHOW_AT = 200;
-    // debug:
-    // console.log('Scroll position:', y);
-    if (y > SHOW_AT) {
-      scrollTopBtn.classList.add('show');
-    } else {
-      scrollTopBtn.classList.remove('show');
-    }
-  }
-
-  // Attach listener to the correct element
-  if (scroller === window) {
-    window.addEventListener('scroll', handleScroll, { passive: true });
-  } else {
-    scroller.addEventListener('scroll', handleScroll, { passive: true });
-  }
-
-  // initial check
-  handleScroll();
-
-  // click handler (use GSAP if you have ScrollToPlugin, otherwise fallback)
-  const scrollTopButton = scrollTopBtn.querySelector('.scroll-top-btn');
-  if (scrollTopButton) {
-    scrollTopButton.addEventListener('click', function() {
-      if (scroller === window) {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      } else {
-        scroller.scrollTo({ top: 0, behavior: 'smooth' });
-      }
-    });
-
-    // keyboard support for accessibility
-    scrollTopButton.addEventListener('keydown', function(e) {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        scrollTopButton.click();
-      }
-    });
-  }
-})();
-
+            // ===== SCROLL TO TOP BUTTON =====
+            const scrollTopBtn = document.getElementById('scrollTopBtn');
+            
+            function handleScroll() {
+                const y = window.pageYOffset || document.documentElement.scrollTop;
+                
+                if (y > 300) {
+                    scrollTopBtn.classList.add('show');
+                } else {
+                    scrollTopBtn.classList.remove('show');
+                }
+            }
+            
+            window.addEventListener('scroll', handleScroll, { passive: true });
+            
+            // Click handler for scroll to top
+            const scrollTopButton = scrollTopBtn.querySelector('.scroll-top-btn');
+            if (scrollTopButton) {
+                scrollTopButton.addEventListener('click', function() {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                });
+            }
+            
+            // Initial check
+            handleScroll();
+            
+            // ===== CARD HOVER ANIMATIONS =====
+            document.querySelectorAll('.stat-card, .role-card, .showcase-slider').forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-8px)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
             
             // ===== GSAP ANIMATIONS =====
             if (typeof gsap !== 'undefined') {
@@ -916,7 +997,7 @@
                     ease: "power3.out"
                 });
                 
-                gsap.from('.hero-title', {
+                gsap.from('h1', {
                     duration: 1.2,
                     y: 40,
                     opacity: 0,
@@ -924,7 +1005,7 @@
                     ease: "power3.out"
                 });
                 
-                gsap.from('.hero-subtitle', {
+                gsap.from('.text-lead', {
                     duration: 1,
                     y: 30,
                     opacity: 0,
@@ -932,12 +1013,23 @@
                     ease: "power3.out"
                 });
                 
-                gsap.from('.hero-cta', {
+                gsap.from('.btn', {
                     duration: 0.8,
                     y: 20,
                     opacity: 0,
                     delay: 0.6,
                     ease: "back.out(1.2)"
+                });
+                
+                // Stat cards animation
+                gsap.utils.toArray('.stat-card').forEach((card, i) => {
+                    gsap.from(card, {
+                        duration: 0.8,
+                        y: 30,
+                        opacity: 0,
+                        delay: 0.8 + (i * 0.1),
+                        ease: "power3.out"
+                    });
                 });
                 
                 // Role cards animation on scroll
@@ -956,38 +1048,24 @@
                         ease: "power3.out"
                     });
                 });
-                
-                // Parallax effect for hero
-                gsap.to('.hero', {
-                    scrollTrigger: {
-                        trigger: '.hero',
-                        start: "top top",
-                        end: "bottom top",
-                        scrub: true
-                    },
-                    y: 100,
-                    ease: "none"
-                });
+            }
+            
+            // Handle hash URLs for direct section access
+            if (location.hash) {
+                const target = document.querySelector(location.hash);
+                if (target) {
+                    setTimeout(() => {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }, 100);
+                }
             }
         });
     </script>
 
-    <script>
-document.addEventListener('DOMContentLoaded', function () {
-    if (!location.hash) return;
-
-    const target = document.querySelector(location.hash);
-    if (target) {
-        setTimeout(() => {
-            target.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start'
-            });
-        }, 100);
-    }
-});
-</script>
-@stack('scripts')
+    @stack('scripts')
 
 </body>
 </html>
