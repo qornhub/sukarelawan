@@ -592,7 +592,7 @@
                 </div>
 
                 <div class="submenu" id="reward-submenu" role="menu" aria-label="reward submenu">
-                    <a href="{{ route('admin.badges.index') }}" role="menuitem" data-key="reward-manage">Manage
+                    <a href="{{ route('admin.badges.index') }}" role="menuitem" data-key="reward-manage">
                         Reward</a>
                     <a href="{{ route('admin.badge_categories.badgeCategory-list') }}" role="menuitem"
                         data-key="reward-category">Reward Category</a>
