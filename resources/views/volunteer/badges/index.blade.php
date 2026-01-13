@@ -438,7 +438,7 @@
                     </a>
                 @endforeach
             </div>
-
+            <div id="searchSortBar">
             <div class="search-sort-container mt-3 mb-3 d-flex gap-3">
                 <form method="GET" action="{{ route('volunteer.rewards.index') }}" class="search-box flex-grow-1">
                     <input type="hidden" name="category" value="{{ request('category') }}">
@@ -482,6 +482,7 @@
                     </div>
                 </div>
             </div>
+        </div>
 
             {{-- Badge grid --}}
             <div id="badgesResult">
@@ -622,6 +623,11 @@
     }
 }
 
+function replaceSearchSortBar(doc) {
+  const newBar = doc.querySelector('#searchSortBar');
+  const curBar = document.querySelector('#searchSortBar');
+  if (newBar && curBar) curBar.innerHTML = newBar.innerHTML;
+}
 
     // Replace category tabs active state and counts
     function replaceCategoryTabs(doc) {
@@ -729,6 +735,7 @@ if (href.startsWith('#')) {
             const doc = await fetchDoc(href);
             replaceBadges(doc);
             replaceCategoryTabs(doc);
+            replaceSearchSortBar(doc);
             pushUrl(href);
             initDynamicUI();
             return;
