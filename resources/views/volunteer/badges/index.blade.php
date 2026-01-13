@@ -484,6 +484,7 @@
             </div>
 
             {{-- Badge grid --}}
+            <div id="badgesResult">
             @if ($badges->count() > 0)
                 <div class="badge-grid d-flex flex-wrap gap-3">
                     @foreach ($badges as $badge)
@@ -549,6 +550,7 @@
                     <p class="text-muted">Try adjusting your search or filter criteria</p>
                 </div>
             @endif
+            </div>
         </section>
     </div>
 
@@ -613,15 +615,13 @@
 
     // Replace badges grid + pagination
     function replaceBadges(doc) {
-        const newGrid = doc.querySelector('.badge-grid');
-        const newPager = doc.querySelector('.pagination-container');
-
-        const curGrid = document.querySelector('.badge-grid');
-        const curPager = document.querySelector('.pagination-container');
-
-        if (newGrid && curGrid) curGrid.innerHTML = newGrid.innerHTML;
-        if (newPager && curPager) curPager.innerHTML = newPager.innerHTML;
+    const newResult = doc.querySelector('#badgesResult');
+    const curResult = document.querySelector('#badgesResult');
+    if (newResult && curResult) {
+        curResult.innerHTML = newResult.innerHTML;
     }
+}
+
 
     // Replace category tabs active state and counts
     function replaceCategoryTabs(doc) {
