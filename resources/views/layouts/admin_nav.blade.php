@@ -575,7 +575,7 @@
                     </a>
 
                     <a href="{{ route('admin.blogs.drafts') }}" role="menuitem" data-key="blog-drafts">
-                        Draft Blogs
+                        My Blog Posts
                     </a>
 
                 </div>
