@@ -78,17 +78,65 @@ export function initAttendanceRealtime(eventId) {
         return;
       }
 
+      // ... inside initAttendanceRealtime function ...
+
       const data = e.attendance;
       if (!data) return;
+
+      // 1. Create a simple date formatter to match your PHP format
+      // Tries to use data.attendanceTime, falls back to current time
+      const timeVal = data.attendanceTime || data.attendance_time || new Date().toISOString();
+      const dateObj = new Date(timeVal);
+      const formattedDate = dateObj.toLocaleDateString('en-GB', { 
+          day: 'numeric', month: 'short', year: 'numeric' 
+      }) + ', ' + dateObj.toLocaleTimeString('en-US', { 
+          hour: 'numeric', minute: 'numeric', hour12: true 
+      });
+
       const tr = document.createElement('tr');
       tr.setAttribute('data-attendance-id', data.attendance_id);
+      
+      // 2. Update the innerHTML to include the missing parts
       tr.innerHTML = `
-        <td>${escapeHtml(data.user?.name || 'N/A')}${data.user?.volunteerProfile?.skill ? `<small class="text-muted d-block">${escapeHtml(data.user.volunteerProfile.skill)}</small>` : ''}</td>
+        <td>
+            ${escapeHtml(data.user?.name || 'N/A')}
+            ${data.user?.volunteerProfile?.skill ? `<small class="text-muted d-block">${escapeHtml(data.user.volunteerProfile.skill)}</small>` : ''}
+        </td>
+
         <td>${escapeHtml(data.user?.email || 'N/A')}</td>
-        <td><div class="d-flex align-items-center"><div class="status-dot bg-success me-2" style="width:10px;height:10px;border-radius:50%;"></div><span>Attended</span></div></td>
-        <td class="text-center"><button type="button" class="btn btn-outline-danger btn-sm btn-delete-attendance" data-event-id="${escapeHtml(data.event_id)}" data-attendance-id="${escapeHtml(data.attendance_id)}">Delete</button></td>
+
+        <td>
+            <div class="d-flex align-items-center attendance-status">
+                <div class="status-dot bg-success me-2" style="width:10px;height:10px;border-radius:50%;"></div>
+                <span>Present</span>
+            </div>
+        </td>
+
+        <td>
+            <span title="${escapeHtml(timeVal)}">${formattedDate}</span>
+        </td>
+
+        <td class="text-center">
+            <button type="button"
+                class="btn btn-outline-primary btn-sm btn-edit-attendance me-1"
+                data-attendance-id="${escapeHtml(data.attendance_id)}"
+                data-event-id="${escapeHtml(data.event_id)}"
+                data-current-status="${escapeHtml(data.status || 'present')}">
+                Edit
+            </button>
+
+            <button type="button" 
+                class="btn btn-outline-danger btn-sm btn-delete-attendance" 
+                data-event-id="${escapeHtml(data.event_id)}" 
+                data-attendance-id="${escapeHtml(data.attendance_id)}">
+                Delete
+            </button>
+        </td>
       `;
+      
       tbody.insertBefore(tr, tbody.firstChild);
+
+// ... rest of the file ...
     });
 
   function escapeHtml(s) {
