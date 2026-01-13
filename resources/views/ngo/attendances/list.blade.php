@@ -75,7 +75,7 @@
           </tr>
         @empty
           <tr class="empty-row">
-            <td colspan="4" class="text-center">No attendances found.</td>
+            <td colspan="5" class="text-center">No attendances found.</td>
           </tr>
         @endforelse
       </tbody>
