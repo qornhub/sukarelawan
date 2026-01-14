@@ -25,6 +25,8 @@
                         <img src="{{ $img }}" alt="{{ $post->title }}">
 
                         <div class="landing-blog-content">
+                               {{-- ✅ Blog Title --}}
+        <h3>{{ $post->title }}</h3>
                             <p class="blog-meta">
                                 by {{ optional($post->user)->name ?? 'Unknown' }}
                                 ·
