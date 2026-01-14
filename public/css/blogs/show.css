@@ -127,26 +127,20 @@
             max-height: none;
         }
 
-       
-.read-more-overlay {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 120px;
-    background: linear-gradient(transparent, rgb(140, 141, 158));
-    padding-bottom: 30px;
-    opacity: 1;
-    transition: opacity 0.3s ease;
-}
-
-/* ✅ Perfect centering of the button */
-.read-more-overlay .btn-read-more-toggle {
-    position: absolute;
-    left: 50%;
-    bottom: 20px;
-    
-}
+        .read-more-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 120px;
+            background: linear-gradient(transparent, rgb(140, 141, 158));
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: 30px;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
 
         .read-more-section.expanded .read-more-overlay {
             opacity: 0;
