@@ -187,7 +187,7 @@ public function show2($event_id)
         ->whereHas('task', function ($q) use ($event_id) {
             $q->where('event_id', $event_id);
         })
-        ->where('status', 'pending') // ✅ important for Option A
+         ->whereIn('status', ['pending', 'accepted']) // ✅ show both
         ->orderBy('assignedDate', 'desc')
         ->get();
 
