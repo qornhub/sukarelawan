@@ -3,6 +3,7 @@
 //testing agian
 use App\Models\Event;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Admin\SdgController;
 use App\Http\Controllers\Task\TaskController;
@@ -16,29 +17,29 @@ use App\Http\Controllers\Auth\AdminLoginController;
 use App\Http\Controllers\Auth\NGOProfileController;
 use App\Http\Controllers\Badge\UserBadgeController;
 use App\Http\Controllers\Badge\UserPointController;
-use App\Http\Controllers\NgoNotificationController;
 
+use App\Http\Controllers\NgoNotificationController;
 use App\Http\Controllers\Admin\AdminUsersController;
 use App\Http\Controllers\Auth\NGORegisterController;
 use App\Http\Controllers\Blog\BlogCommentController;
 use App\Http\Controllers\Blog\NGOBlogPostController;
 use App\Http\Controllers\Auth\AdminProfileController;
 use App\Http\Controllers\Task\AssignedTaskController;
-use App\Http\Controllers\Admin\BlogCategoryController;
 
+use App\Http\Controllers\Admin\BlogCategoryController;
 use App\Http\Controllers\Auth\AdminRegisterController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Blog\AdminBlogPostController;
+
 use App\Http\Controllers\NGO\TaskAssignmentController;
-
 use App\Http\Controllers\Admin\EventCategoryController;
-use App\Http\Controllers\Auth\ForgotPasswordController;
 
+use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Badge\BadgeCategoryController;
 use App\Http\Controllers\Events\EventCommentController;
 use App\Http\Controllers\Admin\AdminDashboardController;
-use App\Http\Controllers\Auth\VolunteerProfileController;
 
+use App\Http\Controllers\Auth\VolunteerProfileController;
 use App\Http\Controllers\Events\EventDiscoveryController;
 use App\Http\Controllers\VolunteerNotificationController;
 use App\Http\Controllers\Attendances\AttendanceController;
@@ -50,8 +51,8 @@ use App\Http\Controllers\Admin\AdminDashboardBlogsController;
 use App\Http\Controllers\Events\NGOEventManagementController;
 use App\Http\Controllers\Admin\AdminDashboardEventsController;
 use App\Http\Controllers\Events\AdminEventDiscoveryController;
+use App\Http\Controllers\Task\VolunteerTaskResponseController;
 use App\Http\Controllers\Events\AdminEventManagementController;
-use App\Http\Controllers\HomeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -179,6 +180,13 @@ Route::get('/notifications/unread-count', [VolunteerNotificationController::clas
         //Assigned Task
         Route::get('my-tasks', [AssignedTaskController::class, 'index'])->name('tasks.assigned.index');
         Route::get('my-tasks/{task}', [AssignedTaskController::class, 'show'])->name('tasks.assigned.show');
+        
+        // ✅ Accept / Reject Task Assignment
+        Route::post('my-tasks/{task}/accept', [VolunteerTaskResponseController::class, 'accept'])
+            ->name('tasks.assigned.accept');
+
+        Route::post('my-tasks/{task}/reject', [VolunteerTaskResponseController::class, 'reject'])
+            ->name('tasks.assigned.reject');
          
         //reward
         Route::get('rewards', [UserPointController::class, 'index'])->name('rewards.index');

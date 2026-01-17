@@ -16,10 +16,14 @@ class TaskAssignment extends Model
     public $timestamps = true;
 
     protected $fillable = [
-        'task_id',
-        'user_id',
-        'assignedDate',
-    ];
+    'task_id',
+    'user_id',
+    'assignedDate',
+    'status',
+    'reject_reason',
+    'responded_at',
+];
+
 
     protected $dates = [
         'assignedDate',

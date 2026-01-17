@@ -343,6 +343,17 @@
                                         </div>
                                         <p class="task-desc">{{ $task->description }}</p>
                                     </div>
+                                    <div class="task-actions mt-3 d-flex gap-2">
+                                        <button class="btn btn-primary btn-sm"
+                                            onclick="acceptTask('{{ $task->task_id }}')">
+                                            Accept
+                                        </button>
+
+                                        <button class="btn btn-outline-danger btn-sm"
+                                            onclick="openRejectModal('{{ $task->task_id }}')">
+                                            Reject
+                                        </button>
+                                    </div>
                                 @endforeach
                             </div>
                         </div>
@@ -352,6 +363,31 @@
                             <p class="text-muted mb-0">No tasks have been assigned to you yet.</p>
                         </div>
                     @endif
+                </div>
+
+
+                <div class="modal fade" id="rejectTaskModal" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Reject Task</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+
+                            <div class="modal-body">
+                                <input type="hidden" id="reject_task_id">
+
+                                <label class="form-label">Reason for rejection</label>
+                                <textarea id="reject_reason" class="form-control" rows="4" placeholder="Explain why you reject this task..."></textarea>
+                                <small class="text-muted">Minimum 3 characters.</small>
+                            </div>
+
+                            <div class="modal-footer">
+                                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button class="btn btn-danger" onclick="submitReject()">Reject</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="modal-footer d-flex justify-content-between align-items-center">
@@ -794,6 +830,77 @@
         </script>
         @stack('scripts')
     @endif
+
+    <script>
+        const VOL_MY_TASKS_BASE = "{{ url('volunteer/my-tasks') }}";
+
+        function acceptTask(taskId) {
+            fetch(`${VOL_MY_TASKS_BASE}/${taskId}/accept`, {
+                    method: "POST",
+                    headers: {
+                        "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                        "Accept": "application/json",
+                        "X-Requested-With": "XMLHttpRequest"
+                    }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert(data.message || "Failed to accept task.");
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert("Error accepting task.");
+                });
+        }
+
+        function openRejectModal(taskId) {
+            document.getElementById('reject_task_id').value = taskId;
+            document.getElementById('reject_reason').value = '';
+
+            const modalEl = document.getElementById('rejectTaskModal');
+            const modal = new bootstrap.Modal(modalEl);
+            modal.show();
+        }
+
+        function submitReject() {
+            const taskId = document.getElementById('reject_task_id').value;
+            const reason = document.getElementById('reject_reason').value.trim();
+
+            if (reason.length < 3) {
+                alert("Please provide a valid reason (min 3 characters).");
+                return;
+            }
+
+            fetch(`${VOL_MY_TASKS_BASE}/${taskId}/reject`, {
+                    method: "POST",
+                    headers: {
+                        "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                        "Content-Type": "application/json",
+                        "Accept": "application/json",
+                        "X-Requested-With": "XMLHttpRequest"
+                    },
+                    body: JSON.stringify({
+                        reason
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert(data.message || "Failed to reject task.");
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert("Error rejecting task.");
+                });
+        }
+    </script>
 
 
 </html>

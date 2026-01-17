@@ -163,42 +163,49 @@ public function index(Request $request)
 public function show2($event_id)
 {
     $event = Event::with([
-    'category',
-    'organizer',
-    'organizer.ngoProfile',
-    'organizer.volunteerProfile',
-    'sdgs',
-    'skills',
-])->findOrFail($event_id);
-
+        'category',
+        'organizer',
+        'organizer.ngoProfile',
+        'organizer.volunteerProfile',
+        'sdgs',
+        'skills',
+    ])->findOrFail($event_id);
 
     $userId = Auth::id();
 
     $registration = $event->registrations()
-                          ->where('user_id', $userId)
-                          ->first();
+        ->where('user_id', $userId)
+        ->first();
 
     if (!$registration) {
         return redirect()->back()->with('error', 'You have not registered for this event.');
     }
 
-    // <-- safer: load TaskAssignment rows (includes assignedDate + the related task)
+    // ✅ only show PENDING assignments in the modal
     $assignments = TaskAssignment::with('task')
         ->where('user_id', $userId)
         ->whereHas('task', function ($q) use ($event_id) {
             $q->where('event_id', $event_id);
         })
+        ->where('status', 'pending') // ✅ important for Option A
+        ->orderBy('assignedDate', 'desc')
         ->get();
 
-    // pass a simple bool so blade can auto-open the modal in this same request
     $autoOpenAssignments = $assignments->count() > 0;
-    $comments = EventComment::where('event_id', $event->event_id)
-    ->with('user')
-    ->orderBy('created_at', 'asc')
-    ->paginate(5, ['*'], 'event_comments_page')
-    ->withQueryString();
 
-    return view('volunteer.profile.registrationEditDelete', compact('event', 'registration', 'assignments', 'autoOpenAssignments', 'comments'));
+    $comments = EventComment::where('event_id', $event->event_id)
+        ->with('user')
+        ->orderBy('created_at', 'asc')
+        ->paginate(5, ['*'], 'event_comments_page')
+        ->withQueryString();
+
+    return view('volunteer.profile.registrationEditDelete', compact(
+        'event',
+        'registration',
+        'assignments',
+        'autoOpenAssignments',
+        'comments'
+    ));
 }
 
 
