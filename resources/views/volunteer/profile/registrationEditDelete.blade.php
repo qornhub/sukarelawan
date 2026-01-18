@@ -342,17 +342,18 @@
                                             <span class="task-date">Assigned: {{ $assignedText }}</span>
                                         </div>
                                         <p class="task-desc">{{ $task->description }}</p>
-                                    </div>
-                                    <div class="task-actions mt-3 d-flex gap-2">
-                                        <button class="btn btn-primary btn-sm"
-                                            onclick="acceptTask('{{ $task->task_id }}')">
-                                            Accept
-                                        </button>
 
-                                        <button class="btn btn-outline-danger btn-sm"
-                                            onclick="openRejectModal('{{ $task->task_id }}')">
-                                            Reject
-                                        </button>
+                                        <div class="task-actions mt-3 d-flex gap-2">
+                                            <button class="btn btn-primary btn-sm"
+                                                onclick="acceptTask('{{ $task->task_id }}')">
+                                                Accept
+                                            </button>
+
+                                            <button class="btn btn-outline-danger btn-sm"
+                                                onclick="openRejectModal('{{ $task->task_id }}')">
+                                                Reject
+                                            </button>
+                                        </div>
                                     </div>
                                 @endforeach
                             </div>
@@ -366,7 +367,30 @@
                 </div>
 
 
-                <div class="modal fade" id="rejectTaskModal" tabindex="-1" aria-hidden="true">
+                
+
+                <div class="modal-footer d-flex justify-content-between align-items-center">
+                    {{-- Contact Organizer --}}
+                    <div class="organizer-contact">
+                        @php
+                            $phone = optional($event->organizer)->phone ?? null;
+                            $waLink = $phone
+                                ? "https://wa.me/{$phone}"
+                                : 'https://wa.me/?text=' .
+                                    urlencode('Hello, I am interested in your event: ' . ($event->eventTitle ?? ''));
+                        @endphp
+                        <a href="{{ $waLink }}" target="_blank" class="btn btn-success">
+                            <i class="fab fa-whatsapp me-2"></i>Contact Organizer
+                        </a>
+                    </div>
+
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="rejectTaskModal" tabindex="-1" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered">
                         <div class="modal-content">
                             <div class="modal-header">
@@ -389,27 +413,6 @@
                         </div>
                     </div>
                 </div>
-
-                <div class="modal-footer d-flex justify-content-between align-items-center">
-                    {{-- Contact Organizer --}}
-                    <div class="organizer-contact">
-                        @php
-                            $phone = optional($event->organizer)->phone ?? null;
-                            $waLink = $phone
-                                ? "https://wa.me/{$phone}"
-                                : 'https://wa.me/?text=' .
-                                    urlencode('Hello, I am interested in your event: ' . ($event->eventTitle ?? ''));
-                        @endphp
-                        <a href="{{ $waLink }}" target="_blank" class="btn btn-success">
-                            <i class="fab fa-whatsapp me-2"></i>Contact Organizer
-                        </a>
-                    </div>
-
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
 
     @php
         use Carbon\Carbon;
