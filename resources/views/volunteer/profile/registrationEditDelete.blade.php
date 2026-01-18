@@ -324,6 +324,7 @@
                                 @foreach ($assignments as $index => $assignment)
                                     @php
                                         $task = $assignment->task;
+                                        $status = $assignment->status ?? 'pending';
                                         $ad = $assignment->assignedDate ?? null;
                                         $assignedText = 'N/A';
                                         if ($ad) {
@@ -333,6 +334,8 @@
                                                 $assignedText = (string) $ad;
                                             }
                                         }
+
+                                        
                                     @endphp
 
                                     <div class="task-card">
@@ -343,17 +346,36 @@
                                         </div>
                                         <p class="task-desc">{{ $task->description }}</p>
 
-                                        <div class="task-actions mt-3 d-flex gap-2">
-                                            <button class="btn btn-primary btn-sm"
-                                                onclick="acceptTask('{{ $task->task_id }}')">
-                                                Accept
-                                            </button>
+                                        <div class="task-actions mt-3" id="task-actions-{{ $task->task_id }}">
 
-                                            <button class="btn btn-outline-danger btn-sm"
-                                                onclick="openRejectModal('{{ $task->task_id }}')">
-                                                Reject
-                                            </button>
+                                            {{-- status message --}}
+                                            <div class="mb-2" id="task-status-{{ $task->task_id }}">
+                                                @if ($status === 'accepted')
+                                                    <span class="badge bg-success">✅ You have accepted this task.</span>
+                                                @elseif ($status === 'rejected')
+                                                    <span class="badge bg-danger">❌ You have rejected this task.</span>
+                                                @endif
+                                            </div>
+
+                                            <div class="d-flex gap-2">
+                                                {{-- accept button only if not accepted --}}
+                                                @if ($status !== 'accepted')
+                                                    <button class="btn btn-primary btn-sm"
+                                                        id="btn-accept-{{ $task->task_id }}"
+                                                        onclick="acceptTask('{{ $task->task_id }}')">
+                                                        Accept
+                                                    </button>
+                                                @endif
+
+                                                {{-- reject always stays --}}
+                                                <button class="btn btn-outline-danger btn-sm"
+                                                    id="btn-reject-{{ $task->task_id }}"
+                                                    onclick="openRejectModal('{{ $task->task_id }}')">
+                                                    Reject
+                                                </button>
+                                            </div>
                                         </div>
+
                                     </div>
                                 @endforeach
                             </div>
@@ -367,7 +389,7 @@
                 </div>
 
 
-                
+
 
                 <div class="modal-footer d-flex justify-content-between align-items-center">
                     {{-- Contact Organizer --}}
@@ -391,28 +413,28 @@
     </div>
 
     <div class="modal fade" id="rejectTaskModal" tabindex="-1" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title">Reject Task</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                            </div>
-
-                            <div class="modal-body">
-                                <input type="hidden" id="reject_task_id">
-
-                                <label class="form-label">Reason for rejection</label>
-                                <textarea id="reject_reason" class="form-control" rows="4" placeholder="Explain why you reject this task..."></textarea>
-                                <small class="text-muted">Minimum 3 characters.</small>
-                            </div>
-
-                            <div class="modal-footer">
-                                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                <button class="btn btn-danger" onclick="submitReject()">Reject</button>
-                            </div>
-                        </div>
-                    </div>
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Reject Task</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
+
+                <div class="modal-body">
+                    <input type="hidden" id="reject_task_id">
+
+                    <label class="form-label">Reason for rejection</label>
+                    <textarea id="reject_reason" class="form-control" rows="4" placeholder="Explain why you reject this task..."></textarea>
+                    <small class="text-muted">Minimum 3 characters.</small>
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button class="btn btn-danger" onclick="submitReject()">Reject</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     @php
         use Carbon\Carbon;
@@ -834,76 +856,146 @@
         @stack('scripts')
     @endif
 
-    <script>
-        const VOL_MY_TASKS_BASE = "{{ url('volunteer/my-tasks') }}";
+   <script>
+    const VOL_MY_TASKS_BASE = "{{ url('volunteer/my-tasks') }}";
+    const CSRF_TOKEN = "{{ csrf_token() }}";
 
-        function acceptTask(taskId) {
-            fetch(`${VOL_MY_TASKS_BASE}/${taskId}/accept`, {
-                    method: "POST",
-                    headers: {
-                        "X-CSRF-TOKEN": "{{ csrf_token() }}",
-                        "Accept": "application/json",
-                        "X-Requested-With": "XMLHttpRequest"
-                    }
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                        location.reload();
-                    } else {
-                        alert(data.message || "Failed to accept task.");
-                    }
-                })
-                .catch(err => {
-                    console.error(err);
-                    alert("Error accepting task.");
-                });
+    // 🔥 helper: show status badge
+    function setTaskStatus(taskId, type, message) {
+        const statusBox = document.getElementById(`task-status-${taskId}`);
+        if (!statusBox) return;
+
+        let badgeClass = "bg-secondary";
+
+        if (type === "success") badgeClass = "bg-success";
+        if (type === "danger") badgeClass = "bg-danger";
+        if (type === "warning") badgeClass = "bg-warning text-dark";
+        if (type === "info") badgeClass = "bg-info text-dark";
+
+        statusBox.innerHTML = `<span class="badge ${badgeClass}">${message}</span>`;
+    }
+
+    // 🔥 helper: remove accept button
+    function hideAcceptBtn(taskId) {
+        const acceptBtn = document.getElementById(`btn-accept-${taskId}`);
+        if (acceptBtn) acceptBtn.remove();
+    }
+
+    // ✅ ACCEPT TASK
+    function acceptTask(taskId) {
+        const acceptBtn = document.getElementById(`btn-accept-${taskId}`);
+
+        // UI loading state
+        if (acceptBtn) {
+            acceptBtn.disabled = true;
+            acceptBtn.innerHTML = "Accepting...";
         }
 
-        function openRejectModal(taskId) {
-            document.getElementById('reject_task_id').value = taskId;
-            document.getElementById('reject_reason').value = '';
+        fetch(`${VOL_MY_TASKS_BASE}/${taskId}/accept`, {
+                method: "POST",
+                headers: {
+                    "X-CSRF-TOKEN": CSRF_TOKEN,
+                    "Accept": "application/json",
+                    "X-Requested-With": "XMLHttpRequest"
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    // ✅ hide accept button
+                    hideAcceptBtn(taskId);
 
-            const modalEl = document.getElementById('rejectTaskModal');
-            const modal = new bootstrap.Modal(modalEl);
-            modal.show();
-        }
+                    // ✅ show message
+                    setTaskStatus(taskId, "success", "✅ You have accepted this task.");
+                } else {
+                    alert(data.message || "Failed to accept task.");
 
-        function submitReject() {
-            const taskId = document.getElementById('reject_task_id').value;
-            const reason = document.getElementById('reject_reason').value.trim();
-
-            if (reason.length < 3) {
-                alert("Please provide a valid reason (min 3 characters).");
-                return;
-            }
-
-            fetch(`${VOL_MY_TASKS_BASE}/${taskId}/reject`, {
-                    method: "POST",
-                    headers: {
-                        "X-CSRF-TOKEN": "{{ csrf_token() }}",
-                        "Content-Type": "application/json",
-                        "Accept": "application/json",
-                        "X-Requested-With": "XMLHttpRequest"
-                    },
-                    body: JSON.stringify({
-                        reason
-                    })
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                        location.reload();
-                    } else {
-                        alert(data.message || "Failed to reject task.");
+                    if (acceptBtn) {
+                        acceptBtn.disabled = false;
+                        acceptBtn.innerHTML = "Accept";
                     }
-                })
-                .catch(err => {
-                    console.error(err);
-                    alert("Error rejecting task.");
-                });
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Error accepting task.");
+
+                if (acceptBtn) {
+                    acceptBtn.disabled = false;
+                    acceptBtn.innerHTML = "Accept";
+                }
+            });
+    }
+
+    // ✅ OPEN REJECT MODAL
+    function openRejectModal(taskId) {
+        document.getElementById('reject_task_id').value = taskId;
+        document.getElementById('reject_reason').value = '';
+
+        const modalEl = document.getElementById('rejectTaskModal');
+        const modal = new bootstrap.Modal(modalEl);
+        modal.show();
+    }
+
+    // ✅ REJECT TASK
+    function submitReject() {
+        const taskId = document.getElementById('reject_task_id').value;
+        const reason = document.getElementById('reject_reason').value.trim();
+
+        if (reason.length < 3) {
+            alert("Please provide a valid reason (min 3 characters).");
+            return;
         }
-    </script>
+
+        const rejectBtn = document.querySelector("#rejectTaskModal .btn-danger");
+        if (rejectBtn) {
+            rejectBtn.disabled = true;
+            rejectBtn.innerHTML = "Rejecting...";
+        }
+
+        fetch(`${VOL_MY_TASKS_BASE}/${taskId}/reject`, {
+                method: "POST",
+                headers: {
+                    "X-CSRF-TOKEN": CSRF_TOKEN,
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+                    "X-Requested-With": "XMLHttpRequest"
+                },
+                body: JSON.stringify({
+                    reason
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+
+                    // ✅ optional: remove accept button also (since rejected no need accept)
+                    hideAcceptBtn(taskId);
+
+                    // ✅ show rejected message
+                    setTaskStatus(taskId, "danger", "❌ You have rejected this task.");
+
+                    // ✅ close modal
+                    const modalEl = document.getElementById('rejectTaskModal');
+                    const modalInstance = bootstrap.Modal.getInstance(modalEl);
+                    if (modalInstance) modalInstance.hide();
+
+                } else {
+                    alert(data.message || "Failed to reject task.");
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Error rejecting task.");
+            })
+            .finally(() => {
+                if (rejectBtn) {
+                    rejectBtn.disabled = false;
+                    rejectBtn.innerHTML = "Reject";
+                }
+            });
+    }
+</script>
 
 
 </html>
