@@ -1,61 +1,74 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# SukaRelawan: A Web-Based Volunteer Management Platform 🤝
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+[![Laravel Framework](https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)](https://laravel.com/)
+[![React Native](https://img.shields.io/badge/React_Native-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactnative.dev/)
+[![MySQL](https://img.shields.io/badge/MySQL-00000F?style=for-the-badge&logo=mysql&logoColor=white)](https://www.mysql.com/)
+[![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
+[![Expo](https://img.shields.io/badge/Expo-000000?style=for-the-badge&logo=expo&logoColor=white)](https://expo.dev/)
 
-## About Laravel
+**SukaRelawan** is an end-to-end web and mobile volunteer management platform designed to streamline coordination between volunteers and Non-Governmental Organizations (NGOs) in Malaysia. Developed using an **Agile Prototyping** methodology, SukaRelawan addresses administrative bottlenecks, inefficient recruitment, and poor volunteer retention by integrating real-time attendance tracking, gamified rewards, and role-based task delegation into a unified ecosystem.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 🌟 Key Features
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+*   **Role-Based Access Control (RBAC):** Customized features and dashboards tailored for Volunteers, NGOs, and Platform Administrators.
+*   **Event Discovery & Filtering:** Advanced search capabilities allowing volunteers to filter events by skill requirements, UN Sustainable Development Goals (SDGs), dates, and locations.
+*   **Automated QR Attendance Tracking:** Seamless event check-in powered by a dedicated mobile scanner application that instantly updates attendance records and grants reward points.
+*   **Gamified Reward System:** Automatically awards points upon attendance, allowing volunteers to unlock tiered rank/skill badges and monitor progress via a global leaderboard.
+*   **NGO Task Delegation Module:** Enables organizers to assign specific, structured roles and tasks to confirmed volunteers directly from the NGO dashboard.
+*   **Community Blog & Feedback System:** Multi-directional communication module featuring event reviews, post-event feedback, and community story sharing.
+*   **Real-time Notifications:** Driven by WebSockets (Pusher) to send instant operational updates and attendance logs.
 
-## Learning Laravel
+---
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## 🏗️ System Architecture & Tech Stack
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+### Web Platform (Frontend & Backend)
+*   **Framework:** Laravel (PHP)[cite: 1]
+*   **Build Tool & Styling:** Vite, Bootstrap Framework[cite: 1]
+*   **Rich Text Editor:** TinyMCE[cite: 1]
+*   **Real-Time Service:** Pusher[cite: 1]
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### Mobile Attendance Scanner App
+*   **Framework:** React Native with Expo Go[cite: 1]
 
-## Laravel Sponsors
+### Database & Infrastructure
+*   **Database:** MySQL (XAMPP Environment)[cite: 1]
+*   **Deployment:** Cloud-hosted via Railway[cite: 1]
+*   **Version Control:** Git & GitHub[cite: 1]
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+---
 
-### Premium Partners
+## 🚀 Getting Started
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+Follow these instructions to set up the project locally for development and testing.
 
-## Contributing
+### Prerequisites
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Ensure you have the following installed on your local machine:
+*   [PHP](https://www.php.net/) (>= 8.1)
+*   [Composer](https://getcomposer.org/)
+*   [Node.js](https://nodejs.org/) & NPM
+*   [XAMPP](https://www.apachefriends.org/) (for MySQL)
+*   [Expo Go App](https://expo.dev/) (on your mobile device for testing the scanner)
 
-## Code of Conduct
+---
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### Installation & Local Setup
 
-## Security Vulnerabilities
+#### 1. Web Application (Laravel Backend & Frontend)
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```bash
+# Clone the repository
+git clone [https://github.com/your-username/sukarelawan.git](https://github.com/your-username/sukarelawan.git)
+cd sukarelawan
 
-## License
+# Install PHP dependencies
+composer install
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+# Install Node dependencies
+npm install
+
+# Environment Configuration
+cp .env.example .env
