@@ -72,3 +72,45 @@ npm install
 
 # Environment Configuration
 cp .env.example .env
+
+Configure your .env file with your database and Pusher credentials:
+
+Code snippet
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=sukarelawan
+DB_USERNAME=root
+DB_PASSWORD=
+
+PUSHER_APP_ID=your_pusher_app_id
+PUSHER_APP_KEY=your_pusher_key
+PUSHER_APP_SECRET=your_pusher_secret
+PUSHER_APP_CLUSTER=mt1
+Run database migrations and seeders:
+
+Bash
+# Generate App Key
+php artisan key:generate
+
+# Run Database Migrations
+php artisan migrate --seed
+
+# Start Assets Compilation (Vite)
+npm run dev
+
+# Launch Local Server
+php artisan serve
+Access the application in your browser at http://127.0.0.1:8000.
+
+2. Scanner App (React Native / Expo)
+Bash
+# Navigate to the mobile app directory
+cd scanner-app
+
+# Install dependencies
+npm install
+
+# Start Expo development server
+npx expo start
+Scan the generated QR code using the Expo Go application on your iOS or Android mobile device to launch the scanner app
